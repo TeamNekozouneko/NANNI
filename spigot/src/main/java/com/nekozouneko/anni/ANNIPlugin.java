@@ -2,7 +2,10 @@ package com.nekozouneko.anni;
 
 import com.nekozouneko.anni.command.ANNIAdminCommand;
 import com.nekozouneko.anni.command.ANNICommand;
+import com.nekozouneko.anni.listener.BlockDestroyListener;
 import com.nekozouneko.anni.listener.InventoryClickListener;
+import com.nekozouneko.anni.listener.PlayerKillListener;
+import com.nekozouneko.anni.listener.PlayerTeleportListener;
 import com.nekozouneko.anni.task.UpdateBoard;
 import fr.minuskube.netherboard.Netherboard;
 import org.bukkit.Bukkit;
@@ -27,6 +30,7 @@ public class ANNIPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        instance = this;
 
         /* ----- Initialize dir ----- */
 
@@ -73,6 +77,9 @@ public class ANNIPlugin extends JavaPlugin {
         getLogger().info("Registering listener...");
 
         getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
+        getServer().getPluginManager().registerEvents(new BlockDestroyListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerKillListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), this);
 
         getLogger().info("Registered listener.");
 
