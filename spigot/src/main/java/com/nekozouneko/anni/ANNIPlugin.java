@@ -9,6 +9,10 @@ import com.nekozouneko.anni.listener.PlayerTeleportListener;
 import com.nekozouneko.anni.task.UpdateBoard;
 import fr.minuskube.netherboard.Netherboard;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -20,12 +24,18 @@ public class ANNIPlugin extends JavaPlugin {
     private static Netherboard nb;
     private static BukkitRunnable boardTask;
 
+    private static File mapDir;
+
     public static ANNIPlugin getInstance() {
         return instance;
     }
 
     public static Netherboard getNb() {
         return nb;
+    }
+
+    public static File getMapDir() {
+        return mapDir;
     }
 
     @Override
@@ -41,10 +51,10 @@ public class ANNIPlugin extends JavaPlugin {
                 getDataFolder().mkdir();
             }
 
-            File mapsDir = new File(getDataFolder(), "maps");
+            mapDir = new File(getDataFolder(), "maps");
 
-            if (!(mapsDir.exists())) {
-                mapsDir.mkdir();
+            if (!(mapDir.exists())) {
+                mapDir.mkdir();
             }
 
             getLogger().info("Initialized plugin directories.");
@@ -91,14 +101,40 @@ public class ANNIPlugin extends JavaPlugin {
         getCommand("nanni-admin").setExecutor(new ANNIAdminCommand());
 
         getLogger().info("Registered Command.");
+
+        /* ----- Recipe ----- */
+        registerRecipe();
     }
 
     @Override
     public  void onDisable() {
         ((UpdateBoard) boardTask).stop();
         boardTask = null;
+    }
 
+    private void registerRecipe() {
+        NamespacedKey egaid = new NamespacedKey(
+                this,
+                "enchanted_golden_apple"
+        );
 
+        if (getServer().getRecipe(egaid) == null) {
+            ShapedRecipe rec = new ShapedRecipe(
+                    new NamespacedKey(
+                            this,
+                            "enchanted_golden_apple"
+                    ),
+                    new ItemStack(
+                            Material.ENCHANTED_GOLDEN_APPLE
+                    )
+            );
+
+            rec.shape("bbb", "bcb", "bbb");
+            rec.setIngredient('b', Material.GOLD_BLOCK);
+            rec.setIngredient('c', Material.GOLDEN_APPLE);
+
+            getServer().addRecipe(rec);
+        }
     }
 
 }
