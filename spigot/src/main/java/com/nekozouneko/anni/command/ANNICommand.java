@@ -15,7 +15,6 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         TeamSelector.open((Player) sender);
-        new Location()
 
         return true;
     }
