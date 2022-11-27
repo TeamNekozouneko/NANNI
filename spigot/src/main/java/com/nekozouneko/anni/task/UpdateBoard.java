@@ -28,6 +28,7 @@ public class UpdateBoard extends BukkitRunnable {
             BPlayerBoard b = nb.getBoard(p);
             if (b == null) b = nb.createBoard(p, "\u00A7cAN\u00A79NI");
 
+            TimeZone.setDefault(TimeZone.getTimeZone("GMT+9:00"));
             Calendar cl = Calendar.getInstance(Locale.JAPAN);
 
             Date d = cl.getTime();
