@@ -1,0 +1,18 @@
+{
+  "world": "annitest",
+  "display": "アナイアレーションテスト",
+
+  "core": [
+    {
+      "team": "red",
+      "location": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "min": 2,
+  "max": 100,
+  "rule": 4
+}

@@ -1,0 +1,23 @@
+name: "NANNI"
+version: "0.01-alpha"
+authors: ["Taitaitatata"]
+description: "NANNIはNekozouneko Serverのアナイアレーションを管理・実行するプラグインです"
+
+main: com.nekozouneko.anni.ANNIPlugin
+api-version: 1.16
+
+commands:
+  nanni:
+    aliases: ["anni"]
+    usage: '/<command>'
+
+  nanni-admin:
+    aliases: ["anni-admin", "nannim", "annim"]
+    usage: |
+      /<command> map add <world> <displayName>
+      /<command> map edit <world> name <displayName>
+      /<command> map edit <world> setblock <type>
+      /<command> map edit <world> rule <TvT|TvTvTvT>
+      /<command> map edit <world> core <team>
+      /<command> map list
+      /<command> map remove <world>
