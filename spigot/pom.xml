@@ -30,6 +30,11 @@
             <version>1.2.3</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.nekozouneko</groupId>
+            <artifactId>nanni-api</artifactId>
+            <version>0.01-alpha</version>
+        </dependency>
     </dependencies>
 
 </project>

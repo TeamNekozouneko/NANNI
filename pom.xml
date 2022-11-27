@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <version>0.01-alpha</version>
     <modules>
-        <!--module>api</ module-->
+        <module>api</module>
         <module>spigot</module>
     </modules>
 
