@@ -1,7 +1,7 @@
 timezone: "Asia/Tokyo"
 
 anni:
-  core:
+  nexus:
     health: 100
     material: END_STONE
 
