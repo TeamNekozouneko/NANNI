@@ -4,5 +4,6 @@ public enum Team {
     RED,
     BLUE,
     YELLOW,
-    GREEN
+    GREEN,
+    SPECTATOR
 }
