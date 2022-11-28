@@ -5,6 +5,8 @@ description: "NANNIはNekozouneko Serverのアナイアレーションを管理�
 
 main: com.nekozouneko.anni.ANNIPlugin
 api-version: 1.16
+depend:
+  - Vault
 
 commands:
   nanni:
