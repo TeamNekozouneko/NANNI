@@ -4,6 +4,7 @@ import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.event.NexusAttackEvent;
+import com.nekozouneko.anni.util.BlockDestroyUtil;
 import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,23 +28,13 @@ public class BlockDestroyListener implements Listener {
 
         switch (bt) {
             case END_STONE:
-                w.spawnParticle(
-                        Particle.SMOKE_NORMAL, loc.getX() + 0.5, loc.getY() + 0.5, loc.getZ() + 0.5,
-                        100, 0.1, 0.1, 0.1, 0.1
-                );
-                w.spawnParticle(
-                        Particle.LAVA, loc.getX() + 0.5, loc.getY() + 0.5, loc.getZ() + 0.5,
-                        50, 0.25, 0.25, 0.25, 0.1
-                );
-                w.playSound(e.getBlock().getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, r.nextFloat());
-
                 e.setDropItems(false);
+                BlockDestroyUtil.nexusDestroyParticleSound(loc);
+
                 Bukkit.getScheduler().runTaskLater(
                         plugin, () -> loc.getBlock().setType(Material.END_STONE), 3
                 );
-
                 Bukkit.getServer().getPluginManager().callEvent(new NexusAttackEvent(e.getPlayer(), Team.RED));
-
                 break;
             case MELON:
                 e.setDropItems(false);
@@ -53,20 +44,8 @@ public class BlockDestroyListener implements Listener {
                 break;
             case END_STONE_BRICKS:
                 e.setDropItems(false);
-                w.spawnParticle(
-                        Particle.SMOKE_NORMAL, loc.getX() + 0.5, loc.getY() + 0.5, loc.getZ() + 0.5,
-                        100, 0.1, 0.1, 0.1, 0.1
-                );
-                w.spawnParticle(
-                        Particle.LAVA, loc.getX() + 0.5, loc.getY() + 0.5, loc.getZ() + 0.5,
-                        50, 0.25, 0.25, 0.25, 0.1
-                );
-                w.spawnParticle(
-                        Particle.EXPLOSION_HUGE, loc.getX() + 0.5, loc.getY() + 0.5, loc.getZ() + 0.5,
-                        3, 1f, 1f, 1f, 0.1
-                );
-                w.playSound(e.getBlock().getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, r.nextFloat());
-                w.playSound(e.getBlock().getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 100f, 0f);
+                BlockDestroyUtil.finalNexusDestroyParticleSound(loc);
+
                 Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
                 break;
             case COAL_ORE:
