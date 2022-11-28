@@ -11,11 +11,11 @@ import java.util.List;
 
 public class ANNIMap {
 
-    public static class Nexus {
+    public static class TeamLocation {
         private String team;
         private SimpleLocation location;
 
-        public Nexus(String team, SimpleLocation loc) {
+        public TeamLocation(String team, SimpleLocation loc) {
             this.team = team;
             this.location = loc;
         }
@@ -44,13 +44,13 @@ public class ANNIMap {
     private String world;
     private String display;
 
-    private List<Nexus> nexus;
+    private List<TeamLocation> nexus;
 
     private int min;
     private int max;
     private int rule;
 
-    public ANNIMap(String world, String display, List<Nexus> nexus, int min, int max, int rule) {
+    public ANNIMap(String world, String display, List<TeamLocation> nexus, int min, int max, int rule) {
         this.world = world;
         this.display = display;
         this.nexus = nexus;
@@ -59,7 +59,7 @@ public class ANNIMap {
         this.rule = rule;
     }
 
-    public ANNIMap(String world, String display, int min, int max, int rule, Nexus... nexus) {
+    public ANNIMap(String world, String display, int min, int max, int rule, TeamLocation... nexus) {
         this.world = world;
         this.display = display;
         this.min = min;
@@ -76,7 +76,7 @@ public class ANNIMap {
         return display;
     }
 
-    public List<Nexus> getNexusList() {
+    public List<TeamLocation> getNexusList() {
         return nexus;
     }
 
@@ -104,15 +104,15 @@ public class ANNIMap {
         this.display = name;
     }
 
-    public void addNexus(Nexus... nexus) {
+    public void addNexus(TeamLocation... nexus) {
         Collections.addAll(this.nexus, nexus);
     }
 
-    public void removeNexus(Nexus nexus) {
+    public void removeNexus(TeamLocation nexus) {
         this.nexus.remove(nexus);
     }
 
-    public void setNexus(List<Nexus> nexus) {
+    public void setNexus(List<TeamLocation> nexus) {
         this.nexus = nexus;
     }
 
