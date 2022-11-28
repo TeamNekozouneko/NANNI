@@ -1,6 +1,5 @@
 package com.nekozouneko.anni.task;
 
-import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import fr.minuskube.netherboard.Netherboard;
 import fr.minuskube.netherboard.bukkit.BPlayerBoard;
 import org.bukkit.Bukkit;
@@ -37,7 +36,7 @@ public class UpdateBoard extends BukkitRunnable {
             b.setAll(
                     "§8" + sdf.format(d),
                     " ",
-                    "§7状態: §4停止中 (開発中)",
+                    "§7状態: §eまもなく (開発中)",
                     "",
                     "§9§nnekozouneko.net"
             );
