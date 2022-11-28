@@ -7,13 +7,20 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.scoreboard.Scoreboard;
+
+import java.util.Arrays;
 
 public final class TeamSelector {
 
-    static {
-        Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
-    }
+    private static final Material[] clickToCloseItems = new Material[] {
+            Material.RED_WOOL,
+            Material.BLUE_WOOL,
+            Material.YELLOW_WOOL,
+            Material.GREEN_WOOL,
+
+            Material.WHITE_CONCRETE,
+            Material.ENDER_PEARL
+    };
 
     private TeamSelector() {}
 
@@ -37,6 +44,12 @@ public final class TeamSelector {
     public static void handle(InventoryClickEvent e) {
         e.setCancelled(true);
 
+        final ItemStack clicked = e.getCurrentItem();
+        final Player p = ((Player) e.getView().getPlayer());
+
+        if (clicked == null) return;
+
+        if (Arrays.asList(clickToCloseItems).contains(clicked.getType())) e.getView().close();
     }
 
     public static boolean isHandleable(InventoryClickEvent e) {
