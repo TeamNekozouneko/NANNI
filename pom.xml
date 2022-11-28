@@ -54,6 +54,10 @@
 
     <repositories>
         <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io/</url>
+        </repository>
+        <repository>
             <id>spigotmc</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
@@ -65,16 +69,28 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.19.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.nekozouneko</groupId>
             <artifactId>nutilsxlib-common</artifactId>
             <version>0.1-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bukkit</groupId>
+                    <artifactId>bukkit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.19.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
