@@ -155,6 +155,8 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                 wr.flush();
                 wr.close();
 
+                ANNIPlugin.getInstance().loadLobby();
+
                 sender.sendMessage("ロビーを以下の座標に設定しました:");
                 sender.sendMessage(
                         "W: "
