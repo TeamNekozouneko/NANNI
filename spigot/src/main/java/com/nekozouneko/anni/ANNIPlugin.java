@@ -2,13 +2,11 @@ package com.nekozouneko.anni;
 
 import com.nekozouneko.anni.command.ANNIAdminCommand;
 import com.nekozouneko.anni.command.ANNICommand;
-import com.nekozouneko.anni.listener.BlockDestroyListener;
-import com.nekozouneko.anni.listener.InventoryClickListener;
-import com.nekozouneko.anni.listener.PlayerKillListener;
-import com.nekozouneko.anni.listener.PlayerTeleportListener;
+import com.nekozouneko.anni.game.GameManager;
+import com.nekozouneko.anni.game.MapManager;
+import com.nekozouneko.anni.listener.*;
 import com.nekozouneko.anni.task.UpdateBoard;
 import fr.minuskube.netherboard.Netherboard;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -23,6 +21,8 @@ public class ANNIPlugin extends JavaPlugin {
     private static ANNIPlugin instance;
     private static Netherboard nb;
     private static BukkitRunnable boardTask;
+    private static GameManager gm;
+    private static MapManager mm;
 
     private static File mapDir;
 
@@ -36,6 +36,14 @@ public class ANNIPlugin extends JavaPlugin {
 
     public static File getMapDir() {
         return mapDir;
+    }
+
+    public static GameManager getGM() {
+        return gm;
+    }
+
+    public static MapManager getMM() {
+        return mm;
     }
 
     @Override
@@ -90,6 +98,8 @@ public class ANNIPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BlockDestroyListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerKillListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerLeaveListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerDamageListener(), this);
 
         getLogger().info("Registered listener.");
 
@@ -104,6 +114,13 @@ public class ANNIPlugin extends JavaPlugin {
 
         /* ----- Recipe ----- */
         registerRecipe();
+
+        /* ----- System ----- */
+        getLogger().info("Initializing system...");
+
+        gm = new GameManager();
+        mm = new MapManager();
+
     }
 
     @Override
