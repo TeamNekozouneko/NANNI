@@ -1,20 +1,26 @@
 package com.nekozouneko.anni;
 
+import com.google.gson.Gson;
 import com.nekozouneko.anni.command.ANNIAdminCommand;
 import com.nekozouneko.anni.command.ANNICommand;
+import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.game.GameManager;
 import com.nekozouneko.anni.game.MapManager;
 import com.nekozouneko.anni.listener.*;
 import com.nekozouneko.anni.task.UpdateBoard;
 import fr.minuskube.netherboard.Netherboard;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class ANNIPlugin extends JavaPlugin {
 
@@ -23,6 +29,10 @@ public class ANNIPlugin extends JavaPlugin {
     private static BukkitRunnable boardTask;
     private static GameManager gm;
     private static MapManager mm;
+    private static ANNILobby lobbyWorld;
+
+    /* - Vault - */
+    private static Economy eco = null;
 
     private static File mapDir;
 
@@ -44,6 +54,14 @@ public class ANNIPlugin extends JavaPlugin {
 
     public static MapManager getMM() {
         return mm;
+    }
+
+    public static ANNILobby getLobby() {
+        return lobbyWorld;
+    }
+
+    public static Economy getVaultEconomy() {
+        return eco;
     }
 
     @Override
@@ -118,15 +136,24 @@ public class ANNIPlugin extends JavaPlugin {
         /* ----- System ----- */
         getLogger().info("Initializing system...");
 
-        gm = new GameManager();
         mm = new MapManager();
+        gm = new GameManager();
+        loadLobby();
+
+        getLogger().info("Loading depends...");
+
+        loadVaultEconomy();
+
+        getLogger().info("Loaded depends!");
 
     }
 
     @Override
-    public  void onDisable() {
+    public void onDisable() {
         ((UpdateBoard) boardTask).stop();
         boardTask = null;
+
+        unregisterRecipe();
     }
 
     private void registerRecipe() {
@@ -152,6 +179,38 @@ public class ANNIPlugin extends JavaPlugin {
 
             getServer().addRecipe(rec);
         }
+    }
+
+    private void unregisterRecipe() {
+        NamespacedKey ega_r = new NamespacedKey(this, "enchanted_golden_apple");
+
+        if (Bukkit.getServer().getRecipe(ega_r) != null) getServer().removeRecipe(ega_r);
+    }
+
+    public void loadLobby() {
+        final File lobbyFile = new File(getDataFolder(), "lobby.json");
+        if (lobbyFile.exists()) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(new File(getDataFolder(), "lobby.json")),
+                    StandardCharsets.UTF_8
+            ))) {
+                Gson gson = new Gson();
+
+                lobbyWorld = gson.fromJson(br, ANNILobby.class);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                lobbyWorld = null;
+            }
+        }
+    }
+
+    public boolean loadVaultEconomy() {
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        eco = rsp.getProvider();
+        return eco != null;
     }
 
 }
