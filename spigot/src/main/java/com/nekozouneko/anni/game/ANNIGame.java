@@ -15,11 +15,11 @@ public class ANNIGame {
 
     private final ANNIMap map;
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
-    private ANNIStatus stat = ANNIStatus.STOPPING;
+    private ANNIStatus stat = ANNIStatus.WAITING;
     private final List<Player> players = new ArrayList<>();
     private final Map<com.nekozouneko.anni.Team, Team> teams = new HashMap<>();
 
-    protected ANNIGame(ANNIMap map) throws Exception {
+    protected ANNIGame(ANNIMap map){
         if (map.getRule() <= map.getNexusList().size()) {
             throw new ExceptionInInitializerError("Needs "+ map.getRule() +" nexus but only has " + map.getNexusList().size());
         }
