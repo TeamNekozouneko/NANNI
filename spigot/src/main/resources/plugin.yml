@@ -18,6 +18,6 @@ commands:
       /<command> map edit <world> name <displayName>
       /<command> map edit <world> setblock <type>
       /<command> map edit <world> rule <TvT|TvTvTvT>
-      /<command> map edit <world> core <team>
+      /<command> map edit <world> nexus <team>
       /<command> map list
       /<command> map remove <world>
