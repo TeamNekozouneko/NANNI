@@ -8,7 +8,7 @@ anni:
   teams:
     red:
       id: "red"
-      display: "赤"
+      display: "赤チーム"
       prefix: "&7[&cR&7] &r"
       team-color: "c"
 
@@ -25,7 +25,7 @@ anni:
         - "&7⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛"
     blue:
       id: "blue"
-      display: "青"
+      display: "青チーム"
       prefix: "&7[&9B&7] &r"
       team-color: "9"
 
@@ -42,7 +42,7 @@ anni:
         - "&7⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛"
     yellow:
       id: "yellow"
-      display: "黄"
+      display: "黄チーム"
       prefix: "&7[&eY&7] &r"
       team-color: "e"
 
@@ -59,7 +59,7 @@ anni:
         - "&7⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛"
     green:
       id: "green"
-      display: "緑"
+      display: "緑チーム"
       prefix: "&7[&9G&7] &r"
       team-color: "a"
 
