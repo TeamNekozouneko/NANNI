@@ -8,10 +8,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class SpectateKiller extends BukkitRunnable {
 
+    private int ft;
     private int timer;
     private Player player;
 
     public SpectateKiller(int i, Player p) {
+        this.ft = i;
         this.timer = i;
         this.player = p;
     }
@@ -22,11 +24,15 @@ public class SpectateKiller extends BukkitRunnable {
             player.addPotionEffect(
                     new PotionEffect(
                             PotionEffectType.BLINDNESS,
-                            3,
-                            1,
-                            false,
-                            false,
-                            false
+                            2, 1,
+                            false, false, true
+                    )
+            );
+            player.addPotionEffect(
+                    new PotionEffect(
+                            PotionEffectType.SLOW,
+                            2, 255,
+                            false, false, true
                     )
             );
             player.sendTitle("§aリスポーン中...", "", 0, 60, 10);
@@ -34,7 +40,7 @@ public class SpectateKiller extends BukkitRunnable {
             player.teleport(player.getWorld().getSpawnLocation());
             cancel();
         } else {
-            player.sendTitle("§c死んでしまった！", "リスポーンまであと " + timer + "秒", 0, 25, 0);
+            player.sendTitle("§c死んでしまった！", "リスポーンまであと" + timer + "秒", 0, 25, 0);
             this.timer--;
         }
     }
