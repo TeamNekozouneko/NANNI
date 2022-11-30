@@ -32,6 +32,9 @@ public class GameManager {
         return false;
     }
 
+    public void endAllGames() {
+        games.values().forEach((g) -> g.end(true));
+    }
 
     public void leaveFromAllGames(Player p) {
         games.values().forEach((t) -> t.leave(p));
