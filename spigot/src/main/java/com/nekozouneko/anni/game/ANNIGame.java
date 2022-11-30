@@ -5,6 +5,8 @@ import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.boss.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -13,28 +15,42 @@ import java.util.*;
 
 public class ANNIGame {
 
-    private final ANNIMap map;
+    private ANNIMap map;
+    private final int id = new Random().nextInt(0x1000000);
+    private final String id16 = Integer.toHexString(id);
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
     private ANNIStatus stat = ANNIStatus.WAITING;
+
     private final List<Player> players = new ArrayList<>();
     private final Map<com.nekozouneko.anni.Team, Team> teams = new HashMap<>();
+    private final KeyedBossBar bb = Bukkit.createBossBar(
+            new NamespacedKey(plugin, id16),
+            null,
+            BarColor.GREEN,
+            BarStyle.SOLID,
+            BarFlag.CREATE_FOG
+    );
+
+    private final Map<com.nekozouneko.anni.Team, Integer> nexusHealth = new HashMap<>();
 
     protected ANNIGame(ANNIMap map){
+        if (map == null) throw new NullPointerException("Argument 'map' putted null!");
         if (map.getRule() <= map.getNexusList().size()) {
-            throw new ExceptionInInitializerError("Needs "+ map.getRule() +" nexus but only has " + map.getNexusList().size());
+            stat = ANNIStatus.CANT_START;
         }
 
         this.map = map;
         initTeam();
+        initNexus();
     }
 
     private void initTeam() {
         Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
-        Team red = sb.registerNewTeam("red_" + map.getWorld());
-        Team blue = sb.registerNewTeam("blue_" + map.getWorld());
-        Team yellow = sb.registerNewTeam("yellow_" + map.getWorld());
-        Team green = sb.registerNewTeam("green_" + map.getWorld());
-        Team spec = sb.registerNewTeam("spectator_" + map.getWorld());
+        Team red = sb.registerNewTeam("red_" + id16);
+        Team blue = sb.registerNewTeam("blue_" + id16);
+        Team yellow = sb.registerNewTeam("yellow_" + id16);
+        Team green = sb.registerNewTeam("green_" + id16);
+        Team spec = sb.registerNewTeam("spectator_" + id16);
 
         red.setColor(ChatColor.RED);
         blue.setColor(ChatColor.BLUE);
@@ -89,6 +105,14 @@ public class ANNIGame {
         teams.put(com.nekozouneko.anni.Team.SPECTATOR, spec);
     }
 
+    private void initNexus() {
+        nexusHealth.clear();
+        nexusHealth.put(com.nekozouneko.anni.Team.RED, plugin.getConfig().getInt("anni.nexus.health", 100));
+        nexusHealth.put(com.nekozouneko.anni.Team.BLUE, plugin.getConfig().getInt("anni.nexus.health", 100));
+        nexusHealth.put(com.nekozouneko.anni.Team.YELLOW, plugin.getConfig().getInt("anni.nexus.health", 100));
+        nexusHealth.put(com.nekozouneko.anni.Team.GREEN, plugin.getConfig().getInt("anni.nexus.health", 100));
+    }
+
     public ANNIMap getMap() {
         return map;
     }
@@ -101,8 +125,22 @@ public class ANNIGame {
         return stat;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getId16() {
+        return id16;
+    }
+
+    public BossBar getBossBar() {
+        return bb;
+    }
+
     public void changeStatus(ANNIStatus stat) {
+        if (stat == ANNIStatus.CANT_START) return;
         this.stat = stat;
+
     }
 
     public void join(Player p) {
@@ -125,6 +163,7 @@ public class ANNIGame {
 
     public boolean canStart() {
         if (!(players.size() >= map.getMin() && players.size() <= map.getMax())) return false;
+        if (stat != ANNIStatus.WAITING) return false;
 
         return true;
     }
@@ -132,16 +171,49 @@ public class ANNIGame {
     public boolean start(){
         if (canStart()) {
 
-
             return true;
         }
 
         return false;
     }
 
+    public void restart() {
+        if (stat == ANNIStatus.CANT_START) return;
+        end(true);
+        stat = ANNIStatus.WAITING;
+        initTeam();
+        initNexus();
+    }
+
     public void end(boolean force) {
-        teams.values().forEach(Team::unregister);
-        stat = ANNIStatus.STOPPING;
+        if (stat == ANNIStatus.CANT_START) return;
+        if (force) {
+            stat = ANNIStatus.STOPPING;
+            teams.values().forEach(Team::unregister);
+        } else {
+            stat = ANNIStatus.WAITING;
+            teams.values().forEach((t) -> {
+                for (String e : t.getEntries()) t.removeEntry(e);
+            });
+        }
+
+        players.clear();
+    }
+
+    /* ----- Game ----- */
+
+    // Nexus
+
+    public void addNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
+
+    }
+
+    public void takeNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
+
+    }
+
+    public void getNexusHealth(com.nekozouneko.anni.Team t) {
+
     }
 
 }
