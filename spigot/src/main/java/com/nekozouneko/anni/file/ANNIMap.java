@@ -20,8 +20,13 @@ public class ANNIMap {
             this.location = loc;
         }
 
+        public TeamLocation(Team team, SimpleLocation loc) {
+            this.team = team.name();
+            this.location = loc;
+        }
+
         public void setTeam(Team t) {
-            this.team = t.name().toLowerCase();
+            this.team = t.name().toUpperCase();
         }
 
         public void setLocation(SimpleLocation loc) {
@@ -45,27 +50,20 @@ public class ANNIMap {
     private String display;
 
     private List<TeamLocation> nexus;
+    private List<TeamLocation> spawnpoints;
 
     private int min;
     private int max;
     private int rule;
 
-    public ANNIMap(String world, String display, List<TeamLocation> nexus, int min, int max, int rule) {
+    public ANNIMap(String world, String display, List<TeamLocation> nexus, List<TeamLocation> spawnpoints, int min, int max, int rule) {
         this.world = world;
         this.display = display;
         this.nexus = nexus;
+        this.spawnpoints = spawnpoints;
         this.min = min;
         this.max = max;
         this.rule = rule;
-    }
-
-    public ANNIMap(String world, String display, int min, int max, int rule, TeamLocation... nexus) {
-        this.world = world;
-        this.display = display;
-        this.min = min;
-        this.max = max;
-        this.rule = rule;
-        this.nexus = Arrays.asList(nexus);
     }
 
     public String getWorld() {
@@ -78,6 +76,10 @@ public class ANNIMap {
 
     public List<TeamLocation> getNexusList() {
         return nexus;
+    }
+
+    public List<TeamLocation> getSpawnPoints() {
+        return spawnpoints;
     }
 
     public int getMin() {
@@ -114,6 +116,18 @@ public class ANNIMap {
 
     public void setNexus(List<TeamLocation> nexus) {
         this.nexus = nexus;
+    }
+
+    public void addSpawnPoints(TeamLocation... points) {
+
+    }
+
+    public void removeSpawnPoints(TeamLocation... points) {
+
+    }
+
+    public void setSpawnPoints(List<TeamLocation> points) {
+        this.spawnpoints = points;
     }
 
     public void setMin(int min) {
