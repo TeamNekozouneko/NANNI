@@ -4,14 +4,15 @@ public enum ANNIStatus {
 
     WAITING,
 
-    ONE,
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
+    PHASE_ONE,
+    PHASE_TWO,
+    PHASE_THREE,
+    PHASE_FOUR,
+    PHASE_FIVE,
+    PHASE_SIX,
+    PHASE_SEVEN,
 
-    STOPPING
+    STOPPING,
+    CANT_START
 
 }
