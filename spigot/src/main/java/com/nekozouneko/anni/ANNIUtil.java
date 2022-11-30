@@ -61,4 +61,17 @@ public class ANNIUtil {
         return oreResult.get(ore);
     }
 
+    public static String toTimerFormat(long s) {
+        long minutes = s / 60;
+        long seconds = s - minutes * 60;
+        return (String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
+    }
+
+    public static String toHoursTimerFormat(long s) {
+        long hours = s / 3600;
+        long minutes = s / 60 - hours * 60;
+        long seconds = s - (hours * 3600 + minutes * 60);
+        return (String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
+    }
+
 }
