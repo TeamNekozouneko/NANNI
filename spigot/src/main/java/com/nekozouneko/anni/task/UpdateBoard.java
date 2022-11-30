@@ -29,7 +29,7 @@ public class UpdateBoard extends BukkitRunnable {
             BPlayerBoard b = nb.getBoard(p);
 
             if (p.getWorld() == ANNIPlugin.getLobby().getLocation().getBukkitWorld()) {
-                if (b == null) b = nb.createBoard(p, "\u00A7cAN\u00A79NI");
+                if (b == null) b = nb.createBoard(p, "\u00A7cA\u00A79N\u00A7eN\u00A7aI");
 
                 TimeZone.setDefault(TimeZone.getTimeZone("GMT+9:00"));
                 Calendar cl = Calendar.getInstance(Locale.JAPAN);
