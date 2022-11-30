@@ -100,7 +100,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        ANNIMap map = new ANNIMap(w.getName(), d, Collections.emptyList(), 2, 100, 2);
+        ANNIMap map = new ANNIMap(w.getName(), d, Collections.emptyList(), Collections.emptyList(), 2, 100, 2);
 
         try {
             Gson gson = new Gson();
