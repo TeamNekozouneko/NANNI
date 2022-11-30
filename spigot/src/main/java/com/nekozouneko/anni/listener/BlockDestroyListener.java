@@ -38,7 +38,7 @@ public class BlockDestroyListener implements Listener {
                 break;
             case MELON:
                 e.setDropItems(false);
-                e.getPlayer().getInventory().addItem(new ItemStack(Material.MELON_SLICE, r.nextInt(8) + 2));
+                e.getPlayer().getInventory().addItem(new ItemStack(Material.MELON_SLICE, r.nextInt(9) + 1));
 
                 Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.MELON), 100);
                 break;
