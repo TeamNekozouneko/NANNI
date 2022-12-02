@@ -1,6 +1,10 @@
 package com.nekozouneko.anni.task;
 
 import com.nekozouneko.anni.ANNIPlugin;
+import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.file.ANNIMap;
+import com.nekozouneko.anni.game.ANNIGame;
+import com.nekozouneko.anni.game.GameManager;
 import fr.minuskube.netherboard.Netherboard;
 import fr.minuskube.netherboard.bukkit.BPlayerBoard;
 import org.bukkit.Bukkit;
@@ -17,10 +21,10 @@ public class UpdateBoard extends BukkitRunnable {
 
     private final Netherboard nb;
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
+    private final GameManager gm = ANNIPlugin.getGM();
 
     public UpdateBoard(Netherboard nb) {
         this.nb = nb;
-
     }
 
     @Override
@@ -28,16 +32,48 @@ public class UpdateBoard extends BukkitRunnable {
         for (Player p : Bukkit.getOnlinePlayers()) {
             BPlayerBoard b = nb.getBoard(p);
 
-            if (p.getWorld() == ANNIPlugin.getLobby().getLocation().getBukkitWorld()) {
-                if (b == null) b = nb.createBoard(p, "\u00A7cA\u00A79N\u00A7eN\u00A7aI");
+            TimeZone.setDefault(TimeZone.getTimeZone("GMT+9:00"));
+            Calendar cl = Calendar.getInstance(Locale.JAPAN);
 
-                TimeZone.setDefault(TimeZone.getTimeZone("GMT+9:00"));
-                Calendar cl = Calendar.getInstance(Locale.JAPAN);
+            Date d = cl.getTime();
 
-                Date d = cl.getTime();
+            double bal = ANNIPlugin.getVaultEconomy().getBalance(p);
+
+            if (gm.isJoined(p)) {
+                if (b == null) b = nb.createBoard(p, "§cA§9N§eN§aI");
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                ANNIGame annig = gm.getPlayerJoinedGame(p);
+                ANNIMap m = annig.getMap();
+                String mn = (m != null ? m.getDisplay() : "?");
 
-                double bal = ANNIPlugin.getVaultEconomy().getBalance(p);
+                if (gm.getRuleType() == 2) {
+                    b.setAll(
+                            "§8" + annig.getId16() + " " + sdf.format(d),
+                            "   ",
+                            "マップ: §c" + mn,
+                            "  ",
+                            "§c赤: §7" + annig.getNexusHealth(Team.RED),
+                            "§9青: §7" + annig.getNexusHealth(Team.BLUE),
+                            " ",
+                            "§9§nnekozouneko.net"
+                    );
+                } else {
+                    b.setAll(
+                            "§8" + annig.getId16() + " " + sdf.format(d),
+                            "   ",
+                            "マップ: §c" + mn,
+                            "  ",
+                            "§c赤: §7" + annig.getNexusHealth(Team.RED),
+                            "§9青: §7" + annig.getNexusHealth(Team.BLUE),
+                            "§e黄: §7" + annig.getNexusHealth(Team.YELLOW),
+                            "§a緑: §7" + annig.getNexusHealth(Team.GREEN),
+                            " ",
+                            "§9§nnekozouneko.net"
+                    );
+                }
+            } else if (p.getWorld() == ANNIPlugin.getLobby().getLocation().getBukkitWorld()) {
+                if (b == null) b = nb.createBoard(p, "\u00A7cA\u00A79N\u00A7eN\u00A7aI");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
                 b.setAll(
                         "§8" + sdf.format(d),
