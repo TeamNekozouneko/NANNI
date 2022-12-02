@@ -2,17 +2,27 @@ package com.nekozouneko.anni.game;
 
 public enum ANNIStatus {
 
-    WAITING,
+    WAITING(-1),
 
-    PHASE_ONE,
-    PHASE_TWO,
-    PHASE_THREE,
-    PHASE_FOUR,
-    PHASE_FIVE,
-    PHASE_SIX,
-    PHASE_SEVEN,
+    PHASE_ONE(1),
+    PHASE_TWO(2),
+    PHASE_THREE(3),
+    PHASE_FOUR(4),
+    PHASE_FIVE(5),
+    PHASE_SIX(6),
+    PHASE_SEVEN(7),
 
-    STOPPING,
-    CANT_START
+    STOPPING(-2),
+    CANT_START(-3);
+
+    private final int phaseId;
+
+    private ANNIStatus(int phaseId) {
+        this.phaseId = phaseId;
+    }
+
+    public int getPhaseId() {
+        return phaseId;
+    }
 
 }
