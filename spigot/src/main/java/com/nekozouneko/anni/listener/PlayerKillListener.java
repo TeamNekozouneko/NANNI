@@ -32,7 +32,7 @@ public class PlayerKillListener implements Listener {
 
             killed.teleport(killer);
             killed.setGameMode(GameMode.SPECTATOR);
-            new SpectateKiller(5, killed).runTaskTimer(plugin, 20, 20);
+            new SpectateKiller(5, killed, killer).runTaskTimer(plugin, 20, 20);
         }
 
     }

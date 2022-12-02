@@ -1,5 +1,7 @@
 package com.nekozouneko.anni.task;
 
+import com.nekozouneko.anni.ANNIPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -11,11 +13,14 @@ public class SpectateKiller extends BukkitRunnable {
     private int ft;
     private int timer;
     private Player player;
+    private final Player killer;
+    private ANNIPlugin plugin = ANNIPlugin.getInstance();
 
-    public SpectateKiller(int i, Player p) {
+    public SpectateKiller(int i, Player p, Player k) {
         this.ft = i;
         this.timer = i;
         this.player = p;
+        this.killer = k;
     }
 
     @Override
@@ -37,7 +42,7 @@ public class SpectateKiller extends BukkitRunnable {
             );
             player.sendTitle("§aリスポーン中...", "", 0, 60, 10);
             player.setGameMode(GameMode.SURVIVAL);
-            player.teleport(player.getWorld().getSpawnLocation());
+            Bukkit.getScheduler().runTaskLater(plugin, () -> player.teleport(killer.getLocation()), 3);
             cancel();
         } else {
             player.sendTitle("§c死んでしまった！", "リスポーンまであと" + timer + "秒", 0, 25, 0);
