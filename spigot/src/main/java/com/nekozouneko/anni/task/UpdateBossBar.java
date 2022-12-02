@@ -7,6 +7,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ public class UpdateBossBar extends BukkitRunnable {
 
     private final BossBar bb;
     private final ANNIGame g;
-    private Map.Entry<ANNIStatus, Integer> timer;
+    private Map.Entry<ANNIStatus, Integer> timer = new AbstractMap.SimpleEntry<>(ANNIStatus.STOPPING, -1);
 
     private static final Map<ANNIStatus, String> message = new HashMap<>(Map.of(
             ANNIStatus.CANT_START, "開始不可 (設定不足)",
