@@ -18,6 +18,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
@@ -45,6 +46,18 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                 if (args[1].equalsIgnoreCase("spawn")) {
                     setSpawnOfLobby(sender, command, label, args);
                 }
+            } else if (args[0].equalsIgnoreCase("game")) {
+                if (args[1].equalsIgnoreCase("nexus")) {
+
+                } else if (args[1].equalsIgnoreCase("spawn")) {
+
+                } else if (args[1].equalsIgnoreCase("min")) {
+                    plugin.getConfig().set("anni.min-players", Integer.parseInt(args[2]));
+                    plugin.saveConfig();
+                } else if (args[1].equalsIgnoreCase("max")) {
+                    plugin.getConfig().set("anni.max-players", Integer.parseInt(args[2]));
+                    plugin.saveConfig();
+                }
             }
         }
 
@@ -56,7 +69,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
         List<String> tab = new ArrayList<>();
 
         if (args.length == 1) {
-            final String[] arg = new String[] {"kit", "lobby", "map"};
+            final String[] arg = new String[] {"game", "kit", "lobby", "map"};
 
             for (String a : arg) {
                 if (a.toLowerCase().startsWith(args[0].toLowerCase())) {
@@ -74,8 +87,31 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                 }
             } else if (args[0].equalsIgnoreCase("lobby")) {
                 final String[] arg = new String[]{"spawn"};
-            } else if (args[0].equalsIgnoreCase("kit")) {
 
+                for (String a : arg) {
+                    if (a.toLowerCase().startsWith(args[1].toLowerCase())) {
+                        tab.add(a);
+                    }
+                }
+            } else if (args[0].equalsIgnoreCase("kit")) {
+            } else if (args[0].equalsIgnoreCase("game")) {
+                final String[] arg = new String[]{"max", "min", "nexus", "spawn"};
+                for (String a : arg) {
+                    if (a.toLowerCase().startsWith(args[1].toLowerCase())) {
+                        tab.add(a);
+                    }
+                }
+            }
+        } else if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("game")) {
+                if (args[1].equalsIgnoreCase("nexus") || args[1].equalsIgnoreCase("spawn")) {
+                    final String[] arg = new String[]{"RED", "BLUE", "YELLOW", "GREEN"};
+                    for (String a : arg) {
+                        if (a.toLowerCase().startsWith(args[2].toLowerCase())) {
+                            tab.add(a);
+                        }
+                    }
+                }
             }
         } else if (args.length == 4) {
             if (args[0].equalsIgnoreCase("map") && args[1].equalsIgnoreCase("edit")) {
@@ -100,7 +136,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        ANNIMap map = new ANNIMap(w.getName(), d, Collections.emptyList(), Collections.emptyList(), 2, 100, 2);
+        ANNIMap map = new ANNIMap(w.getName(), d, new HashMap<>(), new HashMap<>(), 2, 100, 2);
 
         try {
             Gson gson = new Gson();
