@@ -138,7 +138,7 @@ public class ANNIGame {
     }
 
     public List<Player> getPlayers() {
-        return players.keySet().stream().toList();
+        return Arrays.asList(players.keySet().toArray(new Player[0]));
     }
 
     public List<Player> getPlayers(com.nekozouneko.anni.Team filter) {

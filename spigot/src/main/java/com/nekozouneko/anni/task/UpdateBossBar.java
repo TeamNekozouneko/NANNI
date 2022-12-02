@@ -17,30 +17,32 @@ public class UpdateBossBar extends BukkitRunnable {
     private final ANNIGame g;
     private Map.Entry<ANNIStatus, Integer> timer = new AbstractMap.SimpleEntry<>(ANNIStatus.STOPPING, -1);
 
-    private static final Map<ANNIStatus, String> message = new HashMap<>(Map.of(
-            ANNIStatus.CANT_START, "開始不可 (設定不足)",
-            ANNIStatus.PHASE_ONE, "フェーズ 1",
-            ANNIStatus.PHASE_TWO, "フェーズ 2",
-            ANNIStatus.PHASE_THREE, "フェーズ 3",
-            ANNIStatus.PHASE_FOUR, "フェーズ 4",
-            ANNIStatus.PHASE_FIVE, "フェーズ 5",
-            ANNIStatus.PHASE_SIX, "フェーズ 6",
-            ANNIStatus.PHASE_SEVEN, "フェーズ 7",
-            ANNIStatus.WAITING, "待機中",
-            ANNIStatus.STOPPING, "ゲームを停止中 (運営の操作が必要です)"
-    ));
-    private static final Map<ANNIStatus, Integer> phase_TIME = new HashMap<>(Map.of(
-            ANNIStatus.CANT_START, -1,
-            ANNIStatus.PHASE_ONE, 600,
-            ANNIStatus.PHASE_TWO, 600,
-            ANNIStatus.PHASE_THREE, 600,
-            ANNIStatus.PHASE_FOUR, 600,
-            ANNIStatus.PHASE_FIVE, 600,
-            ANNIStatus.PHASE_SIX, 600,
-            ANNIStatus.PHASE_SEVEN, 600,
-            ANNIStatus.WAITING, 60,
-            ANNIStatus.STOPPING, -1
-    ));
+    private static final Map<ANNIStatus, String> message = new HashMap<ANNIStatus, String>() {
+        {
+            put(ANNIStatus.CANT_START, "開始不可 (設定不足)");
+            put(ANNIStatus.PHASE_ONE, "フェーズ 1");
+            put(ANNIStatus.PHASE_TWO, "フェーズ 2");
+            put(ANNIStatus.PHASE_THREE, "フェーズ 3");
+            put(ANNIStatus.PHASE_FOUR, "フェーズ 4");
+            put(ANNIStatus.PHASE_FIVE, "フェーズ 5");
+            put(ANNIStatus.PHASE_SIX, "フェーズ 6");
+            put(ANNIStatus.PHASE_SEVEN, "フェーズ 7");
+            put(ANNIStatus.WAITING, "待機中");
+            put(ANNIStatus.STOPPING, "ゲームを停止中 (運営の操作が必要です)");
+        }
+    };
+    private static final Map<ANNIStatus, Integer> phase_TIME = new HashMap<ANNIStatus, Integer>() {{
+        put(ANNIStatus.CANT_START, -1);
+        put(ANNIStatus.PHASE_ONE, 600);
+        put(ANNIStatus.PHASE_TWO, 600);
+        put(ANNIStatus.PHASE_THREE, 600);
+        put(ANNIStatus.PHASE_FOUR, 600);
+        put(ANNIStatus.PHASE_FIVE, 600);
+        put(ANNIStatus.PHASE_SIX, 600);
+        put(ANNIStatus.PHASE_SEVEN, 600);
+        put(ANNIStatus.WAITING, 60);
+        put(ANNIStatus.STOPPING, -1);
+    }};
 
     public UpdateBossBar(ANNIGame g) {
         this.g = g;
