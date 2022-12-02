@@ -3,41 +3,66 @@ package com.nekozouneko.anni.game;
 import com.nekozouneko.anni.ANNIPlugin;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class GameManager {
 
-    private final Map<String, ANNIGame> games = new HashMap<>();
-    private final Map<UUID, ANNIPlayer> players = new HashMap<>();
+    private final ANNIGame game;
     private final MapManager mm = ANNIPlugin.getMM();
+    private final Integer minPlayers;
+    private final Integer maxPlayers;
+    private final Integer ruleType;
 
-    public GameManager() {
-        mm.getMaps().forEach((k, v) -> games.put(k, new ANNIGame(v)));
+    public GameManager(Integer min, Integer max, Integer rule) {
+        this.minPlayers = min;
+        this.maxPlayers = max;
+        this.ruleType = rule;
+        this.game = new ANNIGame(this);
     }
 
     public boolean isJoined(Player p) {
-        return players.containsKey(p.getUniqueId());
+        return game.getPlayers().contains(p);
     }
 
-    public boolean join(String w, Player p) {
+    public boolean join(Player p) {
         if (!isJoined((p))) {
-            if (mm.getMaps().containsKey(w)) {
-                ANNIGame g = games.get(w);
-                return true;
-            }
+            game.join(p);
+            return true;
         }
-
         return false;
     }
 
-    public void endAllGames() {
-        games.values().forEach((g) -> g.end(true));
+    public void endGame(boolean force) {
+        game.end(force);
     }
 
-    public void leaveFromAllGames(Player p) {
-        games.values().forEach((t) -> t.leave(p));
+    public void leaveFromGame(Player p) {
+        if (isJoined(p)) {
+            game.leave(p);
+        }
+    }
+
+    public ANNIGame getPlayerJoinedGame(Player p) {
+        if (isJoined(p)) {
+            if (game.getPlayers().contains(p)) {
+                return game;
+            }
+        }
+        return null;
+    }
+
+    public Integer getMinPlayers() {
+        return minPlayers;
+    }
+
+    public Integer getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    public Integer getRuleType() {
+        return ruleType;
+    }
+
+    public ANNIGame getGame() {
+        return game;
     }
 
 }
