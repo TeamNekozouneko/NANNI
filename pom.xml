@@ -13,6 +13,16 @@
         <module>spigot</module>
     </modules>
 
+    <organization>
+        <name>Team Nekozouneko</name>
+        <url>https://github.com/TeamNekozouneko</url>
+    </organization>
+
+    <issueManagement>
+        <url>https://github.com/TeamNekozouneko/NANNI/issues</url>
+        <system>GitHub</system>
+    </issueManagement>
+
     <build>
         <plugins>
             <plugin>
@@ -37,6 +47,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
