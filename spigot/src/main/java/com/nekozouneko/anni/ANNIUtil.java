@@ -4,8 +4,10 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class ANNIUtil {
 
@@ -72,6 +74,51 @@ public class ANNIUtil {
         long minutes = s / 60 - hours * 60;
         long seconds = s - (hours * 3600 + minutes * 60);
         return (String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
+    }
+
+    public static boolean equalsAllValues(Map<?, ?> map) {
+        if (map.values().size() <= 1) return true;
+
+        Object firstVal = map.values().toArray()[0];
+
+        for (Object v : map.values()) {
+            if (!(firstVal == v)) return false;
+        }
+
+        return true;
+    }
+
+    public static <K, V> Map.Entry<K, V> toEntry(Map<K, V> map, K key) {
+        if (key == null || map == null || !map.containsKey(key)) return null;
+
+        return new AbstractMap.SimpleEntry<>(key, map.get(key));
+    }
+
+    public static Team balancingJoin(Map<Team, Integer> ti) {
+        if (ti.containsKey(Team.SPECTATOR)) {
+            ti.remove(Team.SPECTATOR);
+        }
+
+        if (equalsAllValues(ti) && ti.size() >= 1) {
+            Map.Entry<Team, Integer> minTeamEntry = null;
+            for (Team t : ti.keySet()) {
+                Map.Entry<Team, Integer> e = toEntry(ti, t);
+                if (minTeamEntry == null) minTeamEntry = e;
+                else {
+                    if (minTeamEntry.getValue() > e.getValue()) {
+                        minTeamEntry = e;
+                    }
+                }
+            }
+
+            return minTeamEntry.getKey();
+        } else {
+            Team[] teams = ti.keySet().toArray(new Team[0]);
+            int l = teams.length;
+            Random r = new Random();
+
+            return teams[r.nextInt(l-1)];
+        }
     }
 
 }
