@@ -2,13 +2,20 @@ package com.nekozouneko.anni.gui;
 
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.game.MapManager;
+import com.nekozouneko.anni.gui.location.AbstractGUILocationSelector;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class MapEditor {
+
+    public static final Map<UUID, AbstractGUILocationSelector> glc = new HashMap<>();
 
     private MapEditor() {}
 
