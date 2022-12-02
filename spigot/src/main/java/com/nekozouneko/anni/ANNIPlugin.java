@@ -26,7 +26,7 @@ public class ANNIPlugin extends JavaPlugin {
 
     private static ANNIPlugin instance;
     private static Netherboard nb;
-    private static BukkitRunnable boardTask;
+    private static UpdateBoard boardTask;
     private static GameManager gm;
     private static MapManager mm;
     private static ANNILobby lobbyWorld;
@@ -97,17 +97,6 @@ public class ANNIPlugin extends JavaPlugin {
 
         getLogger().info("Configuration is successful loaded.");
 
-        /* ----- Scoreboard  ----- */
-
-        getLogger().info("Initializing scoreboard...");
-
-        nb = Netherboard.instance();
-
-        boardTask = new UpdateBoard(nb);
-        boardTask.runTaskTimer(this, 5, 5);
-
-        getLogger().info("Initialized scoreboard.");
-
         /* ----- Listener ----- */
 
         getLogger().info("Registering listener...");
@@ -131,13 +120,19 @@ public class ANNIPlugin extends JavaPlugin {
         getLogger().info("Registered Command.");
 
         /* ----- Recipe ----- */
-        registerRecipe();
+        if (getConfig().getBoolean("anni.anni_recipe")) {
+            registerRecipe();
+        }
 
         /* ----- System ----- */
         getLogger().info("Initializing system...");
 
         mm = new MapManager();
-        gm = new GameManager();
+        gm = new GameManager(
+                getConfig().getInt("anni.min-players", 2),
+                getConfig().getInt("anni.max-players", 100),
+                getConfig().getInt("anni.rule", 2)
+        );
         loadLobby();
 
         getLogger().info("Loading depends...");
@@ -146,12 +141,27 @@ public class ANNIPlugin extends JavaPlugin {
 
         getLogger().info("Loaded depends!");
 
+        /* ----- Task  ----- */
+
+        getLogger().info("Initializing task...");
+
+        nb = Netherboard.instance();
+
+        boardTask = new UpdateBoard(nb);
+        boardTask.runTaskTimer(this, 5, 5);
+
+        getLogger().info("Initialized task.");
+
     }
 
     @Override
     public void onDisable() {
-        ((UpdateBoard) boardTask).stop();
-        boardTask = null;
+        if (boardTask != null) {
+            boardTask.stop();
+            boardTask = null;
+        }
+
+        gm.endGame(true);
 
         unregisterRecipe();
     }
