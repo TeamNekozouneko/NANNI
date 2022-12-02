@@ -8,6 +8,7 @@ import org.bukkit.World;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class ANNIMap {
 
@@ -49,21 +50,14 @@ public class ANNIMap {
     private String world;
     private String display;
 
-    private List<TeamLocation> nexus;
-    private List<TeamLocation> spawnpoints;
+    private Map<String, SimpleLocation> nexus;
+    private Map<String, SimpleLocation> spawnpoints;
 
-    private int min;
-    private int max;
-    private int rule;
-
-    public ANNIMap(String world, String display, List<TeamLocation> nexus, List<TeamLocation> spawnpoints, int min, int max, int rule) {
+    public ANNIMap(String world, String display, Map<String, SimpleLocation> nexus, Map<String, SimpleLocation> spawnpoints, int min, int max, int rule) {
         this.world = world;
         this.display = display;
         this.nexus = nexus;
         this.spawnpoints = spawnpoints;
-        this.min = min;
-        this.max = max;
-        this.rule = rule;
     }
 
     public String getWorld() {
@@ -74,24 +68,12 @@ public class ANNIMap {
         return display;
     }
 
-    public List<TeamLocation> getNexusList() {
+    public Map<String, SimpleLocation> getNexusList() {
         return nexus;
     }
 
-    public List<TeamLocation> getSpawnPoints() {
+    public Map<String, SimpleLocation> getSpawnPoints() {
         return spawnpoints;
-    }
-
-    public int getMin() {
-        return min;
-    }
-
-    public int getMax() {
-        return max;
-    }
-
-    public int getRule() {
-        return rule;
     }
 
     public void setWorld(World w) {
@@ -106,40 +88,23 @@ public class ANNIMap {
         this.display = name;
     }
 
-    public void addNexus(TeamLocation... nexus) {
-        Collections.addAll(this.nexus, nexus);
+    public void setNexus(Team t,  SimpleLocation sl) {
+        if (!this.nexus.containsValue(sl)) {
+            this.nexus.put(t.name(), sl);
+        }
     }
 
-    public void removeNexus(TeamLocation nexus) {
-        this.nexus.remove(nexus);
+    public void removeNexus(Team t) {
+        this.nexus.remove(t.name());
     }
 
-    public void setNexus(List<TeamLocation> nexus) {
-        this.nexus = nexus;
+    public void setSpawnPoint(Team t, SimpleLocation point) {
+        if (!this.nexus.containsValue(point)) {
+            this.nexus.put(t.name(), point);
+        }
     }
 
-    public void addSpawnPoints(TeamLocation... points) {
-
+    public void removeSpawnPoint(Team t) {
+        this.nexus.remove(t.name());
     }
-
-    public void removeSpawnPoints(TeamLocation... points) {
-
-    }
-
-    public void setSpawnPoints(List<TeamLocation> points) {
-        this.spawnpoints = points;
-    }
-
-    public void setMin(int min) {
-        this.min = min;
-    }
-
-    public void setMax(int max) {
-        this.max = max;
-    }
-
-    public void setRule(int rule) {
-        this.rule = rule;
-    }
-
 }
