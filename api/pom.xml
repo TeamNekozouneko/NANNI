@@ -5,13 +5,12 @@
     <parent>
         <artifactId>nanni-root</artifactId>
         <groupId>com.nekozouneko</groupId>
-        <version>0.01-alpha</version>
+        <version>0.02-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.nekozouneko</groupId>
     <artifactId>nanni-api</artifactId>
-    <version>0.01-alpha</version>
 
     <properties>
         <maven.compiler.source>16</maven.compiler.source>

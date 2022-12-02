@@ -1,5 +1,5 @@
 name: "NANNI"
-version: "0.01-alpha"
+version: "0.02-alpha"
 authors: ["Taitaitatata"]
 description: "NANNIはNekozouneko Serverのアナイアレーションを管理・実行するプラグインです"
 
