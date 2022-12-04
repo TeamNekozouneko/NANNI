@@ -35,8 +35,8 @@ public class MapManager {
             if (am == null) throw new JsonSyntaxException("");
 
             loadedMap.put(am.getWorld(), am);
-        } catch (IOException ie) {
-        }
+            plugin.getLogger().info("Loaded Map " + am + " | Path: " + plugin.getDataFolder().toPath().resolve(f.toPath()));
+        } catch (IOException ignored) {}
     }
 
     public void loadAll(File dir) {
@@ -48,11 +48,7 @@ public class MapManager {
                     load(f);
                 }
             }
-        } catch (NullPointerException npe) {
-            return;
-        } catch (JsonSyntaxException jse) {
-            jse.printStackTrace();
-        }
+        } catch (NullPointerException | JsonSyntaxException ignored) {}
     }
 
     public void reload(File dir) {

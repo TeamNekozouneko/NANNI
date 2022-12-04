@@ -3,6 +3,7 @@ package com.nekozouneko.anni.game;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.file.ANNIMap;
+import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Bukkit;
@@ -10,6 +11,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.boss.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -23,6 +25,8 @@ public class ANNIGame {
     private final String id16 = Integer.toHexString(id);
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
     private ANNIStatus stat = ANNIStatus.WAITING;
+    private Long timer = -1L;
+    private boolean lockTimer = false;
 
     private final Map<Player, com.nekozouneko.anni.Team> players = new HashMap<>();
     private final Map<com.nekozouneko.anni.Team, Team> teams = new HashMap<>();
@@ -36,6 +40,7 @@ public class ANNIGame {
 
     private final Map<com.nekozouneko.anni.Team, Integer> nexusHealth = new HashMap<>();
     private final Map<UUID, ItemStack[]> inventories = new HashMap<>();
+    private BukkitRunnable bbbr;
 
     protected ANNIGame(GameManager gm){
         this.gm = gm;
@@ -44,10 +49,12 @@ public class ANNIGame {
 
         initNexus();
         randomMap();
+        bbbr = new UpdateBossBar(this);
+        bbbr.runTaskTimer(plugin, 20, 20);
     }
 
     private void initTeam() {
-        Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
+        Scoreboard sb = ANNIPlugin.getSb();
         Team red = sb.registerNewTeam("red_" + id16);
         Team blue = sb.registerNewTeam("blue_" + id16);
         Team yellow = sb.registerNewTeam("yellow_" + id16);
@@ -94,9 +101,8 @@ public class ANNIGame {
                 plugin.getConfig().getString("anni.teams.green.display", "緑チーム")
         ));
         spec.setDisplayName(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.spectator.display", "観戦チーム")
+                plugin.getConfig().getString("anni.teams.spectator.display", "観戦者")
         ));
-
 
         red.setAllowFriendlyFire(false);
         blue.setAllowFriendlyFire(false);
@@ -125,7 +131,7 @@ public class ANNIGame {
         Map<String, ANNIMap> maps = ANNIPlugin.getMM().getMaps();
         int siz = maps.values().size();
         Random r = new Random();
-        if (siz <= 1) {
+        if (siz == 0) {
             this.map = null;
         } else {
             int a = r.nextInt(siz);
@@ -187,14 +193,17 @@ public class ANNIGame {
         if (stat == ANNIStatus.CANT_START) return;
         this.stat = stat;
 
+        if (stat == ANNIStatus.PHASE_ONE) phaseOne();
+        if (stat == ANNIStatus.PHASE_TWO) phaseTwo();
+        if (stat == ANNIStatus.PHASE_FOUR) phaseThree();
     }
 
     public void changeTeam(Player p, com.nekozouneko.anni.Team t) {
         Team old = teams.get(players.get(p));
         players.put(p, t);
 
-        old.removeEntry(p.getName());
-        teams.get(t).addEntry(p.getName());
+        old.removePlayer(p);
+        teams.get(t).addPlayer(p);
     }
 
     public com.nekozouneko.anni.Team randomTeam() {
@@ -209,15 +218,19 @@ public class ANNIGame {
             Map<com.nekozouneko.anni.Team, Integer> members = new HashMap<>();
             teams.keySet().forEach((t) -> members.put(t, teams.get(t).getSize()));
             com.nekozouneko.anni.Team t = ANNIUtil.balancingJoin(members);
-            players.put(p, ANNIUtil.balancingJoin(members));
-            teams.get(t).addEntry(p.getName());
+            players.put(p, t);
+            teams.get(t).addPlayer(p);
         }
     }
 
+    public boolean isJoined(Player p) {
+        return players.containsKey(p);
+    }
+
     public void leave(Player p) {
-        Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
         teams.values().forEach((t) -> {
             if (t.hasEntry(p.getName())) t.removeEntry(p.getName());
+            if (t.hasPlayer(p)) t.removePlayer(p);
         });
         players.remove(p);
     }
@@ -258,7 +271,7 @@ public class ANNIGame {
             stat = ANNIStatus.STOPPING;
             teams.values().forEach(Team::unregister);
 
-            for (Team ts : Bukkit.getScoreboardManager().getMainScoreboard().getTeams()) {
+            for (Team ts : ANNIPlugin.getSb().getTeams()) {
                 if (ts.getName().matches("(red|yellow|blue|green|spectator)_([0-9a-fA-F]{1,6})")) {
                     ts.unregister();
                 }
@@ -272,11 +285,19 @@ public class ANNIGame {
         players.clear();
     }
 
+    public void pluginDisable() {
+        end(true);
+        bb.setVisible(false);
+        bb.removeAll();
+        Bukkit.removeBossBar(new NamespacedKey(plugin, id16));
+        bbbr.cancel();
+    }
+
     /* ----- Game ----- */
 
     // Nexus
 
-    public void addNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
+    public void healNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
         if (t == null) return;
 
         if (t != com.nekozouneko.anni.Team.SPECTATOR) {
@@ -285,7 +306,7 @@ public class ANNIGame {
         }
     }
 
-    public void takeNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
+    public void damageNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
         if (t == null) return;
 
         if (t != com.nekozouneko.anni.Team.SPECTATOR) {
@@ -318,6 +339,88 @@ public class ANNIGame {
             if (p == null) return;
             p.sendMessage(NChatColor.replaceAltColorCodes(message));
         });
+    }
+
+    // timer
+
+    public long takeTimer() {
+        return takeTimer(1);
+    }
+
+    public long takeTimer(long l) {
+        if (!lockTimer) this.timer -= l;
+        return this.timer;
+    }
+
+    public long addTimer() {
+        return addTimer(1);
+    }
+
+    public long addTimer(long l) {
+        if (!lockTimer) this.timer += l;
+        return this.timer;
+    }
+
+    public long setTimer(long l) {
+        if (!lockTimer) this.timer = l;
+        return this.timer;
+    }
+
+    public long getTimer() {
+        return timer;
+    }
+
+    public void lockTimer() {
+        lockTimer = true;
+    }
+
+    public void unlockTimer() {
+        lockTimer = false;
+    }
+
+    public boolean isTimerLocked() {
+        return lockTimer;
+    }
+
+    // phase
+
+    private void phaseOne() {
+        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+            for (String b :
+                    ANNIBigMessage.createMessage(
+                            '1', teams.get(t).getColor().getChar(), "フェーズ1が開始されました。",
+                            "§7あなたは"+teams.get(t).getColor()+teams.get(t).getDisplayName()+"§7に参加しました。"
+                    )
+            ) {
+                broadcast(t, b);
+            }
+        }
+    }
+
+    private void phaseTwo() {
+        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+            for (String b :
+                    ANNIBigMessage.createMessage(
+                            '2', teams.get(t).getColor().getChar(), "フェーズ2が開始されました。",
+                            "§7ネクサスが破壊可能になります。"
+                    )
+            ) {
+                broadcast(t, b);
+            }
+        }
+    }
+
+    private void phaseThree() {
+        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+            for (String b :
+                    ANNIBigMessage.createMessage(
+                            '3', teams.get(t).getColor().getChar(), "フェーズ3が開始されました。",
+                            "§7中央のダイヤ鉱石が採掘可能になります。"
+                    )
+            ) {
+                broadcast(t, b);
+            }
+        }
     }
 
 }
