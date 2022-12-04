@@ -18,6 +18,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +27,7 @@ public class ANNIPlugin extends JavaPlugin {
 
     private static ANNIPlugin instance;
     private static Netherboard nb;
+    private static Scoreboard sb;
     private static UpdateBoard boardTask;
     private static GameManager gm;
     private static MapManager mm;
@@ -42,6 +44,10 @@ public class ANNIPlugin extends JavaPlugin {
 
     public static Netherboard getNb() {
         return nb;
+    }
+
+    public static Scoreboard getSb() {
+        return sb;
     }
 
     public static File getMapDir() {
@@ -67,6 +73,8 @@ public class ANNIPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        nb = Netherboard.instance();
+        sb = getServer().getScoreboardManager().getNewScoreboard();
 
         /* ----- Initialize dir ----- */
 
@@ -145,8 +153,6 @@ public class ANNIPlugin extends JavaPlugin {
 
         getLogger().info("Initializing task...");
 
-        nb = Netherboard.instance();
-
         boardTask = new UpdateBoard(nb);
         boardTask.runTaskTimer(this, 5, 5);
 
@@ -161,7 +167,7 @@ public class ANNIPlugin extends JavaPlugin {
             boardTask = null;
         }
 
-        gm.endGame(true);
+        gm.getGame().pluginDisable();
 
         unregisterRecipe();
     }
