@@ -1,6 +1,7 @@
 package com.nekozouneko.anni.task;
 
 import com.nekozouneko.anni.ANNIPlugin;
+import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.ANNIGame;
@@ -32,6 +33,8 @@ public class UpdateBoard extends BukkitRunnable {
     @Override
     public void run() {
         for (Player p : Bukkit.getOnlinePlayers()) {
+            p.setPlayerListName(ANNIUtil.teamPrefixSuffixAppliedName(p));
+
             BPlayerBoard b = nb.getBoard(p);
 
             TimeZone.setDefault(TimeZone.getTimeZone("GMT+9:00"));
@@ -42,7 +45,7 @@ public class UpdateBoard extends BukkitRunnable {
             double bal = ANNIPlugin.getVaultEconomy().getBalance(p);
 
             if (gm.isJoined(p)) {
-                if (b == null) b = nb.createBoard(p, "§cA§9N§eN§aI");
+                if (b == null) b = nb.createBoard(p, ANNIPlugin.getSb(), "§cA§9N§eN§aI");
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                 ANNIGame annig = gm.getPlayerJoinedGame(p);
                 ANNIMap m = annig.getMap();
@@ -92,7 +95,7 @@ public class UpdateBoard extends BukkitRunnable {
                     }
                 }
             } else if (p.getWorld() == ANNIPlugin.getLobby().getLocation().getBukkitWorld()) {
-                if (b == null) b = nb.createBoard(p, "\u00A7cA\u00A79N\u00A7eN\u00A7aI");
+                if (b == null) b = nb.createBoard(p, ANNIPlugin.getSb(), "\u00A7cA\u00A79N\u00A7eN\u00A7aI");
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
                 b.setAll(
