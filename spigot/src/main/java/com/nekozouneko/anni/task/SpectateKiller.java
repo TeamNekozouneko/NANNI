@@ -10,11 +10,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class SpectateKiller extends BukkitRunnable {
 
-    private int ft;
+    private final int ft;
     private int timer;
-    private Player player;
+    private final Player player;
     private final Player killer;
-    private ANNIPlugin plugin = ANNIPlugin.getInstance();
+    private final ANNIPlugin plugin = ANNIPlugin.getInstance();
 
     public SpectateKiller(int i, Player p, Player k) {
         this.ft = i;
@@ -42,7 +42,6 @@ public class SpectateKiller extends BukkitRunnable {
             );
             player.sendTitle("§aリスポーン中...", "", 0, 60, 10);
             player.setGameMode(GameMode.SURVIVAL);
-            Bukkit.getScheduler().runTaskLater(plugin, () -> player.teleport(killer.getLocation()), 3);
             cancel();
         } else {
             player.sendTitle("§c死んでしまった！", "リスポーンまであと" + timer + "秒", 0, 25, 0);
