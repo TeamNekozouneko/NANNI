@@ -1,8 +1,10 @@
 package com.nekozouneko.anni;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -94,12 +96,11 @@ public class ANNIUtil {
         return new AbstractMap.SimpleEntry<>(key, map.get(key));
     }
 
-    public static Team balancingJoin(Map<Team, Integer> ti) {
-        if (ti.containsKey(Team.SPECTATOR)) {
-            ti.remove(Team.SPECTATOR);
-        }
+    public static Team balancingJoin(Map<Team, Integer> tm) {
+        Map<Team, Integer> ti = new HashMap<>(tm);
+        ti.remove(Team.SPECTATOR);
 
-        if (equalsAllValues(ti) && ti.size() >= 1) {
+        if (!equalsAllValues(ti) && ti.size() >= 1) {
             Map.Entry<Team, Integer> minTeamEntry = null;
             for (Team t : ti.keySet()) {
                 Map.Entry<Team, Integer> e = toEntry(ti, t);
@@ -114,11 +115,29 @@ public class ANNIUtil {
             return minTeamEntry.getKey();
         } else {
             Team[] teams = ti.keySet().toArray(new Team[0]);
-            int l = teams.length;
             Random r = new Random();
 
-            return teams[r.nextInt(l-1)];
+            return teams[r.nextInt(teams.length)];
         }
+    }
+
+    public static double bossBarProgress(long max, long val) {
+        final double cl = max /100.0;
+        double prg = (((double) val) / cl) / 100;
+
+        if (prg > 1.0) prg = 1.0;
+        if (prg < 0.0) prg = 0.0;
+
+        return prg;
+    }
+
+    public static String teamPrefixSuffixAppliedName(Player p) {
+        Scoreboard mb = ANNIPlugin.getSb();
+        org.bukkit.scoreboard.Team pt = mb.getPlayerTeam(p);
+        if (pt == null) pt = mb.getEntryTeam(p.getName());
+
+        if (pt != null) return pt.getPrefix()+pt.getColor()+p.getDisplayName()+pt.getSuffix();
+        else return p.getDisplayName();
     }
 
 }
