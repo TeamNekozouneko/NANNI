@@ -1,16 +1,22 @@
 package com.nekozouneko.anni.command;
 
 import com.nekozouneko.anni.ANNIPlugin;
+import com.nekozouneko.anni.game.ANNIBigMessage;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.gui.TeamSelector;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ANNICommand implements CommandExecutor, TabCompleter {
@@ -29,7 +35,11 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
                     else sender.sendMessage("参加していないためチームを参加することはできません");
                     break;
                 default:
+                    if (args.length == 1) {
+                        ANNIPlugin.getGM().getGame().setTimer(Long.parseLong(args[0]));
+                    }
                     sender.sendMessage("そんなサブコマンドないよ");
+                    break;
             }
         }
         return true;
