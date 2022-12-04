@@ -15,7 +15,7 @@ public class PlayerLeaveListener implements Listener {
         Player p = e.getPlayer();
 
         ANNIPlugin.getGM().leaveFromGame(p);
-        if (nb.getBoard(p) != null) nb.getBoard(p).delete();
+        if (nb != null) if (nb.getBoard(p) != null) nb.getBoard(p).delete();
     }
 
 }
