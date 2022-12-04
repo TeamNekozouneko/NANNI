@@ -38,7 +38,11 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                         addMap(sender, command, label, args);
                     }
                 } else if (args[1].equalsIgnoreCase("edit")) {
+                    if (args[3].equalsIgnoreCase("nexus")) {
 
+                    } else if (args[3].equalsIgnoreCase("spawn")) {
+
+                    }
                 } else if (args[1].equalsIgnoreCase("list")) {
                     listMap(sender, command, label, args);
                 }
@@ -47,11 +51,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                     setSpawnOfLobby(sender, command, label, args);
                 }
             } else if (args[0].equalsIgnoreCase("game")) {
-                if (args[1].equalsIgnoreCase("nexus")) {
-
-                } else if (args[1].equalsIgnoreCase("spawn")) {
-
-                } else if (args[1].equalsIgnoreCase("min")) {
+                if (args[1].equalsIgnoreCase("min")) {
                     plugin.getConfig().set("anni.min-players", Integer.parseInt(args[2]));
                     plugin.saveConfig();
                 } else if (args[1].equalsIgnoreCase("max")) {
@@ -69,7 +69,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
         List<String> tab = new ArrayList<>();
 
         if (args.length == 1) {
-            final String[] arg = new String[] {"game", "kit", "lobby", "map"};
+            final String[] arg = new String[] {"admin", "game", "kit", "lobby", "map"};
 
             for (String a : arg) {
                 if (a.toLowerCase().startsWith(args[0].toLowerCase())) {
@@ -101,17 +101,12 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                         tab.add(a);
                     }
                 }
+            } else if (args[0].equalsIgnoreCase("admin")) {
+                final String[] arg = new String[] {"end", "set-status"};
             }
         } else if (args.length == 3) {
             if (args[0].equalsIgnoreCase("game")) {
-                if (args[1].equalsIgnoreCase("nexus") || args[1].equalsIgnoreCase("spawn")) {
-                    final String[] arg = new String[]{"RED", "BLUE", "YELLOW", "GREEN"};
-                    for (String a : arg) {
-                        if (a.toLowerCase().startsWith(args[2].toLowerCase())) {
-                            tab.add(a);
-                        }
-                    }
-                }
+
             }
         } else if (args.length == 4) {
             if (args[0].equalsIgnoreCase("map") && args[1].equalsIgnoreCase("edit")) {
@@ -120,6 +115,23 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                 for (String a : arg) {
                     if (a.toLowerCase().startsWith(args[3].toLowerCase())) {
                         tab.add(a);
+                    }
+                }
+            }
+        } else if (args.length == 5) {
+            if (
+                    args[0].equalsIgnoreCase("map") &&
+                    args[1].equalsIgnoreCase("edit")
+            ) {
+                if (
+                        args[3].equalsIgnoreCase("nexus") ||
+                        args[3].equalsIgnoreCase("spawn")
+                ) {
+                    final String[] arg = new String[]{"RED", "BLUE", "YELLOW", "GREEN"};
+                    for (String a : arg) {
+                        if (a.toLowerCase().startsWith(args[4].toLowerCase())) {
+                            tab.add(a);
+                        }
                     }
                 }
             }
