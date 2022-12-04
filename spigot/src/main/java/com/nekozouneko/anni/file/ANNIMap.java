@@ -107,4 +107,9 @@ public class ANNIMap {
     public void removeSpawnPoint(Team t) {
         this.nexus.remove(t.name());
     }
+
+    @Override
+    public String toString() {
+        return "ANNIMap[World="+ world +", Display="+ display +", Nexus="+ nexus +", SpawnPoints="+ spawnpoints +"]";
+    }
 }
