@@ -27,16 +27,10 @@ public class BlockDestroyListener implements Listener {
         Location loc = e.getBlock().getLocation();
         Material bt = e.getBlock().getType();
 
-        if (e.getPlayer().getGameMode() == GameMode.SURVIVAL) {
+        if (e.getPlayer().getGameMode() == GameMode.SURVIVAL && ANNIPlugin.getGM().getGame().isJoined(e.getPlayer())) {
             switch (bt) {
                 case END_STONE:
-                    e.setDropItems(false);
-                    BlockDestroyUtil.nexusDestroyParticleSound(loc);
-
-                    Bukkit.getScheduler().runTaskLater(
-                            plugin, () -> loc.getBlock().setType(Material.END_STONE), 3
-                    );
-                    Bukkit.getServer().getPluginManager().callEvent(new NexusAttackEvent(e.getPlayer(), Team.RED));
+                    onNexusDestroy(e);
                     break;
                 case MELON:
                     e.setDropItems(false);
@@ -44,12 +38,12 @@ public class BlockDestroyListener implements Listener {
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.MELON), 100);
                     break;
-                case END_STONE_BRICKS:
+                /*case END_STONE_BRICKS:
                     e.setDropItems(false);
                     BlockDestroyUtil.finalNexusDestroyParticleSound(loc);
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
-                    break;
+                    break;*/
                 case COAL_ORE:
                     e.setDropItems(false);
                     e.setExpToDrop(0);
@@ -134,6 +128,22 @@ public class BlockDestroyListener implements Listener {
             if (g instanceof NexusLocation) {
                 g.edit(e.getBlock().getLocation());
             }
+        }
+    }
+
+    private void onNexusDestroy(BlockBreakEvent e) {
+        if (ANNIPlugin.getGM().getGame().getStatus().getPhaseId() >= 2) {
+            Location loc = e.getBlock().getLocation();
+
+            e.setDropItems(false);
+            BlockDestroyUtil.nexusDestroyParticleSound(loc);
+
+            Bukkit.getScheduler().runTaskLater(
+                    plugin, () -> loc.getBlock().setType(Material.END_STONE), 3
+            );
+            //Bukkit.getServer().getPluginManager().callEvent(new NexusAttackEvent(e.getPlayer(), ANNIPlugin.getGM().getGame().getPlayerJoi));
+        } else {
+            e.setCancelled(true);
         }
     }
 
