@@ -3,19 +3,23 @@ package com.nekozouneko.anni.listener;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.task.SpectateKiller;
+import com.nekozouneko.anni.util.SimpleLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.World;
+import org.bukkit.Material;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class PlayerKillListener implements Listener {
 
@@ -27,6 +31,17 @@ public class PlayerKillListener implements Listener {
         final ANNIGame g = ANNIPlugin.getGM().getGame();
 
         if (g.getManager().isJoined(p)) {
+            SimpleLocation sl = g.getMap().getSpawnPoints().get(g.getPlayerJoinedTeam(p).name());
+            if (sl != null) {
+                e.setRespawnLocation(new Location(
+                        Bukkit.getWorld(g.getMap().getWorld()),
+                        sl.getX(),
+                        sl.getY(),
+                        sl.getZ()
+                ));
+            }
+
+            g.setDefaultKitToPlayer(p);
             Bukkit.getScheduler().runTaskLater(plugin, () -> p.addPotionEffects(Arrays.asList(
                     new PotionEffect(
                             PotionEffectType.BLINDNESS, 60, 1,
@@ -59,8 +74,21 @@ public class PlayerKillListener implements Listener {
                 new SpectateKiller(5, killed, killer).runTaskTimer(plugin, 20, 20);*/
             }
 
+            e.setKeepInventory(true);
             e.setDeathMessage(null);
             e.setDroppedExp(0);
+
+            final List<ItemStack> dropped = new ArrayList<>(e.getDrops());
+            List<ItemStack> filtered = new ArrayList<>();
+            dropped.stream()
+                    .filter(o ->
+                            !((o.getType() == Material.LEATHER_HELMET || o.getType() == Material.LEATHER_CHESTPLATE
+                            || o.getType() == Material.LEATHER_LEGGINGS || o.getType() == Material.LEATHER_BOOTS)
+                            && o.getEnchantments().size() == 0)
+                    ).forEach(filtered::add);
+
+            e.getDrops().clear();
+            e.getDrops().addAll(filtered);
         }
 
     }

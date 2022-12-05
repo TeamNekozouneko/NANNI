@@ -1,9 +1,12 @@
 package com.nekozouneko.anni.task;
 
+import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.game.ANNIBigMessage;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
@@ -12,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +23,9 @@ public class UpdateBossBar extends BukkitRunnable {
 
     private final BossBar bb;
     private final ANNIGame g;
+    public static final Map<Team, Character> bigCharMap = Collections.unmodifiableMap(new HashMap<Team, Character>() {{
+        put(Team.RED,'R');put(Team.BLUE,'B');put(Team.YELLOW,'Y');put(Team.GREEN,'G');
+    }});
     private Map.Entry<ANNIStatus, Integer> timer = new AbstractMap.SimpleEntry<>(ANNIStatus.STOPPING, -1);
 
     private static final Map<ANNIStatus, String> message = new HashMap<ANNIStatus, String>() {
@@ -83,6 +90,7 @@ public class UpdateBossBar extends BukkitRunnable {
                 break;
             case PHASE_THREE:
                 phase3Case(g.getStatus());
+            default: break;
         }
     }
 
@@ -124,7 +132,7 @@ public class UpdateBossBar extends BukkitRunnable {
             }
 
             if (g.getTimer() == 0) {
-                g.changeStatus(ANNIStatus.PHASE_ONE);
+                g.start();
                 bb.setProgress(ANNIUtil.bossBarProgress(phase_TIME.get(stats), g.getTimer()));
                 bb.setTitle(message.get(stats) + " - 開始まであと " + ANNIUtil.toTimerFormat(g.getTimer()));
                 g.setTimer(phase_TIME.get(ANNIStatus.PHASE_ONE));

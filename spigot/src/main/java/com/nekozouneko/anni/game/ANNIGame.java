@@ -5,9 +5,7 @@ import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
-import org.bukkit.ChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.boss.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +28,15 @@ public class ANNIGame {
 
     private final Map<Player, com.nekozouneko.anni.Team> players = new HashMap<>();
     private final Map<com.nekozouneko.anni.Team, Team> teams = new HashMap<>();
+    private final Map<com.nekozouneko.anni.Team, Boolean> losedTeams = new HashMap<>();
+    public static final Map<com.nekozouneko.anni.Team, ItemStack[]> teamArmor = Collections.unmodifiableMap(
+            new HashMap<com.nekozouneko.anni.Team, ItemStack[]>() {{
+        put(com.nekozouneko.anni.Team.RED, ANNIUtil.createColorLeatherArmor(Color.RED));
+        put(com.nekozouneko.anni.Team.BLUE, ANNIUtil.createColorLeatherArmor(Color.BLUE));
+        put(com.nekozouneko.anni.Team.YELLOW, ANNIUtil.createColorLeatherArmor(Color.YELLOW));
+        put(com.nekozouneko.anni.Team.GREEN, ANNIUtil.createColorLeatherArmor(Color.GREEN));
+    }}
+    );
     private final KeyedBossBar bb = Bukkit.createBossBar(
             new NamespacedKey(plugin, id16),
             "待機中",
@@ -39,7 +46,6 @@ public class ANNIGame {
     );
 
     private final Map<com.nekozouneko.anni.Team, Integer> nexusHealth = new HashMap<>();
-    private final Map<UUID, ItemStack[]> inventories = new HashMap<>();
     private BukkitRunnable bbbr;
 
     protected ANNIGame(GameManager gm){
@@ -111,11 +117,16 @@ public class ANNIGame {
 
         teams.put(com.nekozouneko.anni.Team.RED, red);
         teams.put(com.nekozouneko.anni.Team.BLUE, blue);
+        losedTeams.put(com.nekozouneko.anni.Team.RED, false);
+        losedTeams.put(com.nekozouneko.anni.Team.BLUE, false);
         if (gm.getRuleType() == 4) {
             teams.put(com.nekozouneko.anni.Team.YELLOW, yellow);
             teams.put(com.nekozouneko.anni.Team.GREEN, green);
+            losedTeams.put(com.nekozouneko.anni.Team.YELLOW, false);
+            losedTeams.put(com.nekozouneko.anni.Team.GREEN, false);
         }
         teams.put(com.nekozouneko.anni.Team.SPECTATOR, spec);
+
     }
 
     private void initNexus() {
@@ -189,13 +200,24 @@ public class ANNIGame {
         this.map = map;
     }
 
+    public List<com.nekozouneko.anni.Team> getTeams(boolean excludeSpec) {
+        List<com.nekozouneko.anni.Team> s = new ArrayList<>();
+        for (com.nekozouneko.anni.Team t:teams.keySet()) {
+            if (excludeSpec && t == com.nekozouneko.anni.Team.SPECTATOR) break;
+            else s.add(t);
+        }
+
+        return s;
+    }
+
     public void changeStatus(ANNIStatus stat) {
+        if (stat == this.stat) return;
         if (stat == ANNIStatus.CANT_START) return;
         this.stat = stat;
 
         if (stat == ANNIStatus.PHASE_ONE) phaseOne();
         if (stat == ANNIStatus.PHASE_TWO) phaseTwo();
-        if (stat == ANNIStatus.PHASE_FOUR) phaseThree();
+        if (stat == ANNIStatus.PHASE_THREE) phaseThree();
     }
 
     public void changeTeam(Player p, com.nekozouneko.anni.Team t) {
@@ -235,6 +257,25 @@ public class ANNIGame {
         players.remove(p);
     }
 
+    public void setDefaultKitToPlayer(Player p) {
+        final ItemStack[] defInv = new ItemStack[36];
+        defInv[0] = new ItemStack(Material.WOODEN_SWORD);
+        defInv[1] = new ItemStack(Material.GOLDEN_PICKAXE);
+        defInv[2] = new ItemStack(Material.WOODEN_AXE);
+        defInv[3] = new ItemStack(Material.WOODEN_SHOVEL);
+
+
+        com.nekozouneko.anni.Team t = players.get(p);
+
+        ItemStack[] armor = teamArmor.get(t);
+        if (armor == null) armor = new ItemStack[0];
+
+        if (t != com.nekozouneko.anni.Team.SPECTATOR) {
+            p.getInventory().setContents(defInv);
+        }
+        p.getInventory().setArmorContents(armor);
+    }
+
     /* ----- */
 
     public boolean canStart() {
@@ -248,8 +289,9 @@ public class ANNIGame {
         if (canStart()) {
             changeStatus(ANNIStatus.PHASE_ONE);
 
-            // red
-
+            for (Player p : players.keySet()) {
+                setDefaultKitToPlayer(p);
+            }
 
             return true;
         }
@@ -258,11 +300,14 @@ public class ANNIGame {
     }
 
     public void restart() {
-        end(true);
+        end(false);
         stat = ANNIStatus.WAITING;
-        initTeam();
         initNexus();
         randomMap();
+
+        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+            losedTeams.put(t, false);
+        }
     }
 
     public void end(boolean force) {
@@ -280,6 +325,7 @@ public class ANNIGame {
             stat = ANNIStatus.WAITING;
             teams.values().forEach((t) -> {
                 for (String e : t.getEntries()) t.removeEntry(e);
+                for (OfflinePlayer p : t.getPlayers()) t.removePlayer(p);
             });
         }
         players.clear();
@@ -294,6 +340,38 @@ public class ANNIGame {
     }
 
     /* ----- Game ----- */
+
+    public int getLosedTeams() {
+        int a = 0;
+        for (com.nekozouneko.anni.Team t : getTeams(true)) {
+            if (isLose(t)) a++;
+        }
+
+        return a;
+    }
+
+    public void loseTeam(com.nekozouneko.anni.Team t) {
+        if (!isLose(t)) {
+            losedTeams.put(t, true);
+        }
+    }
+
+    public boolean isLose(com.nekozouneko.anni.Team t) {
+        Boolean b = losedTeams.get(t);
+        if (b == null) b = false;
+
+        return b;
+    }
+
+    public List<com.nekozouneko.anni.Team> getNotLostTeams() {
+        List<com.nekozouneko.anni.Team> ts = new ArrayList<>();
+
+        for (com.nekozouneko.anni.Team t : getTeams(true)) {
+            if (!isLose(t)) ts.add(t);
+        }
+
+        return ts;
+    }
 
     // Nexus
 
@@ -320,6 +398,17 @@ public class ANNIGame {
         if (t == com.nekozouneko.anni.Team.SPECTATOR) throw new IllegalArgumentException("Team Spectator not has nexus health.");
 
         return nexusHealth.get(t);
+    }
+
+    public String getNexusHealthForBoard(com.nekozouneko.anni.Team t) {
+        Integer i = getNexusHealth(t);
+        boolean isLose = losedTeams.get(t);
+
+        if (isLose || i <= 0) {
+            return "§c✖";
+        } else {
+            return i.toString();
+        }
     }
 
     // messages

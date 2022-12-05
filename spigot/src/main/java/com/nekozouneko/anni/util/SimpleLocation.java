@@ -1,6 +1,7 @@
 package com.nekozouneko.anni.util;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 
 public class SimpleLocation {
 
@@ -30,5 +31,9 @@ public class SimpleLocation {
 
     public double getZ() {
         return z;
+    }
+
+    public Location toLocation(World w) {
+        return new Location(w, x, y, z);
     }
 }

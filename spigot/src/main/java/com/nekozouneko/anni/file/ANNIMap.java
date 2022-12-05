@@ -2,6 +2,7 @@ package com.nekozouneko.anni.file;
 
 import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.util.SimpleLocation;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -70,6 +71,22 @@ public class ANNIMap {
 
     public Map<String, SimpleLocation> getNexusList() {
         return nexus;
+    }
+
+    public Location getNexusLocation(Team t) {
+        return nexus.get(t.name()).toLocation(Bukkit.getWorld(world));
+    }
+
+    public Team getNexusTeam(Location loc) {
+        for (String t:nexus.keySet()) {
+            try {
+                if (getNexusLocation(Team.valueOf(t)).equals(loc)) {
+                    return Team.valueOf(t);
+                }
+            } catch (IllegalArgumentException ignored) {}
+        }
+
+        return null;
     }
 
     public Map<String, SimpleLocation> getSpawnPoints() {

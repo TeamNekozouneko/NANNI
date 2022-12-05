@@ -1,15 +1,15 @@
 package com.nekozouneko.anni;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class ANNIUtil {
 
@@ -138,6 +138,30 @@ public class ANNIUtil {
 
         if (pt != null) return pt.getPrefix()+pt.getColor()+p.getDisplayName()+pt.getSuffix();
         else return p.getDisplayName();
+    }
+
+    public static ItemStack[] createColorLeatherArmor(Color col) {
+        ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
+        ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE);
+        ItemStack legs = new ItemStack(Material.LEATHER_LEGGINGS);
+        ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
+
+        LeatherArmorMeta helmetMeta = ((LeatherArmorMeta) helmet.getItemMeta());
+        LeatherArmorMeta chestMeta = ((LeatherArmorMeta) chest.getItemMeta());
+        LeatherArmorMeta legsMeta = ((LeatherArmorMeta) legs.getItemMeta());
+        LeatherArmorMeta bootsMeta = ((LeatherArmorMeta) boots.getItemMeta());
+
+        helmetMeta.setColor(col);
+        chestMeta.setColor(col);
+        legsMeta.setColor(col);
+        bootsMeta.setColor(col);
+
+        helmet.setItemMeta(helmetMeta);
+        chest.setItemMeta(chestMeta);
+        legs.setItemMeta(legsMeta);
+        boots.setItemMeta(bootsMeta);
+
+        return new ItemStack[] {boots,legs,chest,helmet};
     }
 
 }

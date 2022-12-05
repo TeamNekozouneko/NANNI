@@ -74,8 +74,8 @@ public class UpdateBoard extends BukkitRunnable {
                                 "マップ: §c" + mn,
                                 "フェーズ: §c" + annig.getStatus().getPhaseId(),
                                 "  ",
-                                "§c赤: §7" + annig.getNexusHealth(Team.RED),
-                                "§9青: §7" + annig.getNexusHealth(Team.BLUE),
+                                "§c赤: §7" + annig.getNexusHealthForBoard(Team.RED),
+                                "§9青: §7" + annig.getNexusHealthForBoard(Team.BLUE),
                                 " ",
                                 "§9§nnekozouneko.net"
                         );
@@ -85,10 +85,10 @@ public class UpdateBoard extends BukkitRunnable {
                                 "   ",
                                 "マップ: §c" + mn,
                                 "  ",
-                                "§c赤: §7" + annig.getNexusHealth(Team.RED),
-                                "§9青: §7" + annig.getNexusHealth(Team.BLUE),
-                                "§e黄: §7" + annig.getNexusHealth(Team.YELLOW),
-                                "§a緑: §7" + annig.getNexusHealth(Team.GREEN),
+                                "§c赤: §7" + annig.getNexusHealthForBoard(Team.RED),
+                                "§9青: §7" + annig.getNexusHealthForBoard(Team.BLUE),
+                                "§e黄: §7" + annig.getNexusHealthForBoard(Team.YELLOW),
+                                "§a緑: §7" + annig.getNexusHealthForBoard(Team.GREEN),
                                 " ",
                                 "§9§nnekozouneko.net"
                         );
