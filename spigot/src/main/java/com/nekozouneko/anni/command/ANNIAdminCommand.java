@@ -2,10 +2,15 @@ package com.nekozouneko.anni.command;
 
 import com.google.gson.Gson;
 import com.nekozouneko.anni.ANNIPlugin;
+import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.MapManager;
 
+import com.nekozouneko.anni.gui.MapEditor;
+import com.nekozouneko.anni.gui.location.NexusLocation;
+import com.nekozouneko.anni.gui.location.TeamSpawnPointLocation;
+import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -16,10 +21,7 @@ import org.bukkit.entity.Player;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
 
@@ -34,14 +36,12 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
         } else {
             if (args[0].equalsIgnoreCase("map")) {
                 if (args[1].equalsIgnoreCase("add")) {
-                    if (args.length >= 4) {
-                        addMap(sender, command, label, args);
-                    }
+                    addMap(sender, command, label, args);
                 } else if (args[1].equalsIgnoreCase("edit")) {
                     if (args[3].equalsIgnoreCase("nexus")) {
-
+                        setNexusLocation(sender, command, label, args);
                     } else if (args[3].equalsIgnoreCase("spawn")) {
-
+                        setTeamSpawnPointLocation(sender, command, label, args);
                     }
                 } else if (args[1].equalsIgnoreCase("list")) {
                     listMap(sender, command, label, args);
@@ -67,88 +67,75 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> tab = new ArrayList<>();
+        Map.Entry<String[], Integer> arg = new AbstractMap.SimpleEntry<>(new String[0], args.length);
 
         if (args.length == 1) {
-            final String[] arg = new String[] {"admin", "game", "kit", "lobby", "map"};
-
-            for (String a : arg) {
-                if (a.toLowerCase().startsWith(args[0].toLowerCase())) {
-                    tab.add(a);
-                }
-            }
+            arg = new AbstractMap.SimpleEntry<>(new String[]{"admin", "game", "kit", "lobby", "map"}, args.length);
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("map")) {
-                final String[] arg = new String[]{"add", "edit", "list", "reload", "remove"};
-
-                for (String a : arg) {
-                    if (a.toLowerCase().startsWith(args[1].toLowerCase())) {
-                        tab.add(a);
-                    }
-                }
+                arg = new AbstractMap.SimpleEntry<>(new String[]{"add", "edit", "list", "reload", "remove"}, args.length);
             } else if (args[0].equalsIgnoreCase("lobby")) {
-                final String[] arg = new String[]{"spawn"};
-
-                for (String a : arg) {
-                    if (a.toLowerCase().startsWith(args[1].toLowerCase())) {
-                        tab.add(a);
-                    }
-                }
+                arg = new AbstractMap.SimpleEntry<>(new String[]{"spawn"}, args.length);
             } else if (args[0].equalsIgnoreCase("kit")) {
+                arg = new AbstractMap.SimpleEntry<>(new String[]{"add"}, args.length);
             } else if (args[0].equalsIgnoreCase("game")) {
-                final String[] arg = new String[]{"max", "min", "nexus", "spawn"};
-                for (String a : arg) {
-                    if (a.toLowerCase().startsWith(args[1].toLowerCase())) {
-                        tab.add(a);
-                    }
-                }
+                arg = new AbstractMap.SimpleEntry<>(new String[]{"max", "min", "nexus", "spawn"}, args.length);
             } else if (args[0].equalsIgnoreCase("admin")) {
-                final String[] arg = new String[] {"end", "set-status"};
+                arg = new AbstractMap.SimpleEntry<>(new String[] {"end", "set-status"}, args.length);
             }
         } else if (args.length == 3) {
             if (args[0].equalsIgnoreCase("game")) {
-
             }
         } else if (args.length == 4) {
             if (args[0].equalsIgnoreCase("map") && args[1].equalsIgnoreCase("edit")) {
-                final String[] arg = new String[]{"display", "nexus", "rule"};
-
-                for (String a : arg) {
-                    if (a.toLowerCase().startsWith(args[3].toLowerCase())) {
-                        tab.add(a);
-                    }
-                }
+                arg = new AbstractMap.SimpleEntry<>(new String[]{"display", "nexus", "rule"}, args.length);
             }
         } else if (args.length == 5) {
             if (
                     args[0].equalsIgnoreCase("map") &&
                     args[1].equalsIgnoreCase("edit")
             ) {
-                if (
-                        args[3].equalsIgnoreCase("nexus") ||
-                        args[3].equalsIgnoreCase("spawn")
-                ) {
-                    final String[] arg = new String[]{"RED", "BLUE", "YELLOW", "GREEN"};
-                    for (String a : arg) {
-                        if (a.toLowerCase().startsWith(args[4].toLowerCase())) {
-                            tab.add(a);
-                        }
-                    }
+                if (args[3].equalsIgnoreCase("nexus")) {
+                    arg = new AbstractMap.SimpleEntry<>(new String[]{"RED", "BLUE", "YELLOW", "GREEN"}, args.length);
+                } else if (args[3].equalsIgnoreCase("spawn")) {
+                    arg = new AbstractMap.SimpleEntry<>(new String[]{"RED","BLUE","YELLOW","GREEN","SPECTATOR",}, args.length);
                 }
             }
         }
+
+        for (String a : arg.getKey()) {
+            if (a.toLowerCase().startsWith(args[arg.getValue()-1].toLowerCase())) {
+                tab.add(a);
+            }
+        }
+
         return tab;
     }
 
     public static void addMap(CommandSender sender, Command cmd, String label, String[] args) {
-        final World w = Bukkit.getWorld(args[2]);
-        final String d = args[3];
-
-        if (w == null) {
-            sender.sendMessage("World " + args[2] + " is not existing.");
+        if (args.length == 2) {
+            sender.sendMessage(NChatColor.RED + "使用方法: /" + label + " map add <world> [display]");
             return;
         }
 
-        ANNIMap map = new ANNIMap(w.getName(), d, new HashMap<>(), new HashMap<>(), 2, 100, 2);
+        final World w = Bukkit.getWorld(args[2]);
+        final String d;
+        if (args.length >= 4) {
+            d = args[3];
+        } else {
+            d = args[2];
+        }
+
+        if (w == null) {
+            sender.sendMessage(NChatColor.RED + args[2] + " というワールドは存在しません");
+            return;
+        }
+
+        if (ANNIPlugin.getMM().getMaps().containsKey(args[2])) {
+            sender.sendMessage(NChatColor.RED + "すでに " + args[2] + " というマップは追加されています。");
+        }
+
+        ANNIMap map = new ANNIMap(w.getName(), d, new HashMap<>(), new HashMap<>());
 
         try {
             Gson gson = new Gson();
@@ -164,9 +151,12 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
 
             wr.flush();
             wr.close();
+
+            sender.sendMessage(NChatColor.GREEN + "マップ " + map.getDisplay() + " が追加されました。");
+            ANNIPlugin.getMM().load(new File(ANNIPlugin.getMapDir(), args[2] + ".json"));
         } catch (IOException e) {
             e.printStackTrace();
-            sender.sendMessage("IO Exception called");
+            sender.sendMessage(NChatColor.RED + "ファイルに書き込む際エラーが発生しました。コンソールを確認してください。");
         }
 
     }
@@ -179,6 +169,65 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
             ANNIMap mp = mm.getMaps().get(k);
             sender.sendMessage("- " + mp.getDisplay() + " (" + mp.getWorld() + ")");
         }
+    }
+
+    public static void setNexusLocation(CommandSender sender, Command cmd, String label, String[] args) {
+        if (args.length <= 4) {
+            sender.sendMessage(NChatColor.RED + "チームを指定してください");
+            return;
+        }
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(NChatColor.RED + "プレイヤーとして実行してください。");
+            return;
+        }
+
+        final World w = Bukkit.getWorld(args[2]);
+        final Team t;
+        final Player p = ((Player) sender);
+
+        try {
+            t = Team.valueOf(args[4]);
+            if (t == Team.SPECTATOR) throw new IllegalArgumentException();
+        } catch (IllegalArgumentException e) {
+            sender.sendMessage(NChatColor.RED + "存在しないチームか無効なチームです。");
+            return;
+        }
+        if (w == null) {
+            sender.sendMessage(args[2] + " というワールドは存在しません。");
+            return;
+        }
+
+        MapEditor.glc.put(p.getUniqueId(), new NexusLocation(ANNIPlugin.getMM().getMap(w.getName()), t, p));
+        sender.sendMessage("ネクサスをクリックして設定します。 (指定チーム: " + t.name() + ")");
+    }
+
+    public static void setTeamSpawnPointLocation(CommandSender sender, Command cmd, String label, String[] args) {
+        if (args.length <= 4) {
+            sender.sendMessage(NChatColor.RED + "チームを指定してください");
+            return;
+        }
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(NChatColor.RED + "プレイヤーとして実行してください。");
+            return;
+        }
+
+        final World w = Bukkit.getWorld(args[2]);
+        final Team t;
+        final Player p = ((Player) sender);
+
+        try {
+            t = Team.valueOf(args[4]);
+        } catch (IllegalArgumentException e) {
+            sender.sendMessage(NChatColor.RED + "存在しないチームか無効なチームです。");
+            return;
+        }
+        if (w == null) {
+            sender.sendMessage(args[2] + " というワールドは存在しません。");
+            return;
+        }
+
+        MapEditor.glc.put(p.getUniqueId(), new TeamSpawnPointLocation(ANNIPlugin.getMM().getMap(w.getName()), t, p));
+        sender.sendMessage("スポーン地点にブロックを設置して設定します。 (指定チーム: " + t.name() + ")");
     }
 
     public static void setSpawnOfLobby(CommandSender sender, Command cmd, String label, String[] args) {

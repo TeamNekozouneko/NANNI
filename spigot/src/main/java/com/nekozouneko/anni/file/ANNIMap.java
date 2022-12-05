@@ -53,7 +53,7 @@ public class ANNIMap {
     private Map<String, SimpleLocation> nexus;
     private Map<String, SimpleLocation> spawnpoints;
 
-    public ANNIMap(String world, String display, Map<String, SimpleLocation> nexus, Map<String, SimpleLocation> spawnpoints, int min, int max, int rule) {
+    public ANNIMap(String world, String display, Map<String, SimpleLocation> nexus, Map<String, SimpleLocation> spawnpoints) {
         this.world = world;
         this.display = display;
         this.nexus = nexus;
@@ -99,8 +99,8 @@ public class ANNIMap {
     }
 
     public void setSpawnPoint(Team t, SimpleLocation point) {
-        if (!this.nexus.containsValue(point)) {
-            this.nexus.put(t.name(), point);
+        if (!this.spawnpoints.containsValue(point)) {
+            this.spawnpoints.put(t.name(), point);
         }
     }
 

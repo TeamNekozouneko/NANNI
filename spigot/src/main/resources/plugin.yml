@@ -11,10 +11,12 @@ depend:
 commands:
   nanni:
     aliases: ["anni"]
+    permission: nanni.command.nanni
     usage: '/<command>'
 
   nanni-admin:
     aliases: ["anni-admin", "nannim", "annim"]
+    permission: nanni.command.admin
     usage: |
       /<command> map add <world> <displayName>
       /<command> map edit <world> name <displayName>
@@ -23,3 +25,21 @@ commands:
       /<command> map edit <world> nexus <team>
       /<command> map list
       /<command> map remove <world>
+
+default-permission: true
+
+permissions:
+  nanni:
+    children:
+      - nanni.command
+
+  nanni.command:
+    children:
+      - nanni.command.admin
+      - nanni.command.nanni
+
+  nanni.command.admin:
+    default: op
+
+  nanni.command.nanni:
+    default: true

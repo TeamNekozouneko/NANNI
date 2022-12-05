@@ -115,6 +115,7 @@ public class ANNIPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLeaveListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDamageListener(), this);
+        getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
 
         getLogger().info("Registered listener.");
 

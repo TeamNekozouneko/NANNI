@@ -127,6 +127,7 @@ public class BlockDestroyListener implements Listener {
         if (g != null) {
             if (g instanceof NexusLocation) {
                 g.edit(e.getBlock().getLocation());
+                e.setCancelled(true);
             }
         }
     }
