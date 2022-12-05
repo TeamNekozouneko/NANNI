@@ -182,13 +182,13 @@ public class ANNIBigMessage {
             "XXXXXXXXXX"
     };
 
-    private static final Map<Character, String[]> bigIcon = new HashMap<Character, String[]>() {{
+    public static final Map<Character, String[]> bigIcon = Collections.unmodifiableMap(new HashMap<Character, String[]>() {{
             put('1',ONE);put('2',TWO);put('3',THREE);
             put('4',FOUR);put('5',FIVE);put('6',SIX);
             put('7',SEVEN);put('B',B);put('D',D);
             put('L',L);put('G',G);put('R',R);
             put('W',W);put('Y',Y);
-    }};
+    }});
 
     private ANNIBigMessage() {}
 
