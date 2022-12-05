@@ -4,6 +4,7 @@ import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
+import org.bukkit.Sound;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BossBar;
@@ -128,6 +129,13 @@ public class UpdateBossBar extends BukkitRunnable {
                 bb.setTitle(message.get(stats) + " - 開始まであと " + ANNIUtil.toTimerFormat(g.getTimer()));
                 g.setTimer(phase_TIME.get(ANNIStatus.PHASE_ONE));
             } else {
+                if (g.getTimer() <= 5) {
+                    for (Player p : g.getPlayers()) {
+                        p.sendTitle(g.getTimer()+"", null, 5, 20, 5);
+                        p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 1, 2);
+                    }
+                }
+
                 bb.setProgress(ANNIUtil.bossBarProgress(phase_TIME.get(stats), g.getTimer()));
                 bb.setTitle(message.get(stats) + " - 開始まであと " + ANNIUtil.toTimerFormat(g.getTimer()));
                 g.takeTimer();
