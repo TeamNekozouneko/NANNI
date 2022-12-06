@@ -10,14 +10,14 @@ public class WorldLocation {
     private final double x;
     private final double y;
     private final double z;
-    private final double yaw;
-    private final double pitch;
+    private final float yaw;
+    private final float pitch;
 
     public WorldLocation(String world, double x, double y, double z) {
-        this(world, x, y, z, 0d, 0d);
+        this(world, x, y, z, 0f, 0f);
     }
 
-    public WorldLocation(String world, double x, double y, double z, double yaw, double pitch) {
+    public WorldLocation(String world, double x, double y, double z, float yaw, float pitch) {
         this.world = world;
         this.x = x;
         this.y = y;
@@ -55,12 +55,16 @@ public class WorldLocation {
         return z;
     }
 
-    public double getYaw() {
+    public float getYaw() {
         return yaw;
     }
 
-    public double getPitch() {
+    public float getPitch() {
         return pitch;
+    }
+
+    public Location toLocation() {
+        return new Location(getBukkitWorld(),x,y,z,yaw,pitch);
     }
 
 }
