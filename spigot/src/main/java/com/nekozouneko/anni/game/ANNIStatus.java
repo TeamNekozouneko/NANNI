@@ -12,6 +12,8 @@ public enum ANNIStatus {
     PHASE_SIX(6),
     PHASE_SEVEN(7),
 
+    WAITING_RESTART(-4),
+
     STOPPING(-2),
     CANT_START(-3);
 
