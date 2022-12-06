@@ -99,6 +99,7 @@ public class ANNIUtil {
     public static Team balancingJoin(Map<Team, Integer> tm) {
         Map<Team, Integer> ti = new HashMap<>(tm);
         ti.remove(Team.SPECTATOR);
+        ti.remove(Team.NOT_JOINED);
 
         if (!equalsAllValues(ti) && ti.size() >= 1) {
             Map.Entry<Team, Integer> minTeamEntry = null;
@@ -162,6 +163,19 @@ public class ANNIUtil {
         boots.setItemMeta(bootsMeta);
 
         return new ItemStack[] {boots,legs,chest,helmet};
+    }
+
+    public static String phaseId2BoardDisplay(int phase) {
+        if (phase >= 1) {
+            return Integer.valueOf(phase).toString();
+        } else {
+            Map<Integer, String> tr = new HashMap<Integer, String>() {{
+                put(-1, "待機中");put(-2, "停止中");
+                put(-3, "開始不可");put(-4, "再起動待機中");
+            }};
+
+            return tr.get(phase);
+        }
     }
 
 }
