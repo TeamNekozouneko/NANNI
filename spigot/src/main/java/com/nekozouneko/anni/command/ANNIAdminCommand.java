@@ -187,7 +187,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
 
         try {
             t = Team.valueOf(args[4]);
-            if (t == Team.SPECTATOR) throw new IllegalArgumentException();
+            if (t.isSpectator()) throw new IllegalArgumentException();
         } catch (IllegalArgumentException e) {
             sender.sendMessage(NChatColor.RED + "存在しないチームか無効なチームです。");
             return;
