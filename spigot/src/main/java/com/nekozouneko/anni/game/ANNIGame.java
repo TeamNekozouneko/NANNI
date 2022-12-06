@@ -4,10 +4,12 @@ import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.task.UpdateBossBar;
+import com.nekozouneko.anni.util.SimpleLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.*;
 import org.bukkit.boss.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
@@ -136,6 +138,7 @@ public class ANNIGame {
         nexusHealth.put(com.nekozouneko.anni.Team.YELLOW, plugin.getConfig().getInt("anni.nexus.health", 100));
         nexusHealth.put(com.nekozouneko.anni.Team.GREEN, plugin.getConfig().getInt("anni.nexus.health", 100));
         nexusHealth.put(com.nekozouneko.anni.Team.SPECTATOR, -1);
+        nexusHealth.put(com.nekozouneko.anni.Team.NOT_JOINED, -1);
     }
 
     public void randomMap() {
@@ -203,8 +206,7 @@ public class ANNIGame {
     public List<com.nekozouneko.anni.Team> getTeams(boolean excludeSpec) {
         List<com.nekozouneko.anni.Team> s = new ArrayList<>();
         for (com.nekozouneko.anni.Team t:teams.keySet()) {
-            if (excludeSpec && t == com.nekozouneko.anni.Team.SPECTATOR) break;
-            else s.add(t);
+            if (!(excludeSpec && t.isSpectator())) s.add(t);
         }
 
         return s;
@@ -221,11 +223,24 @@ public class ANNIGame {
     }
 
     public void changeTeam(Player p, com.nekozouneko.anni.Team t) {
-        Team old = teams.get(players.get(p));
-        players.put(p, t);
+        if (stat.getPhaseId() <= 0) {
+            Team old = teams.get(players.get(p));
+            Team new1 = teams.get(t);
+            players.put(p, t);
 
-        old.removePlayer(p);
-        teams.get(t).addPlayer(p);
+            if (old != null) old.removePlayer(p);
+            if (new1 != null) new1.addPlayer(p);
+        } else {
+            Team old = teams.get(players.get(p));
+            Team new1 = teams.get(t);
+            players.put(p, t);
+
+            if (old != null) old.removePlayer(p);
+            if (new1 != null) new1.addPlayer(p);
+
+            setDefaultKitToPlayer(p);
+            p.teleport(getTeamSpawnPoint(p));
+        }
     }
 
     public com.nekozouneko.anni.Team randomTeam() {
@@ -235,13 +250,24 @@ public class ANNIGame {
         return t;
     }
 
-    public void join(Player p) {
-        if (!players.containsKey(p)) {
-            Map<com.nekozouneko.anni.Team, Integer> members = new HashMap<>();
-            teams.keySet().forEach((t) -> members.put(t, teams.get(t).getSize()));
-            com.nekozouneko.anni.Team t = ANNIUtil.balancingJoin(members);
+    public void randomTeamJoin(Player p) {
+        if (players.get(p).isSpectator()) {
+            com.nekozouneko.anni.Team t = randomTeam();
             players.put(p, t);
             teams.get(t).addPlayer(p);
+        }
+    }
+
+    public void join(Player p) {
+        if (!players.containsKey(p)) {
+            players.put(p, com.nekozouneko.anni.Team.NOT_JOINED);
+            /*if (stat.getPhaseId() <= 0) {
+                Map<com.nekozouneko.anni.Team, Integer> members = new HashMap<>();
+                teams.keySet().forEach((t) -> members.put(t, teams.get(t).getSize()));
+                com.nekozouneko.anni.Team t = ANNIUtil.balancingJoin(members);
+                players.put(p, t);
+                teams.get(t).addPlayer(p);
+            }*/
         }
     }
 
@@ -270,10 +296,17 @@ public class ANNIGame {
         ItemStack[] armor = teamArmor.get(t);
         if (armor == null) armor = new ItemStack[0];
 
-        if (t != com.nekozouneko.anni.Team.SPECTATOR) {
+        if (!t.isSpectator()) {
             p.getInventory().setContents(defInv);
         }
         p.getInventory().setArmorContents(armor);
+    }
+
+    public Location getTeamSpawnPoint(Player p) {
+        SimpleLocation sl = getMap().getSpawnPoints().get(getPlayerJoinedTeam(p).name());
+        if (sl != null) {
+            return sl.toLocation(Bukkit.getWorld(getMap().getWorld()));
+        } else return Bukkit.getWorld(getMap().getWorld()).getSpawnLocation();
     }
 
     /* ----- */
@@ -290,6 +323,11 @@ public class ANNIGame {
             changeStatus(ANNIStatus.PHASE_ONE);
 
             for (Player p : players.keySet()) {
+                if (players.get(p) == com.nekozouneko.anni.Team.NOT_JOINED) {
+                    randomTeamJoin(p);
+                }
+
+                p.teleport(getTeamSpawnPoint(p));
                 setDefaultKitToPlayer(p);
             }
 
@@ -305,9 +343,11 @@ public class ANNIGame {
         initNexus();
         randomMap();
 
-        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+        for (com.nekozouneko.anni.Team t : getTeams(true)) {
             losedTeams.put(t, false);
         }
+
+        unlockTimer();
     }
 
     public void end(boolean force) {
@@ -378,7 +418,7 @@ public class ANNIGame {
     public void healNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
         if (t == null) return;
 
-        if (t != com.nekozouneko.anni.Team.SPECTATOR) {
+        if (!t.isSpectator()) {
             Integer hth = nexusHealth.get(t);
             nexusHealth.put(t, hth + h);
         }
@@ -387,7 +427,7 @@ public class ANNIGame {
     public void damageNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
         if (t == null) return;
 
-        if (t != com.nekozouneko.anni.Team.SPECTATOR) {
+        if (!t.isSpectator()) {
             Integer hth = nexusHealth.get(t);
             nexusHealth.put(t, hth - h);
         }
@@ -395,7 +435,7 @@ public class ANNIGame {
 
     public Integer getNexusHealth(com.nekozouneko.anni.Team t) {
         if (t == null) throw new NullPointerException("Argument of Team is null.");
-        if (t == com.nekozouneko.anni.Team.SPECTATOR) throw new IllegalArgumentException("Team Spectator not has nexus health.");
+        if (t.isSpectator()) throw new IllegalArgumentException("Team Spectator not has nexus health.");
 
         return nexusHealth.get(t);
     }
