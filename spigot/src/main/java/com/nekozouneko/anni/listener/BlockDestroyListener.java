@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Random;
 
@@ -44,12 +45,6 @@ public class BlockDestroyListener implements Listener {
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.MELON), 100);
                     break;
-                /*case END_STONE_BRICKS:
-                    e.setDropItems(false);
-                    BlockDestroyUtil.finalNexusDestroyParticleSound(loc);
-
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
-                    break;*/
                 case COAL_ORE:
                     e.setDropItems(false);
                     e.setExpToDrop(0);
@@ -139,18 +134,14 @@ public class BlockDestroyListener implements Listener {
     }
 
     private void onNexusDestroy(BlockBreakEvent e) {
-        e.setCancelled(true);
-        e.setDropItems(false);
-
         final ANNIGame g = ANNIPlugin.getGM().getGame();
         if (g.getStatus().getPhaseId() >= 2) {
             Player broker = e.getPlayer();
             Location loc = e.getBlock().getLocation();
+            e.setDropItems(false);
 
             Team t = g.getMap().getNexusTeam(loc);
             if (t == null) {
-                e.setDropItems(true);
-                e.setCancelled(false);
                 return;
             };
             if (t == g.getPlayerJoinedTeam(broker)) {
@@ -173,13 +164,12 @@ public class BlockDestroyListener implements Listener {
                 Bukkit.getScheduler().runTaskLater(
                         plugin, () -> loc.getBlock().setType(Material.END_STONE), 3
                 );
-            } else {
+            } else if (g.getNexusHealth(t) <= 0){
                 BlockDestroyUtil.finalNexusDestroyParticleSound(loc);
 
                 Bukkit.getScheduler().runTaskLater(
                         plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3
                 );
-
                 g.loseTeam(t);
 
                 if (g.getNotLostTeams().size() > 1) {
@@ -191,16 +181,52 @@ public class BlockDestroyListener implements Listener {
                         g.broadcast(s);
                     }
                 } else {
-                    Team winTeam = g.getNotLostTeams().get(0);
-                    org.bukkit.scoreboard.Team winBukkitTeam = g.getScoreBoardTeam(winTeam);
+                    try {
+                        Team winTeam = g.getNotLostTeams().get(0);
+                        org.bukkit.scoreboard.Team winBukkitTeam = g.getScoreBoardTeam(winTeam);
 
-                    for (String s:ANNIBigMessage.createMessage(
-                        UpdateBossBar.bigCharMap.get(winTeam), winBukkitTeam.getColor().getChar(),
-                        winBukkitTeam.getColor()+winBukkitTeam.getDisplayName()+"の勝利",
-                        "自動的にロビーにテレポートします。"
-                    )) {
-                        g.broadcast(s);
+                        for (String s : ANNIBigMessage.createMessage(
+                                UpdateBossBar.bigCharMap.get(winTeam), winBukkitTeam.getColor().getChar(),
+                                winBukkitTeam.getColor() + winBukkitTeam.getDisplayName() + "の勝利",
+                                "30秒後にロビーにテレポートします。"
+                        )) {
+                            g.broadcast(s);
+                        }
+
+                        g.lockTimer();
+                        g.getBossBar().setTitle(UpdateBossBar.message.get(g.getStatus()) + " - " + ANNIUtil.toTimerFormat(g.getTimer()));
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
                     }
+
+                    g.changeStatus(ANNIStatus.WAITING_RESTART);
+
+                    new BukkitRunnable() {
+                        int time = 30;
+
+                        @Override
+                        public void run() {
+                            if (time <= 0) {
+                                for (Player p : g.getPlayers()) {
+                                    p.setGameMode(GameMode.ADVENTURE);
+                                    p.getInventory().clear();
+                                    p.teleport(ANNIPlugin.getLobby().getLocation().toLocation());
+                                }
+                                g.restart();
+                                cancel();
+                            } else {
+                                if (time > 5) {
+                                    if (time % 5 == 0) {
+                                        g.broadcast("再起動まであと" + time + "秒");
+                                    }
+                                } else {
+                                    g.broadcast("再起動まであと" + time + "秒");
+                                }
+
+                                time--;
+                            }
+                        }
+                    }.runTaskTimer(plugin, 20, 20);
                 }
             }
             //Bukkit.getServer().getPluginManager().callEvent(new NexusAttackEvent(e.getPlayer(), g.getPlayerJoi));
@@ -215,9 +241,6 @@ public class BlockDestroyListener implements Listener {
                 }
 
                 e.setCancelled(true);
-            } else {
-                e.setCancelled(false);
-                e.setDropItems(true);
             }
         }
     }
