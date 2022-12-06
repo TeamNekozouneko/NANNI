@@ -34,7 +34,8 @@ public final class TeamSelector {
         Inventory inv = Bukkit.createInventory(null, 9, "チームを選択");
 
         Team t = ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(p);
-        String tn = t != null ? ANNIPlugin.getGM().getGame().getScoreBoardTeam(t).getDisplayName() + "" : "無所属";
+        org.bukkit.scoreboard.Team st = ANNIPlugin.getGM().getGame().getScoreBoardTeam(t);
+        String tn = (t != null && st != null) ? st.getDisplayName() + "" : "無所属";
 
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
