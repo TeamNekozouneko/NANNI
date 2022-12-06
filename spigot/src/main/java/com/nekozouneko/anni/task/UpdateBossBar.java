@@ -28,8 +28,7 @@ public class UpdateBossBar extends BukkitRunnable {
     }});
     private Map.Entry<ANNIStatus, Integer> timer = new AbstractMap.SimpleEntry<>(ANNIStatus.STOPPING, -1);
 
-    private static final Map<ANNIStatus, String> message = new HashMap<ANNIStatus, String>() {
-        {
+    public static final Map<ANNIStatus, String> message = Collections.unmodifiableMap(new HashMap<ANNIStatus, String>() {{
             put(ANNIStatus.CANT_START, "開始不可 (設定不足)");
             put(ANNIStatus.PHASE_ONE, "フェーズ 1");
             put(ANNIStatus.PHASE_TWO, "フェーズ 2");
@@ -40,9 +39,8 @@ public class UpdateBossBar extends BukkitRunnable {
             put(ANNIStatus.PHASE_SEVEN, "フェーズ 7");
             put(ANNIStatus.WAITING, "待機中");
             put(ANNIStatus.STOPPING, "ゲームを停止中 (運営の操作が必要です)");
-        }
-    };
-    private static final Map<ANNIStatus, Integer> phase_TIME = new HashMap<ANNIStatus, Integer>() {{
+    }});
+    public static final Map<ANNIStatus, Integer> phase_TIME = Collections.unmodifiableMap(new HashMap<ANNIStatus, Integer>() {{
         put(ANNIStatus.CANT_START, -1);
         put(ANNIStatus.PHASE_ONE, 600);
         put(ANNIStatus.PHASE_TWO, 600);
@@ -53,7 +51,7 @@ public class UpdateBossBar extends BukkitRunnable {
         put(ANNIStatus.PHASE_SEVEN, 600);
         put(ANNIStatus.WAITING, 60);
         put(ANNIStatus.STOPPING, -1);
-    }};
+    }});
 
     public UpdateBossBar(ANNIGame g) {
         this.g = g;
@@ -90,6 +88,7 @@ public class UpdateBossBar extends BukkitRunnable {
                 break;
             case PHASE_THREE:
                 phase3Case(g.getStatus());
+                break;
             default: break;
         }
     }
@@ -119,12 +118,13 @@ public class UpdateBossBar extends BukkitRunnable {
         final int ps;
         int psr = g.getPlayers(Team.RED).size();
         int psb = g.getPlayers(Team.BLUE).size();
+        int psu = g.getPlayers(Team.NOT_JOINED).size();
         if (g.getManager().getRuleType() == 4) {
             int psg = g.getPlayers(Team.GREEN).size();
             int psy = g.getPlayers(Team.YELLOW).size();
 
-            ps = psr+psb+psg+psy;
-        } else ps = psr+psb;
+            ps = psr+psb+psg+psy+psu;
+        } else ps = psr+psb+psu;
 
         if (min <= ps) {
             if (g.getTimer() <= -1) {
