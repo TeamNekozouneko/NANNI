@@ -55,7 +55,8 @@ public class UpdateBoard extends BukkitRunnable {
                 || annig.getStatus() == ANNIStatus.STOPPING || ANNIStatus.CANT_START == annig.getStatus())
                 {
                     Team t = annig.getPlayerJoinedTeam(p);
-                    String tn = t != null ? annig.getScoreBoardTeam(t).getDisplayName() + "" : "無所属";
+                    org.bukkit.scoreboard.Team st = annig.getScoreBoardTeam(t);
+                    String tn = (t != null && st != null) ? st.getDisplayName() + "" : "無所属";
 
                     b.setAll(
                             "§8" + annig.getId16(),
@@ -72,7 +73,7 @@ public class UpdateBoard extends BukkitRunnable {
                                 "§8" + annig.getId16(),
                                 "   ",
                                 "マップ: §c" + mn,
-                                "フェーズ: §c" + annig.getStatus().getPhaseId(),
+                                "フェーズ: §c" + ANNIUtil.phaseId2BoardDisplay(annig.getStatus().getPhaseId()),
                                 "  ",
                                 "§c赤: §7" + annig.getNexusHealthForBoard(Team.RED),
                                 "§9青: §7" + annig.getNexusHealthForBoard(Team.BLUE),
