@@ -29,15 +29,17 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
                     break;
                 case "leave":
                     ANNIPlugin.getGM().leaveFromGame((Player) sender);
+                    if (((Player) sender).getLocation().getWorld() != ANNIPlugin.getLobby().getLocation().getBukkitWorld()) {
+                        ANNIPlugin.teleportToLobby((Player) sender);
+                    }
                     break;
                 case "team":
-                    if (ANNIPlugin.getGM().isJoined((Player) sender)) TeamSelector.open((Player) sender);
-                    else sender.sendMessage("参加していないためチームを参加することはできません");
+                    if (ANNIPlugin.getGM().isJoined((Player) sender)) {
+                        TeamSelector.open((Player) sender);
+                    }
+                    else sender.sendMessage("参加していないためチームを選択することはできません");
                     break;
                 default:
-                    if (args.length == 1) {
-                        ANNIPlugin.getGM().getGame().setTimer(Long.parseLong(args[0]));
-                    }
                     sender.sendMessage("そんなサブコマンドないよ");
                     break;
             }
