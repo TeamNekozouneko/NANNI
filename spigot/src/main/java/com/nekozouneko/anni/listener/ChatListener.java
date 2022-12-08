@@ -67,16 +67,19 @@ public class ChatListener implements Listener {
                                 return;
                             }
                         } else {
-                            if (g.isJoined(tar) && g.getPlayerJoinedTeam(tar) == g.getPlayerJoinedTeam(p)) {
+                            if (g.isJoined(tar) && g.getPlayerJoinedTeam(tar) != g.getPlayerJoinedTeam(p)) {
                                 p.sendMessage(NChatColor.RED + "一致したプレイヤーが別チームのため送信できません。");
+                                e.setCancelled(true);
                                 return;
                             }
                         }
 
                         arr.remove(0);
 
-                        tar.sendMessage("§7[ "+ANNIUtil.teamPrefixSuffixAppliedName(p)+"§7 ->§r "+ ANNIUtil.teamPrefixSuffixAppliedName(tar) +"§7 ] §r" + String.join(" ", arr));
-                        p.sendMessage("§7[ "+ANNIUtil.teamPrefixSuffixAppliedName(p)+"§7 ->§r "+ ANNIUtil.teamPrefixSuffixAppliedName(tar) +"§7 ] §r" + String.join(" ", arr));
+                        String tm = "§7[ "+ANNIUtil.teamPrefixSuffixAppliedName(p)+"§7 ->§r "+ ANNIUtil.teamPrefixSuffixAppliedName(tar) +"§7 ] §r" + String.join(" ", arr);
+
+                        tar.sendMessage(tm);
+                        p.sendMessage(tm);
 
                         e.setCancelled(true);
                     }
