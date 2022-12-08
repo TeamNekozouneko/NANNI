@@ -12,6 +12,7 @@ import com.nekozouneko.anni.gui.location.AbstractGUILocationSelector;
 import com.nekozouneko.anni.gui.location.NexusLocation;
 import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.anni.util.BlockDestroyUtil;
+import com.nekozouneko.anni.util.SimpleLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -112,7 +113,7 @@ public class BlockDestroyListener implements Listener {
                 case EMERALD_ORE:
                     e.setDropItems(false);
                     e.setExpToDrop(0);
-                    if (ANNIUtil.isMineableOre(bt, e.getPlayer().getInventory().getItemInMainHand().getType())) {
+                    if (ANNIUtil.isMineableOre(bt, e.getPlayer().getInventory().getItemInMainHand().getType()) && ANNIPlugin.getGM().getGame().getStatus().getPhaseId() >= 3) {
                         e.getPlayer().getInventory().addItem(
                                 new ItemStack(
                                         ANNIUtil.getOreMinedResult(bt),
@@ -138,6 +139,22 @@ public class BlockDestroyListener implements Listener {
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 100);
                 default:
+                    for (SimpleLocation l : ANNIPlugin.getGM().getGame().getMap().getNexusList().values()) {
+                        Location fl = l.toLocation(ANNIPlugin.getGM().getGame().getCopiedMap());
+
+                        if (
+                                ((fl.getX()-10d) <= e.getBlock().getLocation().getX()
+                                        && (fl.getX()+10d) >= e.getBlock().getLocation().getX()) &&
+                                        ((fl.getY()-10d) <= e.getBlock().getLocation().getY()
+                                                && (fl.getY()+10d) >= e.getBlock().getLocation().getY()) &&
+                                        ((fl.getZ()-10d) <= e.getBlock().getLocation().getZ()
+                                                && (fl.getZ()+10d) >= e.getBlock().getLocation().getZ())
+                                        && e.getPlayer().getGameMode() == GameMode.SURVIVAL
+                        ) {
+                            e.getPlayer().sendMessage(NChatColor.RED + "ネクサス付近は破壊できません。");
+                            e.setCancelled(true);
+                        }
+                    }
                     break;
             }
         }
