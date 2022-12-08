@@ -89,6 +89,12 @@ public class UpdateBossBar extends BukkitRunnable {
             case PHASE_THREE:
                 phase3Case(g.getStatus());
                 break;
+            case PHASE_FOUR:
+                phase4Case(g.getStatus());
+                break;
+            case PHASE_FIVE:
+                phase5Case(g.getStatus());
+                break;
             default: break;
         }
     }
@@ -202,6 +208,36 @@ public class UpdateBossBar extends BukkitRunnable {
         bb.setTitle(message.get(stats) + " - " + ANNIUtil.toTimerFormat(g.getTimer()));
         bb.setProgress(ANNIUtil.bossBarProgress(phase_TIME.get(stats), g.getTimer()));
         g.takeTimer();
+    }
+
+    private void phase4Case(final ANNIStatus stats) {
+        if (g.getTimer() <= 0) {
+            bb.setTitle(message.get(stats) + " - " + ANNIUtil.toTimerFormat(g.getTimer()));
+            bb.setProgress(ANNIUtil.bossBarProgress(phase_TIME.get(stats), g.getTimer()));
+
+            g.setTimer(phase_TIME.get(ANNIStatus.PHASE_FIVE));
+            g.changeStatus(ANNIStatus.PHASE_FIVE);
+            return;
+        }
+
+        bb.setTitle(message.get(stats) + " - " + ANNIUtil.toTimerFormat(g.getTimer()));
+        bb.setProgress(ANNIUtil.bossBarProgress(phase_TIME.get(stats), g.getTimer()));
+        g.takeTimer();
+    }
+
+    private void phase5Case(final ANNIStatus stats) {
+        /*if (g.getTimer() <= 0) {
+            bb.setTitle(message.get(stats) + " - " + ANNIUtil.toTimerFormat(g.getTimer()));
+            bb.setProgress(ANNIUtil.bossBarProgress(phase_TIME.get(stats), g.getTimer()));
+
+            g.setTimer(phase_TIME.get(ANNIStatus.PHASE_FOUR));
+            g.changeStatus(ANNIStatus.PHASE_FOUR);
+            return;
+        }*/
+
+        bb.setTitle(message.get(stats));
+        bb.setProgress(0.0);
+        /*g.takeTimer();*/
     }
 
 }
