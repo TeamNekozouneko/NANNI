@@ -21,12 +21,26 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class BlockDestroyListener implements Listener {
 
     private final Random r = new Random();
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
+    private final Map<Material, Integer> expRate = Collections.unmodifiableMap(
+            new HashMap<Material, Integer>() {{
+                put(Material.COAL_ORE, 3);
+                put(Material.IRON_ORE, 5);
+                put(Material.GOLD_ORE, 15);
+                put(Material.REDSTONE_ORE, 1);
+                put(Material.DIAMOND_ORE, 15);
+                put(Material.EMERALD_ORE, 15);
+                put(Material.LAPIS_ORE, 7);
+            }}
+    );
 
     @EventHandler
     public void onEvent(BlockBreakEvent e) {
@@ -55,6 +69,7 @@ public class BlockDestroyListener implements Listener {
                                         ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
                                 )
                         );
+                        e.getPlayer().giveExp(expRate.get(bt));
                     }
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
@@ -72,6 +87,7 @@ public class BlockDestroyListener implements Listener {
                                         ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
                                 )
                         );
+                        e.getPlayer().giveExp(expRate.get(bt));
                     }
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
@@ -86,6 +102,7 @@ public class BlockDestroyListener implements Listener {
                                         ANNIUtil.getOreMinedResult(bt), ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
                                 )
                         );
+                        e.getPlayer().giveExp(expRate.get(bt));
                     }
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
@@ -102,6 +119,7 @@ public class BlockDestroyListener implements Listener {
                                         ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
                                 )
                         );
+                        e.getPlayer().giveExp(expRate.get(bt));
                     }
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
@@ -138,26 +156,31 @@ public class BlockDestroyListener implements Listener {
         if (g.getStatus().getPhaseId() >= 2) {
             Player broker = e.getPlayer();
             Location loc = e.getBlock().getLocation();
-            e.setDropItems(false);
 
             Team t = g.getMap().getNexusTeam(loc);
             if (t == null) {
                 return;
-            };
+            }
             if (t == g.getPlayerJoinedTeam(broker)) {
                 broker.sendMessage(NChatColor.RED + "自陣のネクサスは破壊できません。");
+                e.setDropItems(false);
+                e.setCancelled(true);
                 return;
             }
+            int dam;
 
             if (g.getStatus().getPhaseId() >= 4) {
-                g.damageNexusHealth(t, 2);
+                dam = 2;
+                g.damageNexusHealth(t, dam);
             } else {
-                g.damageNexusHealth(t, 1);
+                dam = 1;
+                g.damageNexusHealth(t, dam);
             }
 
             g.getBossBar().setTitle(
                     broker.getDisplayName() + "が" + g.getScoreBoardTeam(t).getDisplayName() + "のネクサスにダメージを与えました!"
             );
+            e.setDropItems(false);
             if (g.getNexusHealth(t) >= 1) {
                 BlockDestroyUtil.nexusDestroyParticleSound(loc);
 
@@ -210,7 +233,7 @@ public class BlockDestroyListener implements Listener {
                                 for (Player p : g.getPlayers()) {
                                     p.setGameMode(GameMode.ADVENTURE);
                                     p.getInventory().clear();
-                                    p.teleport(ANNIPlugin.getLobby().getLocation().toLocation());
+                                    ANNIPlugin.teleportToLobby(p);
                                 }
                                 g.restart();
                                 cancel();
@@ -228,18 +251,28 @@ public class BlockDestroyListener implements Listener {
                         }
                     }.runTaskTimer(plugin, 20, 20);
                 }
+            } else {
+                BlockDestroyUtil.nexusDestroyParticleSound(loc);
+
+                Bukkit.getScheduler().runTaskLater(
+                        plugin, () -> loc.getBlock().setType(Material.END_STONE), 3
+                );
             }
             //Bukkit.getServer().getPluginManager().callEvent(new NexusAttackEvent(e.getPlayer(), g.getPlayerJoi));
         } else {
-            if (g.getMap().getNexusTeam(e.getBlock().getLocation()) != null) {
+            Location fl = e.getBlock().getLocation();
+            fl.setWorld(g.getCopiedMap());
+            if (g.getMap().getNexusTeam(fl) != null) {
                 if (
                         g.getMap().getNexusTeam(e.getBlock().getLocation())
                                 == g.getPlayerJoinedTeam(e.getPlayer())
                 ) {
                     e.getPlayer().sendMessage(NChatColor.RED + "自陣のネクサスは破壊できません。");
-                    return;
+                } else {
+                    e.getPlayer().sendMessage(NChatColor.RED + "ネクサスの破壊はフェーズ2以降です。");
                 }
 
+                e.setDropItems(false);
                 e.setCancelled(true);
             }
         }
