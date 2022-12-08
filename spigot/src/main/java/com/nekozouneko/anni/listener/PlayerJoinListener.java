@@ -13,7 +13,7 @@ public class PlayerJoinListener implements Listener {
     public void onEvent(PlayerJoinEvent e) {
         e.setJoinMessage(null);
         e.getPlayer().setGameMode(GameMode.ADVENTURE);
-        e.getPlayer().teleport(ANNIPlugin.getGM().getGame().getTeamSpawnPoint(e.getPlayer()));
+        ANNIPlugin.teleportToLobby(e.getPlayer());
     }
 
 }
