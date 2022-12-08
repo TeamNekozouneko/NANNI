@@ -32,7 +32,7 @@ public class BlockPlaceListener implements Listener {
                         && (fl.getZ()+10d) >= e.getBlock().getLocation().getZ())
                         && e.getPlayer().getGameMode() == GameMode.SURVIVAL
                 ) {
-                    e.getPlayer().sendMessage(NChatColor.RED + "ネクサス付近は設置はできません。");
+                    e.getPlayer().sendMessage(NChatColor.RED + "ネクサス付近は設置できません。");
                     e.setCancelled(true);
                 }
             }
