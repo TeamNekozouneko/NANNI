@@ -3,24 +3,32 @@ package com.nekozouneko.anni.game;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.file.ANNIMap;
+import com.nekozouneko.anni.task.SuddenDeathTask;
 import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.anni.util.SimpleLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.boss.*;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class ANNIGame {
 
     private final GameManager gm;
     private ANNIMap map;
+    private World copyWorld;
     private final int id = new Random().nextInt(0x1000000);
     private final String id16 = Integer.toHexString(id);
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
@@ -33,12 +41,11 @@ public class ANNIGame {
     private final Map<com.nekozouneko.anni.Team, Boolean> losedTeams = new HashMap<>();
     public static final Map<com.nekozouneko.anni.Team, ItemStack[]> teamArmor = Collections.unmodifiableMap(
             new HashMap<com.nekozouneko.anni.Team, ItemStack[]>() {{
-        put(com.nekozouneko.anni.Team.RED, ANNIUtil.createColorLeatherArmor(Color.RED));
-        put(com.nekozouneko.anni.Team.BLUE, ANNIUtil.createColorLeatherArmor(Color.BLUE));
-        put(com.nekozouneko.anni.Team.YELLOW, ANNIUtil.createColorLeatherArmor(Color.YELLOW));
-        put(com.nekozouneko.anni.Team.GREEN, ANNIUtil.createColorLeatherArmor(Color.GREEN));
-    }}
-    );
+                put(com.nekozouneko.anni.Team.RED, ANNIUtil.createColorLeatherArmor(Color.RED));
+                put(com.nekozouneko.anni.Team.BLUE, ANNIUtil.createColorLeatherArmor(Color.BLUE));
+                put(com.nekozouneko.anni.Team.YELLOW, ANNIUtil.createColorLeatherArmor(Color.YELLOW));
+                put(com.nekozouneko.anni.Team.GREEN, ANNIUtil.createColorLeatherArmor(Color.GREEN));
+    }});
     private final KeyedBossBar bb = Bukkit.createBossBar(
             new NamespacedKey(plugin, id16),
             "待機中",
@@ -49,6 +56,58 @@ public class ANNIGame {
 
     private final Map<com.nekozouneko.anni.Team, Integer> nexusHealth = new HashMap<>();
     private BukkitRunnable bbbr;
+    private BukkitRunnable suddenTask;
+    private Map<UUID, TeamPlayerInventory> savedInv = new HashMap<>();
+
+    private static class TeamPlayerInventory {
+        private final UUID uuid;
+        private final com.nekozouneko.anni.Team team;
+
+        private final ItemStack[] armors;
+        private final ItemStack offhand;
+        private final ItemStack[] contents;
+
+        public TeamPlayerInventory(com.nekozouneko.anni.Team team, Player player) {
+            this.team = team;
+            this.uuid = player.getUniqueId();
+            this.armors = player.getInventory().getArmorContents();
+            this.offhand = player.getInventory().getItemInOffHand();
+            this.contents = player.getInventory().getContents();
+        }
+
+        public TeamPlayerInventory(com.nekozouneko.anni.Team team, UUID uuid, ItemStack[] armors, ItemStack offhand, ItemStack[] contents) {
+            this.team = team;
+            this.uuid = uuid;
+            this.armors = armors;
+            this.offhand = offhand;
+            this.contents = contents;
+        }
+
+        public void set(Player p) {
+            p.getInventory().setContents(contents);
+            p.getInventory().setArmorContents(armors);
+            p.getInventory().setItemInOffHand(offhand);
+        }
+
+        public void set() {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p == null) return;
+
+            set(p);
+        }
+
+        public UUID getUUID() {
+            return uuid;
+        }
+
+        public Player getPlayer() {
+            return Bukkit.getPlayer(uuid);
+        }
+
+        public com.nekozouneko.anni.Team getTeam() {
+            return team;
+        }
+    }
 
     protected ANNIGame(GameManager gm){
         this.gm = gm;
@@ -203,6 +262,14 @@ public class ANNIGame {
         this.map = map;
     }
 
+    public World getCopiedMap() {
+        return copyWorld;
+    }
+
+    public void setCopiedMap(World world) {
+        copyWorld = world;
+    }
+
     public List<com.nekozouneko.anni.Team> getTeams(boolean excludeSpec) {
         List<com.nekozouneko.anni.Team> s = new ArrayList<>();
         for (com.nekozouneko.anni.Team t:teams.keySet()) {
@@ -220,6 +287,8 @@ public class ANNIGame {
         if (stat == ANNIStatus.PHASE_ONE) phaseOne();
         if (stat == ANNIStatus.PHASE_TWO) phaseTwo();
         if (stat == ANNIStatus.PHASE_THREE) phaseThree();
+        if (stat == ANNIStatus.PHASE_FOUR) phaseFour();
+        if (stat == ANNIStatus.PHASE_FIVE) phaseFive();
     }
 
     public void changeTeam(Player p, com.nekozouneko.anni.Team t) {
@@ -232,14 +301,35 @@ public class ANNIGame {
             if (new1 != null) new1.addPlayer(p);
         } else {
             Team old = teams.get(players.get(p));
-            Team new1 = teams.get(t);
-            players.put(p, t);
+            if (t != com.nekozouneko.anni.Team.NOT_JOINED) {
+                if (players.get(p).isSpectator()) {
+                    Team new1 = teams.get(t);
+                    players.put(p, t);
 
-            if (old != null) old.removePlayer(p);
-            if (new1 != null) new1.addPlayer(p);
+                    if (old != null) old.removePlayer(p);
+                    if (new1 != null) new1.addPlayer(p);
 
-            setDefaultKitToPlayer(p);
-            p.teleport(getTeamSpawnPoint(p));
+                    setDefaultKitToPlayer(p);
+                    p.teleport(getTeamSpawnPoint(p));
+                    p.setHealthScale(p.getHealthScale());
+                    p.setSaturation(10.0f);
+                    p.setTotalExperience(0);
+                    p.setGameMode(GameMode.SURVIVAL);
+                } else {
+                    p.sendMessage("途中でチームを変更することはできません。");
+                }
+            } else {
+
+                if (old != null) old.removePlayer(p);
+                players.put(p, com.nekozouneko.anni.Team.NOT_JOINED);
+
+                p.getInventory().clear();
+                p.teleport(ANNIPlugin.getLobby().getLocation().toLocation());
+                p.setHealthScale(p.getHealthScale());
+                p.setSaturation(10.0f);
+                p.setTotalExperience(0);
+                p.setGameMode(GameMode.ADVENTURE);
+            }
         }
     }
 
@@ -268,6 +358,15 @@ public class ANNIGame {
                 players.put(p, t);
                 teams.get(t).addPlayer(p);
             }*/
+
+            if (savedInv.containsKey(p.getUniqueId())) {
+                TeamPlayerInventory tpi = savedInv.get(p.getUniqueId());
+
+                changeTeam(p, tpi.getTeam());
+                tpi.set(p);
+
+                savedInv.remove(p.getUniqueId());
+            }
         }
     }
 
@@ -276,17 +375,22 @@ public class ANNIGame {
     }
 
     public void leave(Player p) {
+        if (players.containsKey(p)) {
+            savedInv.put(p.getUniqueId(), new TeamPlayerInventory(players.get(p), p));
+        }
+
         teams.values().forEach((t) -> {
             if (t.hasEntry(p.getName())) t.removeEntry(p.getName());
             if (t.hasPlayer(p)) t.removePlayer(p);
         });
         players.remove(p);
+        p.getInventory().clear();
     }
 
     public void setDefaultKitToPlayer(Player p) {
         final ItemStack[] defInv = new ItemStack[36];
         defInv[0] = new ItemStack(Material.WOODEN_SWORD);
-        defInv[1] = new ItemStack(Material.GOLDEN_PICKAXE);
+        defInv[1] = new ItemStack(Material.STONE_PICKAXE);
         defInv[2] = new ItemStack(Material.WOODEN_AXE);
         defInv[3] = new ItemStack(Material.WOODEN_SHOVEL);
 
@@ -305,8 +409,8 @@ public class ANNIGame {
     public Location getTeamSpawnPoint(Player p) {
         SimpleLocation sl = getMap().getSpawnPoints().get(getPlayerJoinedTeam(p).name());
         if (sl != null) {
-            return sl.toLocation(Bukkit.getWorld(getMap().getWorld()));
-        } else return Bukkit.getWorld(getMap().getWorld()).getSpawnLocation();
+            return sl.toLocation(copyWorld);
+        } else return copyWorld.getSpawnLocation();
     }
 
     /* ----- */
@@ -320,6 +424,8 @@ public class ANNIGame {
 
     public boolean start(){
         if (canStart()) {
+            copyWorld(id16+"_"+getMap().getWorld());
+
             changeStatus(ANNIStatus.PHASE_ONE);
 
             for (Player p : players.keySet()) {
@@ -328,6 +434,10 @@ public class ANNIGame {
                 }
 
                 p.teleport(getTeamSpawnPoint(p));
+                p.setGameMode(GameMode.SURVIVAL);
+                p.setHealthScale(p.getHealthScale());
+                p.setSaturation(10.0f);
+                p.setTotalExperience(0);
                 setDefaultKitToPlayer(p);
             }
 
@@ -368,15 +478,59 @@ public class ANNIGame {
                 for (OfflinePlayer p : t.getPlayers()) t.removePlayer(p);
             });
         }
+        if (copyWorld != null) {
+            Bukkit.unloadWorld(copyWorld, true);
+            try {
+                ANNIUtil.safeDeleteDir(copyWorld.getWorldFolder().toPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         players.clear();
+        savedInv.clear();
     }
 
     public void pluginDisable() {
+        getPlayers().forEach(ANNIPlugin::teleportToLobby);
         end(true);
         bb.setVisible(false);
         bb.removeAll();
         Bukkit.removeBossBar(new NamespacedKey(plugin, id16));
         bbbr.cancel();
+    }
+
+    public void copyWorld(String target) {
+        ANNIPlugin.getInstance().getLogger().info("Copying World '"+ target +"'");
+        World w = Bukkit.getWorld(getMap().getWorld());
+
+        if (Bukkit.getWorld(target) != null) {
+            ANNIPlugin.getInstance().getLogger().warning("World '"+target+"' is existing.");
+            return;
+        }
+
+        if (w == null) return;
+
+        try {
+            Files.walkFileTree(
+                    w.getWorldFolder().toPath(),
+                    new ANNIUtil.copyDirectoryVisitor(
+                            w.getWorldFolder().toPath(),
+                            Paths.get("./"+target),
+                            Arrays.asList("session.lock", "uid.dat")
+                    )
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+            ANNIPlugin.getInstance().getLogger().warning("Error occurred");
+            return;
+        }
+
+        World copied = WorldCreator.name(target).createWorld();
+
+        if (copied != null) {
+            setCopiedMap(copied);
+        }
+        ANNIPlugin.getInstance().getLogger().info("End copy world successful.");
     }
 
     /* ----- Game ----- */
@@ -430,6 +584,10 @@ public class ANNIGame {
         if (!t.isSpectator()) {
             Integer hth = nexusHealth.get(t);
             nexusHealth.put(t, hth - h);
+
+            for (Player p : getPlayers(t)) {
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1, 2);
+            }
         }
     }
 
@@ -442,9 +600,8 @@ public class ANNIGame {
 
     public String getNexusHealthForBoard(com.nekozouneko.anni.Team t) {
         Integer i = getNexusHealth(t);
-        boolean isLose = losedTeams.get(t);
 
-        if (isLose || i <= 0) {
+        if (isLose(t) || i <= 0) {
             return "§c✖";
         } else {
             return i.toString();
@@ -544,7 +701,7 @@ public class ANNIGame {
             for (String b :
                     ANNIBigMessage.createMessage(
                             '3', teams.get(t).getColor().getChar(), "フェーズ3が開始されました。",
-                            "§7中央のダイヤ鉱石が採掘可能になります。"
+                            "§7ダイヤ鉱石が採掘可能になります。"
                     )
             ) {
                 broadcast(t, b);
@@ -552,4 +709,41 @@ public class ANNIGame {
         }
     }
 
+    private void phaseFour() {
+        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+            for (String b :
+                    ANNIBigMessage.createMessage(
+                            '4', teams.get(t).getColor().getChar(), "フェーズ4が開始されました。",
+                            "§7ネクサスへのダメージが2倍になります。"
+                    )
+            ) {
+                broadcast(t, b);
+            }
+        }
+    }
+
+    private void phaseFive() {
+        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+            for (String b :
+                    ANNIBigMessage.createMessage(
+                            '5', teams.get(t).getColor().getChar(), "フェーズ5が開始されました。",
+                            "§c§lサドンデスが開始",
+                            "§7ネクサスの体力が1になるまで減っていきます。"
+                    )
+            ) {
+                broadcast(t, b);
+            }
+        }
+
+        for (Player p : players.keySet()) {
+            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1, 1);
+        }
+
+        if (suddenTask != null && !suddenTask.isCancelled()) {
+            suddenTask.cancel();
+        }
+
+        suddenTask = new SuddenDeathTask(this);
+        suddenTask.runTaskTimer(plugin, 100, 100);
+    }
 }
