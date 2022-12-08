@@ -66,6 +66,7 @@ public class ANNIGame {
         private final ItemStack[] armors;
         private final ItemStack offhand;
         private final ItemStack[] contents;
+        private final ItemStack[] ender;
 
         public TeamPlayerInventory(com.nekozouneko.anni.Team team, Player player) {
             this.team = team;
@@ -73,20 +74,23 @@ public class ANNIGame {
             this.armors = player.getInventory().getArmorContents();
             this.offhand = player.getInventory().getItemInOffHand();
             this.contents = player.getInventory().getContents();
+            this.ender = player.getEnderChest().getContents();
         }
 
-        public TeamPlayerInventory(com.nekozouneko.anni.Team team, UUID uuid, ItemStack[] armors, ItemStack offhand, ItemStack[] contents) {
+        public TeamPlayerInventory(com.nekozouneko.anni.Team team, UUID uuid, ItemStack[] armors, ItemStack offhand, ItemStack[] contents, ItemStack[] ender) {
             this.team = team;
             this.uuid = uuid;
             this.armors = armors;
             this.offhand = offhand;
             this.contents = contents;
+            this.ender = ender;
         }
 
         public void set(Player p) {
             p.getInventory().setContents(contents);
             p.getInventory().setArmorContents(armors);
             p.getInventory().setItemInOffHand(offhand);
+            p.getEnderChest().setContents(ender);
         }
 
         public void set() {
@@ -324,6 +328,7 @@ public class ANNIGame {
                 players.put(p, com.nekozouneko.anni.Team.NOT_JOINED);
 
                 p.getInventory().clear();
+                p.getEnderChest().clear();
                 p.teleport(ANNIPlugin.getLobby().getLocation().toLocation());
                 p.setHealthScale(p.getHealthScale());
                 p.setSaturation(10.0f);
@@ -358,6 +363,7 @@ public class ANNIGame {
                 players.put(p, t);
                 teams.get(t).addPlayer(p);
             }*/
+            broadcast(p.getName() + "§eがゲームに参加しました");
 
             if (savedInv.containsKey(p.getUniqueId())) {
                 TeamPlayerInventory tpi = savedInv.get(p.getUniqueId());
@@ -384,6 +390,7 @@ public class ANNIGame {
             if (t.hasPlayer(p)) t.removePlayer(p);
         });
         players.remove(p);
+        p.getEnderChest().clear();
         p.getInventory().clear();
     }
 
@@ -393,6 +400,7 @@ public class ANNIGame {
         defInv[1] = new ItemStack(Material.STONE_PICKAXE);
         defInv[2] = new ItemStack(Material.WOODEN_AXE);
         defInv[3] = new ItemStack(Material.WOODEN_SHOVEL);
+        defInv[8] = new ItemStack(Material.BREAD, 32);
 
 
         com.nekozouneko.anni.Team t = players.get(p);
@@ -433,6 +441,7 @@ public class ANNIGame {
                     randomTeamJoin(p);
                 }
 
+                p.getEnderChest().clear();
                 p.teleport(getTeamSpawnPoint(p));
                 p.setGameMode(GameMode.SURVIVAL);
                 p.setHealthScale(p.getHealthScale());
@@ -478,6 +487,11 @@ public class ANNIGame {
                 for (OfflinePlayer p : t.getPlayers()) t.removePlayer(p);
             });
         }
+
+        for (Player p : players.keySet()) {
+            p.getInventory().clear();
+        }
+
         if (copyWorld != null) {
             Bukkit.unloadWorld(copyWorld, true);
             try {
@@ -615,6 +629,7 @@ public class ANNIGame {
         for (Player p:players.keySet()) {
             p.sendMessage(m);
         }
+        ANNIPlugin.getInstance().getLogger().info(m);
     }
 
     public void broadcast(com.nekozouneko.anni.Team team, String message) {
@@ -625,6 +640,7 @@ public class ANNIGame {
             if (p == null) return;
             p.sendMessage(NChatColor.replaceAltColorCodes(message));
         });
+        ANNIPlugin.getInstance().getLogger().info(NChatColor.replaceAltColorCodes(message));
     }
 
     // timer
