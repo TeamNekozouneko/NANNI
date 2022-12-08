@@ -1,5 +1,6 @@
 package com.nekozouneko.anni.file;
 
+import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.util.SimpleLocation;
 import org.bukkit.Bukkit;
@@ -73,14 +74,19 @@ public class ANNIMap {
         return nexus;
     }
 
-    public Location getNexusLocation(Team t) {
-        return nexus.get(t.name()).toLocation(Bukkit.getWorld(world));
+    public Location getNexusLocation(Team t, boolean returnCopied) {
+        if (returnCopied) {
+            return nexus.get(t.name()).toLocation(ANNIPlugin.getGM().getGame().getCopiedMap());
+        } else return nexus.get(t.name()).toLocation(Bukkit.getWorld(world));
     }
 
     public Team getNexusTeam(Location loc) {
         for (String t:nexus.keySet()) {
             try {
-                if (getNexusLocation(Team.valueOf(t)).equals(loc)) {
+                Location changedWorld = getNexusLocation(Team.valueOf(t), true);
+                if (changedWorld.equals(loc)) {
+                    return Team.valueOf(t);
+                } else if (getNexusLocation(Team.valueOf(t), false).equals(loc)) {
                     return Team.valueOf(t);
                 }
             } catch (IllegalArgumentException ignored) {}
