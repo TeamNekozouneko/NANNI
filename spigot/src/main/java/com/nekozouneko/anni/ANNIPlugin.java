@@ -13,6 +13,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -70,6 +71,10 @@ public class ANNIPlugin extends JavaPlugin {
         return eco;
     }
 
+    public static void teleportToLobby(Player player) {
+        player.teleport(getLobby().getLocation().toLocation());
+    }
+
     @Override
     public void onEnable() {
         instance = this;
@@ -116,6 +121,8 @@ public class ANNIPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerLeaveListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDamageListener(), this);
         getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        getServer().getPluginManager().registerEvents(new ChatListener(), this);
 
         getLogger().info("Registered listener.");
 
