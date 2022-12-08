@@ -1,6 +1,5 @@
 package com.nekozouneko.anni;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -9,6 +8,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 public class ANNIUtil {
@@ -16,6 +19,44 @@ public class ANNIUtil {
     private static final Map<Material, Integer> oreRequiredPickaxeLevel = new HashMap<>();
     private static final Map<Material, Integer> pickaxeLevel = new HashMap<>();
     private static final Map<Material, Material> oreResult = new HashMap<>();
+
+    public static class copyDirectoryVisitor extends SimpleFileVisitor<Path> {
+
+        private final Path source;
+        private final Path target;
+        private final List<String> exclude;
+
+        public copyDirectoryVisitor(Path s, Path t, List<String> exclude) {
+            this.source = s;
+            this.target = t;
+            this.exclude = exclude;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path d, BasicFileAttributes bfa) throws IOException {
+            Path copyDir = target.resolve(source.relativize(d));
+            if (!Files.isDirectory(copyDir)) {
+                Files.createDirectory(copyDir);
+            }
+
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path p, BasicFileAttributes bfa) throws IOException {
+            String name = p.getFileName().toString();
+
+            if (exclude != null && exclude.contains(name)) {
+                return FileVisitResult.CONTINUE;
+            }
+
+            Path targetFil = target.resolve(source.relativize(p));
+            Files.copy(p, targetFil, StandardCopyOption.COPY_ATTRIBUTES);
+
+            return FileVisitResult.CONTINUE;
+        }
+
+    }
 
     static {
         oreRequiredPickaxeLevel.put(Material.COAL_ORE, 1);
@@ -176,6 +217,25 @@ public class ANNIUtil {
 
             return tr.get(phase);
         }
+    }
+
+    public static void safeDeleteDir(Path path) throws IOException {
+        if (path.toFile().isDirectory()) {
+            File[] files = path.toFile().listFiles();
+
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    safeDeleteDir(f.toPath());
+                } else {
+                    try {
+                        Files.deleteIfExists(f.toPath());
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
+
+        }
+        Files.deleteIfExists(path);
     }
 
 }
