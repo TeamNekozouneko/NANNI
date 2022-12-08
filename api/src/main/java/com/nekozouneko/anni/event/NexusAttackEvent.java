@@ -9,10 +9,12 @@ public class NexusAttackEvent extends Event {
 
     private final Player player;
     private final Team team;
+    private final int damage;
 
-    public NexusAttackEvent(Player p, Team t) {
+    public NexusAttackEvent(Player p, Team t, int d) {
         this.player = p;
         this.team = t;
+        this.damage = d;
     }
 
     @Override
@@ -26,5 +28,9 @@ public class NexusAttackEvent extends Event {
 
     public Team getAttackedNexusTeam() {
         return team;
+    }
+
+    public int getNexusDamage() {
+        return damage;
     }
 }
