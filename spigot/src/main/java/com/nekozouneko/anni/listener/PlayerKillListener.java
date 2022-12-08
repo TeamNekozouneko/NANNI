@@ -1,6 +1,7 @@
 package com.nekozouneko.anni.listener;
 
 import com.nekozouneko.anni.ANNIPlugin;
+import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.task.SpectateKiller;
 import com.nekozouneko.anni.util.SimpleLocation;
@@ -44,7 +45,7 @@ public class PlayerKillListener implements Listener {
                                 false, false, false
                         ),
                         new PotionEffect(
-                                PotionEffectType.DAMAGE_RESISTANCE, 60, 255,
+                                PotionEffectType.DAMAGE_RESISTANCE, 200, 255,
                                 false, false, true
                         )
                 )), 5);
@@ -66,7 +67,7 @@ public class PlayerKillListener implements Listener {
 
         if (ANNIPlugin.getGM().isJoined(killed)) {
             if (killer != null) {
-                g.broadcast("§7" + killed.getDisplayName() + " §f<- §7" + killer.getDisplayName());
+                g.broadcast("§7" + ANNIUtil.teamPrefixSuffixAppliedName(killed) + " §f<- §7" + ANNIUtil.teamPrefixSuffixAppliedName(killer));
 
                 /*killed.teleport(killer);
                 killed.setGameMode(GameMode.SPECTATOR);
@@ -85,7 +86,8 @@ public class PlayerKillListener implements Listener {
                             !((o.getType() == Material.LEATHER_HELMET || o.getType() == Material.LEATHER_CHESTPLATE
                             || o.getType() == Material.LEATHER_LEGGINGS || o.getType() == Material.LEATHER_BOOTS
                             || o.getType() == Material.WOODEN_AXE || o.getType() == Material.WOODEN_SWORD
-                            || o.getType() == Material.STONE_PICKAXE || o.getType() == Material.WOODEN_SHOVEL)
+                            || o.getType() == Material.STONE_PICKAXE || o.getType() == Material.WOODEN_SHOVEL
+                            || o.getType() == Material.BREAD)
                             && o.getEnchantments().size() == 0)
                     ).forEach(filtered::add);
 
