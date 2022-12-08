@@ -1,5 +1,6 @@
 package com.nekozouneko.anni.listener;
 
+import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -12,6 +13,11 @@ public class PlayerDamageListener implements Listener {
     public void onEvent(EntityDamageByEntityEvent e) {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
+
+            if (p.getLocation().getWorld().equals(ANNIPlugin.getLobby().getLocation().getBukkitWorld())) {
+                e.setCancelled(true);
+                return;
+            }
 
             if (p.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                 String d = e.getDamager().getCustomName();
