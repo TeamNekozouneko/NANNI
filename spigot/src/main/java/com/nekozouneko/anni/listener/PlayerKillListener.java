@@ -31,30 +31,29 @@ public class PlayerKillListener implements Listener {
         final ANNIGame g = ANNIPlugin.getGM().getGame();
 
         if (g.getManager().isJoined(p)) {
-            SimpleLocation sl = g.getMap().getSpawnPoints().get(g.getPlayerJoinedTeam(p).name());
-            if (sl != null) {
-                e.setRespawnLocation(new Location(
-                        Bukkit.getWorld(g.getMap().getWorld()),
-                        sl.getX(),
-                        sl.getY(),
-                        sl.getZ()
-                ));
+            if (g.getStatus().getPhaseId() >= 1 && !g.isLose(g.getPlayerJoinedTeam(p))) {
+                Location sl = g.getTeamSpawnPoint(p);
+                if (sl != null) {
+                    e.setRespawnLocation(sl);
+                }
+
+                g.setDefaultKitToPlayer(p);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> p.addPotionEffects(Arrays.asList(
+                        new PotionEffect(
+                                PotionEffectType.BLINDNESS, 60, 1,
+                                false, false, false
+                        ),
+                        new PotionEffect(
+                                PotionEffectType.DAMAGE_RESISTANCE, 60, 255,
+                                false, false, true
+                        )
+                )), 5);
+
+                p.sendTitle("§aリスポーン中...", "", 0, 60, 10);
+                p.setGameMode(GameMode.SURVIVAL);
+            } else {
+
             }
-
-            g.setDefaultKitToPlayer(p);
-            Bukkit.getScheduler().runTaskLater(plugin, () -> p.addPotionEffects(Arrays.asList(
-                    new PotionEffect(
-                            PotionEffectType.BLINDNESS, 60, 1,
-                            false, false, false
-                    ),
-                    new PotionEffect(
-                            PotionEffectType.DAMAGE_RESISTANCE, 60, 255,
-                            false, false, true
-                    )
-            )), 5);
-
-            p.sendTitle("§aリスポーン中...", "", 0, 60, 10);
-            p.setGameMode(GameMode.SURVIVAL);
         }
     }
 
@@ -77,13 +76,16 @@ public class PlayerKillListener implements Listener {
             e.setKeepInventory(true);
             e.setDeathMessage(null);
             e.setDroppedExp(0);
+            e.setNewTotalExp(0);
 
             final List<ItemStack> dropped = new ArrayList<>(e.getDrops());
             List<ItemStack> filtered = new ArrayList<>();
             dropped.stream()
                     .filter(o ->
                             !((o.getType() == Material.LEATHER_HELMET || o.getType() == Material.LEATHER_CHESTPLATE
-                            || o.getType() == Material.LEATHER_LEGGINGS || o.getType() == Material.LEATHER_BOOTS)
+                            || o.getType() == Material.LEATHER_LEGGINGS || o.getType() == Material.LEATHER_BOOTS
+                            || o.getType() == Material.WOODEN_AXE || o.getType() == Material.WOODEN_SWORD
+                            || o.getType() == Material.STONE_PICKAXE || o.getType() == Material.WOODEN_SHOVEL)
                             && o.getEnchantments().size() == 0)
                     ).forEach(filtered::add);
 
