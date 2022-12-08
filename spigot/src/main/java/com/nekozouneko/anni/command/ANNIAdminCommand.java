@@ -5,6 +5,7 @@ import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.file.ANNIMap;
+import com.nekozouneko.anni.game.ANNIStatus;
 import com.nekozouneko.anni.game.MapManager;
 
 import com.nekozouneko.anni.gui.MapEditor;
@@ -58,6 +59,12 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                     plugin.getConfig().set("anni.max-players", Integer.parseInt(args[2]));
                     plugin.saveConfig();
                 }
+            } else if (args[0].equalsIgnoreCase("debug")) {
+                if (args[1].equalsIgnoreCase("timer")) {
+                    ANNIPlugin.getGM().getGame().setTimer(Long.parseLong(args[2]));
+                } else if (args[1].equalsIgnoreCase("phase")) {
+                    ANNIPlugin.getGM().getGame().changeStatus(ANNIStatus.valueOf(args[2]));
+                }
             }
         }
 
@@ -70,7 +77,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
         Map.Entry<String[], Integer> arg = new AbstractMap.SimpleEntry<>(new String[0], args.length);
 
         if (args.length == 1) {
-            arg = new AbstractMap.SimpleEntry<>(new String[]{"admin", "game", "kit", "lobby", "map"}, args.length);
+            arg = new AbstractMap.SimpleEntry<>(new String[]{"debug", "game", "kit", "lobby", "map"}, args.length);
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("map")) {
                 arg = new AbstractMap.SimpleEntry<>(new String[]{"add", "edit", "list", "reload", "remove"}, args.length);
@@ -80,8 +87,8 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                 arg = new AbstractMap.SimpleEntry<>(new String[]{"add"}, args.length);
             } else if (args[0].equalsIgnoreCase("game")) {
                 arg = new AbstractMap.SimpleEntry<>(new String[]{"max", "min", "nexus", "spawn"}, args.length);
-            } else if (args[0].equalsIgnoreCase("admin")) {
-                arg = new AbstractMap.SimpleEntry<>(new String[] {"end", "set-status"}, args.length);
+            } else if (args[0].equalsIgnoreCase("debug")) {
+                arg = new AbstractMap.SimpleEntry<>(new String[] {"timer", "phase"}, args.length);
             }
         } else if (args.length == 3) {
             if (args[0].equalsIgnoreCase("game")) {
