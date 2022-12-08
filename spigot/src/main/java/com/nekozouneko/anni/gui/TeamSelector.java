@@ -121,6 +121,13 @@ public final class TeamSelector {
                     break;
                 default: break;
             }
+
+            if (
+                    g.getPlayerJoinedTeam(p) != Team.NOT_JOINED
+                    && g.getStatus().getPhaseId() >= 1
+            ) {
+                p.teleport(g.getTeamSpawnPoint(p));
+            }
         }
 
         if (Arrays.asList(clickToCloseItems).contains(clicked.getType())) e.getView().close();
