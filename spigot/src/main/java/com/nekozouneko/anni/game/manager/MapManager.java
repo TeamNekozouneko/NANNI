@@ -1,4 +1,4 @@
-package com.nekozouneko.anni.game;
+package com.nekozouneko.anni.game.manager;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -69,6 +69,11 @@ public class MapManager {
         return loadedMap;
     }
 
+    /**
+     * do not use this
+     * @deprecated please use {@link #load(File)}
+     */
+    @Deprecated
     public void putMap(ANNIMap map) {
         loadedMap.put(map.getWorld(), map);
     }

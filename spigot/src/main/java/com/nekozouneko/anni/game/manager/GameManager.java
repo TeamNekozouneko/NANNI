@@ -1,6 +1,7 @@
-package com.nekozouneko.anni.game;
+package com.nekozouneko.anni.game.manager;
 
 import com.nekozouneko.anni.ANNIPlugin;
+import com.nekozouneko.anni.game.ANNIGame;
 import org.bukkit.entity.Player;
 
 public class GameManager {
@@ -19,7 +20,7 @@ public class GameManager {
     }
 
     public boolean isJoined(Player p) {
-        return game.getPlayers().contains(p);
+        return game.isJoined(p);
     }
 
     public boolean join(Player p) {
