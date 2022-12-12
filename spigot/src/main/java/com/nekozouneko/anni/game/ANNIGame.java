@@ -3,12 +3,11 @@ package com.nekozouneko.anni.game;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.file.ANNIMap;
+import com.nekozouneko.anni.game.manager.GameManager;
 import com.nekozouneko.anni.task.SuddenDeathTask;
 import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.anni.util.SimpleLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.boss.*;
 import org.bukkit.entity.Player;
@@ -17,10 +16,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -113,7 +110,7 @@ public class ANNIGame {
         }
     }
 
-    protected ANNIGame(GameManager gm){
+    public ANNIGame(GameManager gm){
         this.gm = gm;
 
         initTeam();
@@ -381,7 +378,7 @@ public class ANNIGame {
     }
 
     public void leave(Player p) {
-        if (players.containsKey(p)) {
+        if (players.containsKey(p) && stat.getPhaseId() >= 1) {
             savedInv.put(p.getUniqueId(), new TeamPlayerInventory(players.get(p), p));
         }
 
@@ -632,6 +629,14 @@ public class ANNIGame {
         ANNIPlugin.getInstance().getLogger().info(m);
     }
 
+    public void broadcast(String message, List<Player> exclude) {
+        String m = NChatColor.replaceAltColorCodes(message);
+        for (Player p:players.keySet()) {
+            if (!exclude.contains(p)) p.sendMessage(m);
+        }
+        ANNIPlugin.getInstance().getLogger().info(m);
+    }
+
     public void broadcast(com.nekozouneko.anni.Team team, String message) {
         Team t = teams.get(team);
         if (t == null) return;
@@ -762,4 +767,15 @@ public class ANNIGame {
         suddenTask = new SuddenDeathTask(this);
         suddenTask.runTaskTimer(plugin, 100, 100);
     }
+
+    //save inv
+
+    public TeamPlayerInventory getSavedInventory(UUID id) {
+        return savedInv.get(id);
+    }
+
+    public void removeSavedInventory(UUID id) {
+        savedInv.remove(id);
+    }
+
 }
