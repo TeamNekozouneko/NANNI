@@ -6,11 +6,10 @@ import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
-import com.nekozouneko.anni.game.GameManager;
+import com.nekozouneko.anni.game.manager.GameManager;
 import fr.minuskube.netherboard.Netherboard;
 import fr.minuskube.netherboard.bukkit.BPlayerBoard;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
