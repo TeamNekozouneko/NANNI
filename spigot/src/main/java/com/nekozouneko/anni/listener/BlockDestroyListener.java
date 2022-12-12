@@ -22,10 +22,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class BlockDestroyListener implements Listener {
 
@@ -138,7 +135,31 @@ public class BlockDestroyListener implements Listener {
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 100);
+                case WHEAT:
+                    Random r = new Random();
+                    if (r.nextInt(11) == 10) {
+                        loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.APPLE, 1));
+                    }
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        if (new Location(loc.getWorld(), loc.getX(), loc.getY()-1, loc.getZ()).getBlock().getType() == Material.FARMLAND) {
+                            loc.getBlock().setType(Material.WHEAT_SEEDS);
+                        }
+                    }, 60);
                 default:
+                    final Material[] ignoreDestroy = new Material[] {
+                            Material.ENCHANTING_TABLE,
+                            Material.ENDER_CHEST,
+                            Material.BEACON,
+                            Material.NETHERITE_BLOCK
+                    };
+
+                    if (Arrays.asList(ignoreDestroy).contains(e.getBlock().getType())) {
+                        e.setDropItems(false);
+                        e.setExpToDrop(0);
+                        e.setCancelled(true);
+                        return;
+                    }
+
                     for (SimpleLocation l : ANNIPlugin.getGM().getGame().getMap().getNexusList().values()) {
                         Location fl = l.toLocation(ANNIPlugin.getGM().getGame().getCopiedMap());
 
