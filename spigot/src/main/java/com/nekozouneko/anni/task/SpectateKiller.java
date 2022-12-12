@@ -10,17 +10,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class SpectateKiller extends BukkitRunnable {
 
-    private final int ft;
     private int timer;
     private final Player player;
-    private final Player killer;
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
 
-    public SpectateKiller(int i, Player p, Player k) {
-        this.ft = i;
+    public SpectateKiller(int i, Player p) {
         this.timer = i;
         this.player = p;
-        this.killer = k;
     }
 
     @Override
@@ -29,14 +25,14 @@ public class SpectateKiller extends BukkitRunnable {
             player.addPotionEffect(
                     new PotionEffect(
                             PotionEffectType.BLINDNESS,
-                            2, 1,
+                            60, 1,
                             false, false, true
                     )
             );
             player.addPotionEffect(
                     new PotionEffect(
-                            PotionEffectType.SLOW,
-                            2, 255,
+                            PotionEffectType.DAMAGE_RESISTANCE,
+                            200, 255,
                             false, false, true
                     )
             );
@@ -44,6 +40,7 @@ public class SpectateKiller extends BukkitRunnable {
             player.setGameMode(GameMode.SURVIVAL);
             cancel();
         } else {
+            player.setGameMode(GameMode.SPECTATOR);
             player.sendTitle("§c死んでしまった！", "リスポーンまであと" + timer + "秒", 0, 25, 0);
             this.timer--;
         }
