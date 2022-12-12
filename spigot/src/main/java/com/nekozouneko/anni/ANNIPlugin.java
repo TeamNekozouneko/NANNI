@@ -4,8 +4,9 @@ import com.google.gson.Gson;
 import com.nekozouneko.anni.command.ANNIAdminCommand;
 import com.nekozouneko.anni.command.ANNICommand;
 import com.nekozouneko.anni.file.ANNILobby;
-import com.nekozouneko.anni.game.GameManager;
-import com.nekozouneko.anni.game.MapManager;
+import com.nekozouneko.anni.game.manager.GameManager;
+import com.nekozouneko.anni.game.manager.KitManager;
+import com.nekozouneko.anni.game.manager.MapManager;
 import com.nekozouneko.anni.listener.*;
 import com.nekozouneko.anni.task.UpdateBoard;
 import fr.minuskube.netherboard.Netherboard;
@@ -18,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.*;
@@ -32,12 +32,14 @@ public class ANNIPlugin extends JavaPlugin {
     private static UpdateBoard boardTask;
     private static GameManager gm;
     private static MapManager mm;
+    private static KitManager km;
     private static ANNILobby lobbyWorld;
 
     /* - Vault - */
     private static Economy eco = null;
 
     private static File mapDir;
+    private static File kitDir;
 
     public static ANNIPlugin getInstance() {
         return instance;
@@ -55,12 +57,20 @@ public class ANNIPlugin extends JavaPlugin {
         return mapDir;
     }
 
+    public static File getKitDir() {
+        return kitDir;
+    }
+
     public static GameManager getGM() {
         return gm;
     }
 
     public static MapManager getMM() {
         return mm;
+    }
+
+    public static KitManager getKM() {
+        return km;
     }
 
     public static ANNILobby getLobby() {
@@ -91,9 +101,14 @@ public class ANNIPlugin extends JavaPlugin {
             }
 
             mapDir = new File(getDataFolder(), "maps");
+            kitDir = new File(getDataFolder(), "kits");
 
             if (!(mapDir.exists())) {
                 mapDir.mkdir();
+            }
+
+            if (!(kitDir.exists())) {
+                kitDir.mkdir();
             }
 
             getLogger().info("Initialized plugin directories.");
@@ -123,6 +138,8 @@ public class ANNIPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
+        getServer().getPluginManager().registerEvents(new CraftItemListener(), this);
+        getServer().getPluginManager().registerEvents(new InventoryCloseListener(), this);
 
         getLogger().info("Registered listener.");
 
@@ -149,6 +166,7 @@ public class ANNIPlugin extends JavaPlugin {
                 getConfig().getInt("anni.max-players", 100),
                 getConfig().getInt("anni.rule", 2)
         );
+        km = new KitManager();
         loadLobby();
 
         getLogger().info("Loading depends...");
