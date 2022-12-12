@@ -3,7 +3,9 @@ package com.nekozouneko.anni.gui;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.game.ANNIBigMessage;
 import com.nekozouneko.anni.game.ANNIGame;
+import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -99,27 +101,49 @@ public final class TeamSelector {
 
         if (clicked == null) return;
 
-        if (e.getSlot() < 9) {
+        if (e.getRawSlot() < 9) {
+            Team requestedTeam = null;
+
             switch (clicked.getType()) {
                 case RED_WOOL:
-                    g.changeTeam(p, Team.RED);
+                    requestedTeam = Team.RED;
                     break;
                 case BLUE_WOOL:
-                    g.changeTeam(p, Team.BLUE);
+                    requestedTeam = Team.BLUE;
                     break;
                 case YELLOW_WOOL:
-                    g.changeTeam(p, Team.YELLOW);
+                    requestedTeam = Team.YELLOW;
                     break;
                 case GREEN_WOOL:
-                    g.changeTeam(p, Team.GREEN);
+                    requestedTeam = Team.GREEN;
                     break;
                 case WHITE_CONCRETE:
-                    g.changeTeam(p, g.randomTeam());
+                    requestedTeam = g.randomTeam();
                     break;
                 case ENDER_PEARL:
-                    g.changeTeam(p, Team.SPECTATOR);
+                    requestedTeam = Team.SPECTATOR;
                     break;
                 default: break;
+            }
+
+            if (requestedTeam != null && !g.isLose(requestedTeam)) {
+                org.bukkit.scoreboard.Team st = g.getScoreBoardTeam(requestedTeam);
+                g.changeTeam(p, requestedTeam);
+                Character c = UpdateBossBar.bigCharMap.get(requestedTeam);
+                if (c != null && !requestedTeam.isSpectator() && g.getStatus().getPhaseId() >= 1) {
+                    for (String s : ANNIBigMessage.createMessage(c, st.getColor().getChar(),
+                            st.getDisplayName() + "§fに参加しました。",
+                            "§7現在フェーズ " + g.getStatus().getPhaseId() + " です。"
+                    )) {
+                        p.sendMessage(s);
+                    }
+                } else {
+                    p.sendMessage(st.getColor()+st.getDisplayName()+"§eに参加しました。");
+                }
+            } else if (g.isLose(requestedTeam)) {
+                org.bukkit.scoreboard.Team st = g.getScoreBoardTeam(requestedTeam);
+                p.sendMessage(st.getColor() + st.getDisplayName() + "§rはすでに負けているため参加できません。別のチームに参加してください。");
+                return;
             }
 
             if (
