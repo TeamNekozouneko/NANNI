@@ -1,7 +1,7 @@
 package com.nekozouneko.anni.gui;
 
 import com.nekozouneko.anni.ANNIPlugin;
-import com.nekozouneko.anni.game.MapManager;
+import com.nekozouneko.anni.game.manager.MapManager;
 import com.nekozouneko.anni.gui.location.AbstractGUILocationSelector;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

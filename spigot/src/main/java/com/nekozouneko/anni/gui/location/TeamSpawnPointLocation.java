@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.file.ANNIMap;
-import com.nekozouneko.anni.game.MapManager;
 import com.nekozouneko.anni.gui.MapEditor;
 import com.nekozouneko.anni.util.SimpleLocation;
 import org.bukkit.Bukkit;
