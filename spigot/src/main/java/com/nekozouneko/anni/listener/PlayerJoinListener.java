@@ -3,9 +3,7 @@ package com.nekozouneko.anni.listener;
 import com.nekozouneko.anni.ANNIPlugin;
 import org.bukkit.GameMode;
 import org.bukkit.event.*;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 
 public class PlayerJoinListener implements Listener {
 
@@ -13,6 +11,7 @@ public class PlayerJoinListener implements Listener {
     public void onEvent(PlayerJoinEvent e) {
         e.setJoinMessage(null);
         e.getPlayer().setGameMode(GameMode.ADVENTURE);
+        e.getPlayer().getInventory().clear();
         ANNIPlugin.teleportToLobby(e.getPlayer());
     }
 
