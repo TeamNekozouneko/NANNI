@@ -3,6 +3,7 @@ package com.nekozouneko.anni.command;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.game.ANNIBigMessage;
 import com.nekozouneko.anni.game.ANNIGame;
+import com.nekozouneko.anni.gui.KitMenu;
 import com.nekozouneko.anni.gui.TeamSelector;
 
 import org.bukkit.Bukkit;
@@ -38,6 +39,9 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
                         TeamSelector.open((Player) sender);
                     }
                     else sender.sendMessage("参加していないためチームを選択することはできません");
+                    break;
+                case "kit":
+                    KitMenu.open((Player) sender, 1);
                     break;
                 default:
                     sender.sendMessage("そんなサブコマンドないよ");
