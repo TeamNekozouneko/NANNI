@@ -3,11 +3,13 @@ package com.nekozouneko.anni.command;
 import com.google.gson.Gson;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.ANNIStatus;
-import com.nekozouneko.anni.game.MapManager;
+import com.nekozouneko.anni.game.manager.MapManager;
 
+import com.nekozouneko.anni.gui.KitEditor;
 import com.nekozouneko.anni.gui.MapEditor;
 import com.nekozouneko.anni.gui.location.NexusLocation;
 import com.nekozouneko.anni.gui.location.TeamSpawnPointLocation;
@@ -65,6 +67,12 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                 } else if (args[1].equalsIgnoreCase("phase")) {
                     ANNIPlugin.getGM().getGame().changeStatus(ANNIStatus.valueOf(args[2]));
                 }
+            } else if (args[0].equalsIgnoreCase("kit")) {
+                if (args[1].equalsIgnoreCase("add")) {
+                    addKit(sender, command, label, args);
+                } else if (args[1].equalsIgnoreCase("edit")) {
+                    editKit(sender, command, label, args);
+                }
             }
         }
 
@@ -84,7 +92,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
             } else if (args[0].equalsIgnoreCase("lobby")) {
                 arg = new AbstractMap.SimpleEntry<>(new String[]{"spawn"}, args.length);
             } else if (args[0].equalsIgnoreCase("kit")) {
-                arg = new AbstractMap.SimpleEntry<>(new String[]{"add"}, args.length);
+                arg = new AbstractMap.SimpleEntry<>(new String[]{"add", "edit", "list", "remove"}, args.length);
             } else if (args[0].equalsIgnoreCase("game")) {
                 arg = new AbstractMap.SimpleEntry<>(new String[]{"max", "min", "nexus", "spawn"}, args.length);
             } else if (args[0].equalsIgnoreCase("debug")) {
@@ -273,5 +281,76 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                 );
             } catch (IOException ie) {}
         }
+    }
+
+    public static void addKit(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Please run as player.");
+            return;
+        }
+        if (args.length < 4) {
+            sender.sendMessage("使用方法: /"+label+" kit add <display> <price>");
+            return;
+        }
+
+        Player p = (Player) sender;
+        String display = args[2];
+        double price;
+        try {
+            price = Double.parseDouble(args[3]);
+
+            if (price < 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            sender.sendMessage("価格が有効な数字ではありません。");
+            return;
+        }
+
+        Random r = new Random();
+        int i = r.nextInt(0x10000000);
+        String id = String.format("%07x", i);
+
+        while (ANNIPlugin.getKM().getLoadedKits().containsKey(id)) {
+            i = r.nextInt(0x10000000);
+            id = String.format("%07x", i);
+        }
+
+        ANNIKit k = new ANNIKit(display, id, p.getInventory().getContents(), price);
+
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(new File(ANNIPlugin.getKitDir(), id+".json")),
+                        StandardCharsets.UTF_8
+                )
+        )) {
+            Gson gson = new Gson();
+            gson.toJson(k, ANNIKit.class, writer);
+
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ANNIPlugin.getKM().load(k);
+    }
+
+    public static void editKit(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Please run as player.");
+            return;
+        }
+        if (args.length < 3) {
+            sender.sendMessage("使用方法: /"+label+" kit edit <id>");
+            return;
+        }
+
+        Player p = (Player) sender;
+        ANNIKit k = ANNIPlugin.getKM().getLoadedKits().get(args[2]);
+
+        if (k == null) {
+            sender.sendMessage("Kit " + args[2] + " is not existing");
+            return;
+        }
+
+        KitEditor.open(k, p);
     }
 }
