@@ -2,6 +2,7 @@ package com.nekozouneko.anni.game;
 
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
+import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.manager.GameManager;
 import com.nekozouneko.anni.task.SuddenDeathTask;
@@ -10,8 +11,11 @@ import com.nekozouneko.anni.util.SimpleLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.*;
 import org.bukkit.boss.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -35,6 +39,7 @@ public class ANNIGame {
 
     private final Map<Player, com.nekozouneko.anni.Team> players = new HashMap<>();
     private final Map<com.nekozouneko.anni.Team, Team> teams = new HashMap<>();
+    private final Map<UUID, String> kit = new HashMap<>();
     private final Map<com.nekozouneko.anni.Team, Boolean> losedTeams = new HashMap<>();
     public static final Map<com.nekozouneko.anni.Team, ItemStack[]> teamArmor = Collections.unmodifiableMap(
             new HashMap<com.nekozouneko.anni.Team, ItemStack[]>() {{
@@ -44,11 +49,7 @@ public class ANNIGame {
                 put(com.nekozouneko.anni.Team.GREEN, ANNIUtil.createColorLeatherArmor(Color.GREEN));
     }});
     private final KeyedBossBar bb = Bukkit.createBossBar(
-            new NamespacedKey(plugin, id16),
-            "待機中",
-            BarColor.GREEN,
-            BarStyle.SOLID,
-            BarFlag.CREATE_FOG
+            new NamespacedKey(plugin, id16), "待機中", BarColor.GREEN, BarStyle.SOLID
     );
 
     private final Map<com.nekozouneko.anni.Team, Integer> nexusHealth = new HashMap<>();
@@ -114,7 +115,6 @@ public class ANNIGame {
         this.gm = gm;
 
         initTeam();
-
         initNexus();
         randomMap();
         bbbr = new UpdateBossBar(this);
@@ -310,7 +310,7 @@ public class ANNIGame {
                     if (old != null) old.removePlayer(p);
                     if (new1 != null) new1.addPlayer(p);
 
-                    setDefaultKitToPlayer(p);
+                    setKitToPlayer(p);
                     p.teleport(getTeamSpawnPoint(p));
                     p.setHealthScale(p.getHealthScale());
                     p.setSaturation(10.0f);
@@ -391,24 +391,39 @@ public class ANNIGame {
         p.getInventory().clear();
     }
 
-    public void setDefaultKitToPlayer(Player p) {
-        final ItemStack[] defInv = new ItemStack[36];
-        defInv[0] = new ItemStack(Material.WOODEN_SWORD);
-        defInv[1] = new ItemStack(Material.STONE_PICKAXE);
-        defInv[2] = new ItemStack(Material.WOODEN_AXE);
-        defInv[3] = new ItemStack(Material.WOODEN_SHOVEL);
-        defInv[8] = new ItemStack(Material.BREAD, 32);
+    public void setKitToPlayer(Player p) {
+        String kitId = kit.get(p.getUniqueId());
+        if (kitId == null) kitId = "<default>";
+        ANNIKit k = ANNIPlugin.getKM().getLoadedKits().get(kitId);
+        if (k == null) k = ANNIPlugin.DEFAULT_KIT;
 
+        final ItemStack[] defInv = k.getDecodedContent();
 
         com.nekozouneko.anni.Team t = players.get(p);
 
-        ItemStack[] armor = teamArmor.get(t);
-        if (armor == null) armor = new ItemStack[0];
-
         if (!t.isSpectator()) {
+            ItemStack[] armor = teamArmor.get(t);
+
+            for (int i = 0; i < defInv.length; i++) {
+                ItemStack ar = defInv[i];
+                if (
+                        (ar.getType() == Material.LEATHER_HELMET)
+                        || (ar.getType() == Material.LEATHER_CHESTPLATE)
+                        || (ar.getType() == Material.LEATHER_LEGGINGS)
+                        || (ar.getType() == Material.LEATHER_BOOTS)
+                ) {
+                    Map<Enchantment,Integer> enc = ar.getEnchantments();
+                    LeatherArmorMeta am = (LeatherArmorMeta) ar.getItemMeta();
+                    am.setColor(t.getColor());
+                    defInv[i].setItemMeta(am);
+
+
+                    defInv[i].addEnchantments(enc);
+                }
+            }
+
             p.getInventory().setContents(defInv);
         }
-        p.getInventory().setArmorContents(armor);
     }
 
     public Location getTeamSpawnPoint(Player p) {
@@ -444,7 +459,7 @@ public class ANNIGame {
                 p.setHealthScale(p.getHealthScale());
                 p.setSaturation(10.0f);
                 p.setTotalExperience(0);
-                setDefaultKitToPlayer(p);
+                setKitToPlayer(p);
             }
 
             return true;
@@ -776,6 +791,16 @@ public class ANNIGame {
 
     public void removeSavedInventory(UUID id) {
         savedInv.remove(id);
+    }
+
+    // kit
+
+    public void setKitId(UUID id, String kid) {
+        kit.put(id, kid);
+    }
+
+    public String getKitId(UUID id) {
+        return kit.get(id);
     }
 
 }

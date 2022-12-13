@@ -4,7 +4,6 @@ import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.task.SpectateKiller;
-import com.nekozouneko.anni.util.SimpleLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -15,11 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class PlayerKillListener implements Listener {
@@ -38,7 +34,7 @@ public class PlayerKillListener implements Listener {
                     e.setRespawnLocation(sl);
                 }
 
-                g.setDefaultKitToPlayer(p);
+                g.setKitToPlayer(p);
                 /*Bukkit.getScheduler().runTaskLater(plugin, () -> p.addPotionEffects(Arrays.asList(
                         new PotionEffect(
                                 PotionEffectType.BLINDNESS, 60, 1,
