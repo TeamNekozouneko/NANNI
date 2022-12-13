@@ -2,6 +2,7 @@ package com.nekozouneko.anni.gui;
 
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.file.ANNIKit;
+import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.manager.KitManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,7 +23,7 @@ import java.util.regex.Pattern;
 
 public class KitMenu {
 
-    public static void open(Player p, int page) {
+    public static void open(Player p, int page, boolean passEdit) {
         Inventory inv = Bukkit.createInventory(null, 9*6, "キットを選択... (ページ: "+page+")");
         KitManager km = ANNIPlugin.getKM();
 
@@ -33,13 +35,15 @@ public class KitMenu {
         ItemStack prev = new ItemStack(Material.ARROW);
         ItemMeta pm = prev.getItemMeta();
         pm.setDisplayName("§a前のページ");
-        pm.setLore(Collections.singletonList("§8[Page: "+(page-1)+"]"));
+        if (passEdit) pm.setLore(Collections.singletonList("§8[EditPage: "+(page-1)+"]"));
+        else pm.setLore(Collections.singletonList("§8[Page: "+(page-1)+"]"));
         prev.setItemMeta(pm);
 
         ItemStack next = new ItemStack(Material.ARROW);
         ItemMeta nm = next.getItemMeta();
         nm.setDisplayName("§a次のページ");
-        nm.setLore(Collections.singletonList("§8[Page: "+(page+1)+"]"));
+        if (passEdit) nm.setLore(Collections.singletonList("§8[EditPage: "+(page+1)+"]"));
+        else nm.setLore(Collections.singletonList("§8[Page: "+(page+1)+"]"));
         next.setItemMeta(nm);
 
         ItemStack unAv = new ItemStack(Material.STICK);
@@ -54,8 +58,9 @@ public class KitMenu {
 
         ItemStack defKit = new ItemStack(Material.ENDER_CHEST);
         ItemMeta defMeta = defKit.getItemMeta();
-        defMeta.setDisplayName("§2デフォルトキット");
-        defMeta.setLore(Arrays.asList("§7普通なキット","","§7価格: §f0 NAP §8(永久無料)","","§8[Kit: <default>]"));
+        defMeta.setDisplayName("§2デフォルトキット §7(0 NAP)");
+        if (passEdit) defMeta.setLore(Arrays.asList("§7普通なキット","","§8[EditKit: <default>]"));
+        else defMeta.setLore(Arrays.asList("§7普通なキット","","§8[Kit: <default>]"));
         defKit.setItemMeta(defMeta);
 
         inv.setItem(0, defKit);
@@ -106,6 +111,8 @@ public class KitMenu {
         ItemStack[] kitsIcon = new ItemStack[21];
         List<ANNIKit> kitList = new ArrayList<>(km.getLoadedKits().values());
 
+        kitList.removeIf(k -> k.getID().equals("<default>"));
+
         for (int i = 0; i < kitsIcon.length; i++) {
             if ((i*page)+1 > kitList.size()) break;
             ANNIKit kit = kitList.get(i*page);
@@ -117,7 +124,9 @@ public class KitMenu {
             List<String> lore;
             if (d.length <= 1) lore = new ArrayList<>();
             else lore = new ArrayList<>(Arrays.asList(d));
-            lore.add("§8[Kit: "+kit.getID()+"]");
+            lore.add("");
+            if (passEdit) lore.add("§8[EditKit: "+kit.getID()+"]");
+            else lore.add("§8[Kit: "+kit.getID()+"]");
 
             meta.setLore(lore);
             meta.setDisplayName("§r"+kit.getDisplayName());
@@ -166,10 +175,28 @@ public class KitMenu {
             e.setCancelled(true);
 
             if (slot < 54) {
-                if (slot == 0) {
-                    e.getWhoClicked().sendMessage("Default kit");
-                } else if ((slot >= 10 && 16 >= slot) || (slot >= 19 && 25 >= slot) || (slot >= 28 && 34 >= slot)) {
-                    e.getWhoClicked().sendMessage("clicked kit area");
+                if ((slot == 0) || (slot >= 10 && 16 >= slot) || (slot >= 19 && 25 >= slot) || (slot >= 28 && 34 >= slot)) {
+                    List<String> lore = item.getItemMeta().getLore();
+                    String last = lore.get(lore.size()-1);
+                    if (last.matches("^§8\\[EditKit: ([0-9A-Fa-f]+|<default>)]")) {
+                        Matcher m = Pattern.compile("^§8\\[EditKit: ([0-9A-Fa-f]+|<default>)]").matcher(last);
+
+                        if (m.find()) {
+                            KitEditor.open(ANNIPlugin.getKM().getLoadedKits().get(m.group(1)), (Player)e.getWhoClicked());
+                        }
+                    } else if (last.matches("^§8\\[Kit: ([0-9A-Fa-f]+|<default>)]")) {
+                        Matcher m = Pattern.compile("^§8\\[Kit: ([0-9A-Fa-f]+|<default>)]").matcher(last);
+
+                        if (m.find()) {
+                            e.getWhoClicked().sendMessage("Selected kit: " + m.group(1));
+                            e.getView().close();
+
+                            ANNIPlugin.getGM().getGame().setKitId(e.getWhoClicked().getUniqueId(), m.group(1));
+                            if (ANNIPlugin.getGM().getGame().getStatus().getPhaseId() >= 1) {
+                                e.getWhoClicked().setHealth(0);
+                            }
+                        }
+                    }
                 } else {
                     switch (item.getType()) {
                         case BARRIER:
@@ -177,15 +204,24 @@ public class KitMenu {
                             break;
                         case ARROW:
                             if (item.getItemMeta().hasLore() && item.getItemMeta().getLore().get(0).matches("^§8\\[Page: [0-9]+\\]")) {
-                                Matcher m = Pattern.compile("^§8\\[Page: ([0-9]+)]").matcher(item.getItemMeta().getLore().get(0));
+                                String c = item.getItemMeta().getLore().get(0);
 
-                                if (m.find()) {
-                                    String pg = m.group(1);
+                                if (c.matches("^§8\\[Page: ([0-9]+)]")) {
+                                    Matcher m = Pattern.compile("^§8\\[Page: ([0-9]+)]").matcher(c);
 
-                                    e.getWhoClicked().sendMessage("page set to " + pg);
+                                    if (m.find()) {
+                                        KitMenu.open((Player) e.getWhoClicked(), Integer.parseInt(m.group(1)), false);
+                                    }
+                                } else if (c.matches("^§8\\[EditPage: ([0-9]+)]")) {
+                                    Matcher m = Pattern.compile("^§8\\[EditPage: ([0-9]+)]").matcher(c);
+
+                                    if (m.find()) {
+                                        KitMenu.open((Player) e.getWhoClicked(), Integer.parseInt(m.group(1)), true);
+                                    }
                                 }
                             }
                             break;
+                        default: break;
                     }
                 }
             }

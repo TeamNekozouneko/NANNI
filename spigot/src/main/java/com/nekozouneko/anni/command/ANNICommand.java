@@ -41,7 +41,7 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
                     else sender.sendMessage("参加していないためチームを選択することはできません");
                     break;
                 case "kit":
-                    KitMenu.open((Player) sender, 1);
+                    KitMenu.open((Player) sender, 1, false);
                     break;
                 default:
                     sender.sendMessage("そんなサブコマンドないよ");

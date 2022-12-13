@@ -10,6 +10,7 @@ import com.nekozouneko.anni.game.ANNIStatus;
 import com.nekozouneko.anni.game.manager.MapManager;
 
 import com.nekozouneko.anni.gui.KitEditor;
+import com.nekozouneko.anni.gui.KitMenu;
 import com.nekozouneko.anni.gui.MapEditor;
 import com.nekozouneko.anni.gui.location.NexusLocation;
 import com.nekozouneko.anni.gui.location.TeamSpawnPointLocation;
@@ -339,7 +340,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage("使用方法: /"+label+" kit edit <id>");
+            KitMenu.open((Player) sender, 1, true);
             return;
         }
 
