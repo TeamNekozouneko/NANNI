@@ -1,20 +1,28 @@
 package com.nekozouneko.anni;
 
+import org.bukkit.Color;
+
 public enum Team {
-    RED(false),
-    BLUE(false),
-    YELLOW(false),
-    GREEN(false),
-    SPECTATOR(true),
-    NOT_JOINED(true);
+    RED(false, Color.RED),
+    BLUE(false, Color.BLUE),
+    YELLOW(false, Color.YELLOW),
+    GREEN(false, Color.GREEN),
+    SPECTATOR(true, Color.GRAY),
+    NOT_JOINED(true, null);
 
     private final boolean isSpec;
+    private final Color color;
 
-    private Team(boolean isSpectator) {
+    private Team(boolean isSpectator, Color color) {
         this.isSpec = isSpectator;
+        this.color = color;
     }
 
     public boolean isSpectator() {
         return isSpec;
+    }
+
+    public Color getColor() {
+        return color;
     }
 }
