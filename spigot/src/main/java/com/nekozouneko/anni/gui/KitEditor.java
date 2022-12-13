@@ -60,7 +60,7 @@ public class KitEditor {
     }
 
     public static boolean isHandleable(InventoryEvent e) {
-        return e.getView().getTitle().matches("^キットエディタ: .+ \\([0-9A-Fa-f]+\\)");
+        return e.getView().getTitle().matches("^キットエディタ: .+ \\(([0-9A-Fa-f]+|<default>)\\)");
     }
 
     public static void handle(InventoryClickEvent e) {
@@ -75,7 +75,7 @@ public class KitEditor {
 
     public static void closeHandle(InventoryCloseEvent e) {
         if (isHandleable(e)) {
-            Matcher m = Pattern.compile("^キットエディタ: .+ \\(([0-9A-Fa-f]+)\\)").matcher(e.getView().getTitle());
+            Matcher m = Pattern.compile("^キットエディタ: .+ \\(([0-9A-Fa-f]+|<default>)\\)").matcher(e.getView().getTitle());
 
             if (m.find()) {
                 String id = m.group(1);
@@ -97,9 +97,11 @@ public class KitEditor {
                 kit.setContent(conv);
 
                 Gson gson = new Gson();
+                String f = kit.getID();
+                if (f.equals("<default>")) f = "default";
                 try (BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(
-                                new FileOutputStream(new File(ANNIPlugin.getKitDir(), kit.getID()+".json")),
+                                new FileOutputStream(new File(ANNIPlugin.getKitDir(), f+".json")),
                                 StandardCharsets.UTF_8
                         )
                 )) {
@@ -107,7 +109,7 @@ public class KitEditor {
                     writer.flush();
 
                     ANNIPlugin.getKM().unload(kit.getID());
-                    ANNIPlugin.getKM().load(new File(ANNIPlugin.getKitDir(), kit.getID()+".json"));
+                    ANNIPlugin.getKM().load(new File(ANNIPlugin.getKitDir(), f+".json"));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

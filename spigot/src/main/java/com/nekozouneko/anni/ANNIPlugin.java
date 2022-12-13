@@ -1,8 +1,10 @@
 package com.nekozouneko.anni;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.nekozouneko.anni.command.ANNIAdminCommand;
 import com.nekozouneko.anni.command.ANNICommand;
+import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.game.manager.GameManager;
 import com.nekozouneko.anni.game.manager.KitManager;
@@ -34,6 +36,24 @@ public class ANNIPlugin extends JavaPlugin {
     private static MapManager mm;
     private static KitManager km;
     private static ANNILobby lobbyWorld;
+    public final static ANNIKit DEFAULT_KIT;
+
+    static {
+        ItemStack[] inv = new ItemStack[41];
+
+        inv[0] = new ItemStack(Material.WOODEN_SWORD);
+        inv[1] = new ItemStack(Material.STONE_PICKAXE);
+        inv[2] = new ItemStack(Material.WOODEN_AXE);
+        inv[3] = new ItemStack(Material.WOODEN_SHOVEL);
+        inv[8] = new ItemStack(Material.BREAD, 32);
+
+        inv[36] = new ItemStack(Material.LEATHER_BOOTS);
+        inv[37] = new ItemStack(Material.LEATHER_LEGGINGS);
+        inv[38] = new ItemStack(Material.LEATHER_CHESTPLATE);
+        inv[39] = new ItemStack(Material.LEATHER_HELMET);
+
+        DEFAULT_KIT = new ANNIKit("デフォルト", "<default>", inv, 0.0);
+    }
 
     /* - Vault - */
     private static Economy eco = null;
@@ -160,6 +180,8 @@ public class ANNIPlugin extends JavaPlugin {
         /* ----- System ----- */
         getLogger().info("Initializing system...");
 
+        initDefaultKit();
+
         mm = new MapManager();
         gm = new GameManager(
                 getConfig().getInt("anni.min-players", 2),
@@ -253,6 +275,47 @@ public class ANNIPlugin extends JavaPlugin {
         }
         eco = rsp.getProvider();
         return eco != null;
+    }
+
+    public void initDefaultKit() {
+        Gson gson = new Gson();
+        File kdf = new File(kitDir, "default.json");
+        ANNIKit kd;
+
+        if (kdf.exists()) {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(
+                            new FileInputStream(kdf),
+                            StandardCharsets.UTF_8
+                    )
+            )) {
+                kd = gson.fromJson(reader, ANNIKit.class);
+            } catch (IOException ignored) {
+                kd = DEFAULT_KIT;
+            } catch (JsonSyntaxException e) {
+                createDefaultKitFile();
+                kd = DEFAULT_KIT;
+            }
+
+            if (kd == null) createDefaultKitFile();
+        } else createDefaultKitFile();
+    }
+
+    private void createDefaultKitFile() {
+        Gson gson = new Gson();
+        File kdf = new File(kitDir, "default.json");
+
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(kdf),
+                        StandardCharsets.UTF_8
+                )
+        )) {
+            gson.toJson(DEFAULT_KIT, ANNIKit.class, writer);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
