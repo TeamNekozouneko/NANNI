@@ -19,6 +19,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -174,6 +178,19 @@ public class BlockDestroyListener implements Listener {
                         ) {
                             e.getPlayer().sendMessage(NChatColor.RED + "ネクサス付近は破壊できません。");
                             e.setCancelled(true);
+                        } else if (ANNIPlugin.getGM().getGame().getMap().getNexusTeam(l.toLocation(e.getBlock().getWorld())) != ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(e.getPlayer())) {
+                            if (
+                                    ((fl.getX()-30d) <= e.getBlock().getLocation().getX()
+                                            && (fl.getX()+30d) >= e.getBlock().getLocation().getX()) &&
+                                            ((fl.getY()-30d) <= e.getBlock().getLocation().getY()
+                                                    && (fl.getY()+30d) >= e.getBlock().getLocation().getY()) &&
+                                            ((fl.getZ()-30d) <= e.getBlock().getLocation().getZ()
+                                                    && (fl.getZ()+30d) >= e.getBlock().getLocation().getZ())
+                                            && e.getPlayer().getGameMode() == GameMode.SURVIVAL
+                            ) {
+                                e.getPlayer().sendMessage(NChatColor.RED + "敵の陣地は破壊できません。");
+                                e.setCancelled(true);
+                            }
                         }
                     }
                     break;
