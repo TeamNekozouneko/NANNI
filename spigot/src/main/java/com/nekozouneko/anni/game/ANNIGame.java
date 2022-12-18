@@ -1,5 +1,6 @@
 package com.nekozouneko.anni.game;
 
+import com.nekozouneko.anni.ANNIConfig;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.file.ANNIKit;
@@ -9,6 +10,12 @@ import com.nekozouneko.anni.task.SuddenDeathTask;
 import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.anni.util.SimpleLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.*;
 import org.bukkit.*;
 import org.bukkit.boss.*;
 import org.bukkit.enchantments.Enchantment;
@@ -51,6 +58,7 @@ public class ANNIGame {
     private final KeyedBossBar bb = Bukkit.createBossBar(
             new NamespacedKey(plugin, id16), "待機中", BarColor.GREEN, BarStyle.SOLID
     );
+    private final List<ProtectedRegion> regions = new ArrayList<>();
 
     private final Map<com.nekozouneko.anni.Team, Integer> nexusHealth = new HashMap<>();
     private BukkitRunnable bbbr;
@@ -122,55 +130,36 @@ public class ANNIGame {
     }
 
     private void initTeam() {
+        ANNIConfig conf = ANNIPlugin.getANNIConf();
         Scoreboard sb = ANNIPlugin.getSb();
-        Team red = sb.registerNewTeam("red_" + id16);
-        Team blue = sb.registerNewTeam("blue_" + id16);
-        Team yellow = sb.registerNewTeam("yellow_" + id16);
-        Team green = sb.registerNewTeam("green_" + id16);
-        Team spec = sb.registerNewTeam("spectator_" + id16);
+        Team red = sb.registerNewTeam(conf.redTeamID()+"_" + id16);
+        Team blue = sb.registerNewTeam(conf.blueTeamID()+"_" + id16);
+        Team yellow = sb.registerNewTeam(conf.yellowTeamID()+"_" + id16);
+        Team green = sb.registerNewTeam(conf.greenTeamID()+"_"+ id16);
+        Team spec = sb.registerNewTeam(conf.spectatorTeamID()+"_" + id16);
 
-        red.setColor(ChatColor.RED);
-        blue.setColor(ChatColor.BLUE);
-        yellow.setColor(ChatColor.YELLOW);
-        green.setColor(ChatColor.GREEN);
-        spec.setColor(ChatColor.DARK_GRAY);
+        red.setColor(conf.redTeamChatColor());
+        blue.setColor(conf.blueTeamChatColor());
+        yellow.setColor(conf.yellowTeamChatColor());
+        green.setColor(conf.greenTeamChatColor());
+        spec.setColor(conf.spectatorTeamChatColor());
 
         red.setCanSeeFriendlyInvisibles(true);
         blue.setCanSeeFriendlyInvisibles(true);
         yellow.setCanSeeFriendlyInvisibles(true);
         green.setCanSeeFriendlyInvisibles(true);
 
-        red.setPrefix(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.red.prefix", "&7[&cR&7] &r")
-        ));
-        blue.setPrefix(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.blue.prefix", "&7[&9B&7] &r")
-        ));
-        yellow.setPrefix(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.yellow.prefix", "&7[&eY&7] &r")
-        ));
-        green.setPrefix(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.green.prefix", "&7[&aG&7] &r")
-        ));
-        spec.setPrefix(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.spectator.prefix", "&7[&8SP&7] &r")
-        ));
+        red.setPrefix(NChatColor.replaceAltColorCodes(conf.redTeamPrefix()));
+        blue.setPrefix(NChatColor.replaceAltColorCodes(conf.blueTeamPrefix()));
+        yellow.setPrefix(NChatColor.replaceAltColorCodes(conf.yellowTeamPrefix()));
+        green.setPrefix(NChatColor.replaceAltColorCodes(conf.greenTeamPrefix()));
+        spec.setPrefix(NChatColor.replaceAltColorCodes(conf.spectatorTeamPrefix()));
 
-        red.setDisplayName(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.red.display", "赤チーム")
-        ));
-        blue.setDisplayName(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.blue.display", "青チーム")
-        ));
-        yellow.setDisplayName(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.yellow.display", "黄チーム")
-        ));
-        green.setDisplayName(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.green.display", "緑チーム")
-        ));
-        spec.setDisplayName(NChatColor.replaceAltColorCodes(
-                plugin.getConfig().getString("anni.teams.spectator.display", "観戦者")
-        ));
+        red.setDisplayName(NChatColor.replaceAltColorCodes(conf.redTeamDisplay()));
+        blue.setDisplayName(NChatColor.replaceAltColorCodes(conf.blueTeamDisplay()));
+        yellow.setDisplayName(NChatColor.replaceAltColorCodes(conf.yellowTeamDisplay()));
+        green.setDisplayName(NChatColor.replaceAltColorCodes(conf.greenTeamDisplay()));
+        spec.setDisplayName(NChatColor.replaceAltColorCodes(conf.spectatorTeamDisplay()));
 
         red.setAllowFriendlyFire(false);
         blue.setAllowFriendlyFire(false);
@@ -193,10 +182,10 @@ public class ANNIGame {
 
     private void initNexus() {
         nexusHealth.clear();
-        nexusHealth.put(com.nekozouneko.anni.Team.RED, plugin.getConfig().getInt("anni.nexus.health", 100));
-        nexusHealth.put(com.nekozouneko.anni.Team.BLUE, plugin.getConfig().getInt("anni.nexus.health", 100));
-        nexusHealth.put(com.nekozouneko.anni.Team.YELLOW, plugin.getConfig().getInt("anni.nexus.health", 100));
-        nexusHealth.put(com.nekozouneko.anni.Team.GREEN, plugin.getConfig().getInt("anni.nexus.health", 100));
+        nexusHealth.put(com.nekozouneko.anni.Team.RED, ANNIPlugin.getANNIConf().nexusHealth());
+        nexusHealth.put(com.nekozouneko.anni.Team.BLUE, ANNIPlugin.getANNIConf().nexusHealth());
+        nexusHealth.put(com.nekozouneko.anni.Team.YELLOW, ANNIPlugin.getANNIConf().nexusHealth());
+        nexusHealth.put(com.nekozouneko.anni.Team.GREEN, ANNIPlugin.getANNIConf().nexusHealth());
         nexusHealth.put(com.nekozouneko.anni.Team.SPECTATOR, -1);
         nexusHealth.put(com.nekozouneko.anni.Team.NOT_JOINED, -1);
     }
@@ -407,10 +396,11 @@ public class ANNIGame {
             for (int i = 0; i < defInv.length; i++) {
                 ItemStack ar = defInv[i];
                 if (
-                        (ar.getType() == Material.LEATHER_HELMET)
+                        ar != null &&
+                        ((ar.getType() == Material.LEATHER_HELMET)
                         || (ar.getType() == Material.LEATHER_CHESTPLATE)
                         || (ar.getType() == Material.LEATHER_LEGGINGS)
-                        || (ar.getType() == Material.LEATHER_BOOTS)
+                        || (ar.getType() == Material.LEATHER_BOOTS))
                 ) {
                     Map<Enchantment,Integer> enc = ar.getEnchantments();
                     LeatherArmorMeta am = (LeatherArmorMeta) ar.getItemMeta();
@@ -462,6 +452,23 @@ public class ANNIGame {
                 setKitToPlayer(p);
             }
 
+            RegionContainer rc = ANNIPlugin.getWG().getPlatform().getRegionContainer();
+            RegionManager rm = rc.get(BukkitAdapter.adapt(copyWorld));
+
+            for (com.nekozouneko.anni.Team t : getTeams(true)) {
+                Location nl = getMap().getNexusLocation(t, true);
+                BlockVector3 vec3 = BlockVector3.at(nl.getX(), nl.getY(), nl.getZ());
+
+                ProtectedCuboidRegion reg = new ProtectedCuboidRegion(t.name().toLowerCase()+"_nexus_"+id16, vec3, vec3);
+                reg.setFlag(Flags.BLOCK_BREAK, StateFlag.State.ALLOW);
+                reg.setPriority(91217);
+
+                if (rm != null) {
+                    rm.addRegion(reg);
+                    regions.add(reg);
+                }
+            }
+
             return true;
         }
 
@@ -503,8 +510,18 @@ public class ANNIGame {
         for (Player p : players.keySet()) {
             p.getInventory().clear();
         }
+        regions.clear();
 
         if (copyWorld != null) {
+            RegionContainer cont = ANNIPlugin.getWG().getPlatform().getRegionContainer();
+            RegionManager man = cont.get(BukkitAdapter.adapt(copyWorld));
+
+            if (man != null) {
+                for (ProtectedRegion reg : regions) {
+                    man.removeRegion(reg.getId());
+                }
+            }
+
             Bukkit.unloadWorld(copyWorld, true);
             try {
                 ANNIUtil.safeDeleteDir(copyWorld.getWorldFolder().toPath());
@@ -555,7 +572,34 @@ public class ANNIGame {
 
         if (copied != null) {
             setCopiedMap(copied);
+            ANNIPlugin.getInstance().getLogger().info("Copying worldguard regions...");
+
+            RegionContainer cont = ANNIPlugin.getWG().getPlatform().getRegionContainer();
+            cont.reload();
+
+            RegionManager man = cont.get(BukkitAdapter.adapt(w));
+            RegionManager nman = cont.get(BukkitAdapter.adapt(copied));
+
+            if (man != null && nman != null) {
+                for (String rk : man.getRegions().keySet()) {
+                    ProtectedRegion val = man.getRegions().get(rk);
+                    ProtectedRegion nr;
+                    if (val.getType() == RegionType.POLYGON) {
+                        nr = new ProtectedPolygonalRegion(val.getId()+"_"+id16, val.getPoints(), val.getMinimumPoint().getY(), val.getMaximumPoint().getY());
+                    } else if (val.getType() == RegionType.CUBOID){
+                        nr = new ProtectedCuboidRegion(val.getId()+"_"+id16, val.getMinimumPoint(), val.getMaximumPoint());
+                    } else continue;
+
+                    nr.setFlags(val.getFlags());
+                    nman.addRegion(nr);
+                    regions.add(nr);
+                    ANNIPlugin.getInstance().getLogger().info("Copied region ["+rk+"]");
+                }
+            }
+
+            ANNIPlugin.getInstance().getLogger().info("Copied worldguard regions.");
         }
+
         ANNIPlugin.getInstance().getLogger().info("End copy world successful.");
     }
 
@@ -802,5 +846,7 @@ public class ANNIGame {
     public String getKitId(UUID id) {
         return kit.get(id);
     }
+
+    // region
 
 }
