@@ -1,6 +1,26 @@
-timezone: "Asia/Tokyo"
+database:
+  # Default: SQLite
+  # - SQLite
+  # - MySQL
+  type: SQLite
+
+  sqlite-file: "anni.db"
+
+  mysql-address: localhost
+  mysql-port: 3306
+  mysql-user: root
+  mysql-password: ''
 
 anni:
+  timezone: "Asia/Tokyo"
+  max-players: 120
+  min-players: 2
+  rule: 2
+
+  features:
+    custom-recipe: true
+    shop: true
+
   nexus:
     health: 100
     material: END_STONE
@@ -31,10 +51,6 @@ anni:
       display: "観戦者"
       prefix: "§7[§8SP§7]"
       team-color: '8'
-  anni_recipe: true
-  min-players: 2
-  max-players: 100
-  rule: 2
 
 # DO NOT edit
-config-version: 0
+config-version: 1
