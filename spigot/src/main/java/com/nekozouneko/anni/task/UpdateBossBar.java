@@ -1,12 +1,9 @@
 package com.nekozouneko.anni.task;
 
-import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.Team;
-import com.nekozouneko.anni.game.ANNIBigMessage;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
