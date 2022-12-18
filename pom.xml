@@ -78,6 +78,10 @@
             <id>nekozouneko</id>
             <url>https://repos.nekozouneko.net/repository/nekozorepo/</url>
         </repository>
+        <repository>
+            <id>sk89q-repo</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
     </repositories>
 
     <dependencies>

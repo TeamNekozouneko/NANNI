@@ -49,6 +49,12 @@
             <version>0.02-alpha</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.0.5</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
