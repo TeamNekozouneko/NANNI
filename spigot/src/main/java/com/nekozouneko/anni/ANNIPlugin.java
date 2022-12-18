@@ -2,6 +2,7 @@ package com.nekozouneko.anni;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+
 import com.nekozouneko.anni.command.ANNIAdminCommand;
 import com.nekozouneko.anni.command.ANNICommand;
 import com.nekozouneko.anni.file.ANNIKit;
@@ -11,8 +12,14 @@ import com.nekozouneko.anni.game.manager.KitManager;
 import com.nekozouneko.anni.game.manager.MapManager;
 import com.nekozouneko.anni.listener.*;
 import com.nekozouneko.anni.task.UpdateBoard;
+
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldguard.WorldGuard;
+
 import fr.minuskube.netherboard.Netherboard;
+
 import net.milkbowl.vault.economy.Economy;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -36,6 +43,9 @@ public class ANNIPlugin extends JavaPlugin {
     private static MapManager mm;
     private static KitManager km;
     private static ANNILobby lobbyWorld;
+    private static ANNIConfig config;
+    private static WorldEdit we;
+    private static WorldGuard wg;
     public final static ANNIKit DEFAULT_KIT;
 
     static {
@@ -101,6 +111,18 @@ public class ANNIPlugin extends JavaPlugin {
         return eco;
     }
 
+    public static ANNIConfig getANNIConf() {
+        return config;
+    }
+
+    public static WorldEdit getWE() {
+        return we;
+    }
+
+    public static WorldGuard getWG() {
+        return wg;
+    }
+
     public static void teleportToLobby(Player player) {
         player.teleport(getLobby().getLocation().toLocation());
     }
@@ -143,6 +165,8 @@ public class ANNIPlugin extends JavaPlugin {
         saveDefaultConfig();
         getConfig().options().copyDefaults(true);
 
+        config = new ANNIConfig(this);
+
         getLogger().info("Configuration is successful loaded.");
 
         /* ----- Listener ----- */
@@ -173,7 +197,7 @@ public class ANNIPlugin extends JavaPlugin {
         getLogger().info("Registered Command.");
 
         /* ----- Recipe ----- */
-        if (getConfig().getBoolean("anni.anni_recipe")) {
+        if (config.isEnabledCustomRecipe()) {
             registerRecipe();
         }
 
@@ -184,9 +208,9 @@ public class ANNIPlugin extends JavaPlugin {
 
         mm = new MapManager();
         gm = new GameManager(
-                getConfig().getInt("anni.min-players", 2),
-                getConfig().getInt("anni.max-players", 100),
-                getConfig().getInt("anni.rule", 2)
+                config.MinPlayers(),
+                config.MaxPlayers(),
+                config.ANNIRule()
         );
         km = new KitManager();
         loadLobby();
@@ -194,6 +218,8 @@ public class ANNIPlugin extends JavaPlugin {
         getLogger().info("Loading depends...");
 
         loadVaultEconomy();
+        loadWorldEdit();
+        loadWorldGuard();
 
         getLogger().info("Loaded depends!");
 
@@ -275,6 +301,15 @@ public class ANNIPlugin extends JavaPlugin {
         }
         eco = rsp.getProvider();
         return eco != null;
+    }
+
+    public void loadWorldEdit() {
+        we = WorldEdit.getInstance();
+
+    }
+
+    public void loadWorldGuard() {
+        wg = WorldGuard.getInstance();
     }
 
     public void initDefaultKit() {
