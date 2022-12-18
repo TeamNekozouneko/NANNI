@@ -124,8 +124,8 @@ public class UpdateBoard extends BukkitRunnable {
             if (b == null) continue;
 
             b.delete();
-            cancel();
         }
+        cancel();
     }
 
 }
