@@ -15,6 +15,7 @@ import com.nekozouneko.anni.util.BlockDestroyUtil;
 import com.nekozouneko.anni.util.SimpleLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.*;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -44,7 +45,7 @@ public class BlockDestroyListener implements Listener {
             }}
     );
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onEvent(BlockBreakEvent e) {
         World w = e.getBlock().getWorld();
         Location loc = e.getBlock().getLocation();
@@ -139,16 +140,22 @@ public class BlockDestroyListener implements Listener {
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 100);
+                    break;
                 case WHEAT:
                     Random r = new Random();
-                    if (r.nextInt(11) == 10) {
-                        loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.APPLE, 1));
-                    }
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        if (new Location(loc.getWorld(), loc.getX(), loc.getY()-1, loc.getZ()).getBlock().getType() == Material.FARMLAND) {
-                            loc.getBlock().setType(Material.WHEAT_SEEDS);
+                    Ageable age = (Ageable) loc.getBlock().getBlockData();
+
+                    if (age.getAge() >= 7) {
+                        if (r.nextInt(101) <= 5) {
+                            loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.APPLE, 1));
                         }
-                    }, 60);
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                            if (new Location(loc.getWorld(), loc.getX(), loc.getY() - 1, loc.getZ()).getBlock().getType() == Material.FARMLAND) {
+                                loc.getBlock().setType(Material.WHEAT);
+                            }
+                        }, 60);
+                    }
+                    break;
                 default:
                     final Material[] ignoreDestroy = new Material[] {
                             Material.ENCHANTING_TABLE,
@@ -178,19 +185,6 @@ public class BlockDestroyListener implements Listener {
                         ) {
                             e.getPlayer().sendMessage(NChatColor.RED + "ネクサス付近は破壊できません。");
                             e.setCancelled(true);
-                        } else if (ANNIPlugin.getGM().getGame().getMap().getNexusTeam(l.toLocation(e.getBlock().getWorld())) != ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(e.getPlayer())) {
-                            if (
-                                    ((fl.getX()-30d) <= e.getBlock().getLocation().getX()
-                                            && (fl.getX()+30d) >= e.getBlock().getLocation().getX()) &&
-                                            ((fl.getY()-30d) <= e.getBlock().getLocation().getY()
-                                                    && (fl.getY()+30d) >= e.getBlock().getLocation().getY()) &&
-                                            ((fl.getZ()-30d) <= e.getBlock().getLocation().getZ()
-                                                    && (fl.getZ()+30d) >= e.getBlock().getLocation().getZ())
-                                            && e.getPlayer().getGameMode() == GameMode.SURVIVAL
-                            ) {
-                                e.getPlayer().sendMessage(NChatColor.RED + "敵の陣地は破壊できません。");
-                                e.setCancelled(true);
-                            }
                         }
                     }
                     break;

@@ -10,11 +10,25 @@ import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class BlockPlaceListener implements Listener {
+
+    private final List<Material> denyPlace = Arrays.asList(
+            Material.IRON_ORE, Material.GOLD_ORE,
+            Material.COAL_ORE, Material.LAPIS_ORE,
+            Material.DIAMOND_ORE, Material.EMERALD_ORE,
+            Material.REDSTONE_ORE,
+            Material.BEDROCK, Material.OBSIDIAN,
+            Material.CRYING_OBSIDIAN
+    );
 
     @EventHandler
     public void onEvent(BlockPlaceEvent e) {
@@ -34,20 +48,12 @@ public class BlockPlaceListener implements Listener {
                 ) {
                     e.getPlayer().sendMessage(NChatColor.RED + "ネクサス付近は設置できません。");
                     e.setCancelled(true);
-                } else if (ANNIPlugin.getGM().getGame().getMap().getNexusTeam(l.toLocation(e.getBlock().getWorld())) != ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(e.getPlayer())) {
-                    if (
-                            ((fl.getX()-30d) <= e.getBlock().getLocation().getX()
-                                    && (fl.getX()+30d) >= e.getBlock().getLocation().getX()) &&
-                                    ((fl.getY()-30d) <= e.getBlock().getLocation().getY()
-                                            && (fl.getY()+30d) >= e.getBlock().getLocation().getY()) &&
-                                    ((fl.getZ()-30d) <= e.getBlock().getLocation().getZ()
-                                            && (fl.getZ()+30d) >= e.getBlock().getLocation().getZ())
-                                    && e.getPlayer().getGameMode() == GameMode.SURVIVAL
-                    ) {
-                        e.getPlayer().sendMessage(NChatColor.RED + "敵の陣地に設置できません。");
-                        e.setCancelled(true);
-                    }
                 }
+            }
+
+            if (denyPlace.contains(e.getBlock().getType())) {
+                e.setCancelled(true);
+                e.getPlayer().sendMessage("そのブロックを設置することは許可されていません");
             }
         }
 
