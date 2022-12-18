@@ -48,7 +48,7 @@ public class PlayerKillListener implements Listener {
 
                 p.sendTitle("§aリスポーン中...", "", 0, 60, 10);
                 p.setGameMode(GameMode.SURVIVAL);*/
-                Bukkit.getScheduler().runTaskTimer(plugin, new SpectateKiller(5, p), 20, 20);
+                new SpectateKiller(5, p).runTaskTimer(plugin, 20, 20);
             } else {
                 ANNIPlugin.teleportToLobby(p);
                 g.removeSavedInventory(p.getUniqueId());
