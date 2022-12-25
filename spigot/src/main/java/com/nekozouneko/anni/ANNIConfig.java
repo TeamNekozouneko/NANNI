@@ -141,11 +141,13 @@ public class ANNIConfig {
 
     protected ANNIConfig(ANNIPlugin plugin) {
         this.plugin = plugin;
+        this.plugin.saveDefaultConfig();
+
         this.conf = plugin.getConfig();
 
         reload();
 
-        if (CONFIG_VERSION < LATEST_CONFIG_VERSION) update();
+        if (conf.getInt("config-version", LATEST_CONFIG_VERSION) < LATEST_CONFIG_VERSION) update();
     }
 
     public void reload() {
