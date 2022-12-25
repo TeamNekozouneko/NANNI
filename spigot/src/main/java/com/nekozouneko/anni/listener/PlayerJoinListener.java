@@ -13,6 +13,10 @@ public class PlayerJoinListener implements Listener {
         e.getPlayer().setGameMode(GameMode.ADVENTURE);
         e.getPlayer().getInventory().clear();
         ANNIPlugin.teleportToLobby(e.getPlayer());
+
+        if (!ANNIPlugin.getANNIDB().hasStatsData(e.getPlayer().getUniqueId())) {
+            ANNIPlugin.getANNIDB().initPlayerData(e.getPlayer().getUniqueId());
+        }
     }
 
 }
