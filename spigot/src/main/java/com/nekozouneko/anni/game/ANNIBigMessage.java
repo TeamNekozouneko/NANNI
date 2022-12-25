@@ -1,5 +1,6 @@
 package com.nekozouneko.anni.game;
 
+import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.Bukkit;
 
 import java.util.*;
@@ -145,6 +146,18 @@ public class ANNIBigMessage {
             "XXxxxxxxXX",
             "XXXXXXXXXX"
     };
+    private static final String[] N = new String[] {
+            "XXXXXXXXXX",
+            "XXxXXXXxXX",
+            "XXxxXXXxXX",
+            "XXxXxXXxXX",
+            "XXxXXxXxXX",
+            "XXxXXXxxXX",
+            "XXxXXXXxXX",
+            "XXxXXXXxXX",
+            "XXxXXXXxXX",
+            "XXXXXXXXXX"
+    };
     private static final String[] R = new String[] {
             "XXXXXXXXXX",
             "XXxxxxxXXX",
@@ -186,8 +199,8 @@ public class ANNIBigMessage {
             put('1',ONE);put('2',TWO);put('3',THREE);
             put('4',FOUR);put('5',FIVE);put('6',SIX);
             put('7',SEVEN);put('B',B);put('D',D);
-            put('L',L);put('G',G);put('R',R);
-            put('W',W);put('Y',Y);
+            put('L',L);put('N',N);put('G',G);
+            put('R',R);put('W',W);put('Y',Y);
     }});
 
     private ANNIBigMessage() {}
@@ -206,7 +219,7 @@ public class ANNIBigMessage {
                 if (i >= 4) {
                     try {
                         String ii = bi.get(i);
-                        bi.set(i, ii + " " + message[i-4]);
+                        bi.set(i, ii + " " + NChatColor.replaceAltColorCodes(message[i-4]));
                     } catch (ArrayIndexOutOfBoundsException e) {
                         bi.set(i, bi.get(i));
                     }
