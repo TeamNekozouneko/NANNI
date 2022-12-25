@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.nekozouneko</groupId>
+    <name>NANNI - API</name>
     <artifactId>nanni-api</artifactId>
 
     <properties>
