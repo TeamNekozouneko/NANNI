@@ -230,6 +230,7 @@ public class BlockDestroyListener implements Listener {
                     broker.getDisplayName() + "が" + g.getScoreBoardTeam(t).getDisplayName() + "のネクサスにダメージを与えました!"
             );
             e.setDropItems(false);
+            ANNIPlugin.getANNIDB().addNexusMinedCount(broker.getUniqueId());
             if (g.getNexusHealth(t) >= 1) {
                 BlockDestroyUtil.nexusDestroyParticleSound(loc);
 
@@ -244,6 +245,10 @@ public class BlockDestroyListener implements Listener {
                 );
                 g.loseTeam(t);
 
+                for (Player p : g.getPlayers(t)) {
+                    ANNIPlugin.getANNIDB().addLoseCount(p.getUniqueId());
+                }
+
                 if (g.getNotLostTeams().size() > 1) {
                     for (String s: ANNIBigMessage.createMessage(
                             UpdateBossBar.bigCharMap.get(t), g.getScoreBoardTeam(t).getColor().getChar(),
@@ -256,6 +261,10 @@ public class BlockDestroyListener implements Listener {
                     try {
                         Team winTeam = g.getNotLostTeams().get(0);
                         org.bukkit.scoreboard.Team winBukkitTeam = g.getScoreBoardTeam(winTeam);
+
+                        for (Player p : g.getPlayers(winTeam)) {
+                            ANNIPlugin.getANNIDB().addWinCount(p.getUniqueId());
+                        }
 
                         for (String s : ANNIBigMessage.createMessage(
                                 UpdateBossBar.bigCharMap.get(winTeam), winBukkitTeam.getColor().getChar(),

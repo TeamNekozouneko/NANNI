@@ -65,7 +65,9 @@ public class PlayerKillListener implements Listener {
         if (g == null) return;
 
         if (ANNIPlugin.getGM().isJoined(killed)) {
+            ANNIPlugin.getANNIDB().addDeathCount(killed.getUniqueId());
             if (killer != null) {
+                ANNIPlugin.getANNIDB().addKillCount(killer.getUniqueId());
                 g.broadcast("§7" + ANNIUtil.teamPrefixSuffixAppliedName(killed) + " §f<- §7" + ANNIUtil.teamPrefixSuffixAppliedName(killer));
 
                 /*killed.teleport(killer);
