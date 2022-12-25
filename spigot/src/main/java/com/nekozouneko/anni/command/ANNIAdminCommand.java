@@ -3,6 +3,7 @@ package com.nekozouneko.anni.command;
 import com.google.gson.Gson;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.database.ANNISQLiteDatabase;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.file.ANNIMap;
@@ -25,6 +26,7 @@ import org.bukkit.entity.Player;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.*;
 
 public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
@@ -65,7 +67,8 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
             } else if (args[0].equalsIgnoreCase("debug")) {
                 if (args[1].equalsIgnoreCase("timer")) {
                     ANNIPlugin.getGM().getGame().setTimer(Long.parseLong(args[2]));
-                } else if (args[1].equalsIgnoreCase("phase")) {
+                }
+                else if (args[1].equalsIgnoreCase("phase")) {
                     ANNIPlugin.getGM().getGame().changeStatus(ANNIStatus.valueOf(args[2]));
                 }
             } else if (args[0].equalsIgnoreCase("kit")) {
