@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ANNIUtil {
 
@@ -236,6 +238,22 @@ public class ANNIUtil {
 
         }
         Files.deleteIfExists(path);
+    }
+
+    public static float KDCalc(int k, int d) {
+        if (d == 0) return 1F;
+        else if (k == 0) return 0F;
+
+        return ((float) k) / ((float) d);
+    }
+
+    public static String doubleToString(double d) {
+        String a = Double.toString(d);
+        a = a.replaceAll("^([0-9]+\\.[0-9]*?)(0+?)$", "$1");
+
+        if (a.endsWith(".")) a = a.substring(0, a.length()-1);
+
+        return a;
     }
 
 }
