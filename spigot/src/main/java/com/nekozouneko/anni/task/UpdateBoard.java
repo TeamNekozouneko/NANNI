@@ -36,7 +36,7 @@ public class UpdateBoard extends BukkitRunnable {
 
             BPlayerBoard b = nb.getBoard(p);
 
-            TimeZone.setDefault(TimeZone.getTimeZone("GMT+9:00"));
+            TimeZone.setDefault(TimeZone.getTimeZone(ANNIPlugin.getANNIConf().TimeZone()));
             Calendar cl = Calendar.getInstance(Locale.JAPAN);
 
             Date d = cl.getTime();
@@ -97,6 +97,9 @@ public class UpdateBoard extends BukkitRunnable {
             } else if (p.getWorld() == ANNIPlugin.getLobby().getLocation().getBukkitWorld()) {
                 if (b == null) b = nb.createBoard(p, ANNIPlugin.getSb(), "\u00A7cA\u00A79N\u00A7eN\u00A7aI");
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                int k = ANNIPlugin.getANNIDB().getKillCount(p.getUniqueId());
+                int de = ANNIPlugin.getANNIDB().getDeathCount(p.getUniqueId());
+                String late = String.format("%.2f", ANNIUtil.KDCalc(k, de));
 
                 b.setAll(
                         "§8" + sdf.format(d),
@@ -104,11 +107,10 @@ public class UpdateBoard extends BukkitRunnable {
                         "お知らせ:",
                         "§7> §f開発中だからバグの森だよ",
                         "  ",
-                        "所持ポイント: §c" + bal + " §7" + ANNIPlugin.getVaultEconomy().currencyNameSingular(),
+                        "所持ポイント: §c" + ANNIUtil.doubleToString(bal) + " §7" + ANNIPlugin.getVaultEconomy().currencyNameSingular(),
                         " ",
-                        "勝利数: §c-1 §8(未実装)",
-                        "キル: §c-1 §8(未実装)",
-                        "死亡数: §c-1 §8(未実装)",
+                        "勝利数: §c" + ANNIPlugin.getANNIDB().getWinCount(p.getUniqueId()),
+                        "K/D: §c"+ late +" §8("+k+" / "+de+")",
                         "",
                         "§9§nnekozouneko.net"
                 );
