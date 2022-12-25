@@ -14,11 +14,6 @@ public class PlayerDamageListener implements Listener {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
 
-            if (p.getLocation().getWorld().equals(ANNIPlugin.getLobby().getLocation().getBukkitWorld())) {
-                e.setCancelled(true);
-                return;
-            }
-
             if (p.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                 String d = e.getDamager().getCustomName();
                 d = d == null ? e.getDamager().getName() : d;
