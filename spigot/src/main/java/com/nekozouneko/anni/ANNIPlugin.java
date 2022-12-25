@@ -5,6 +5,8 @@ import com.google.gson.JsonSyntaxException;
 
 import com.nekozouneko.anni.command.ANNIAdminCommand;
 import com.nekozouneko.anni.command.ANNICommand;
+import com.nekozouneko.anni.database.ANNIDatabase;
+import com.nekozouneko.anni.database.ANNISQLiteDatabase;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.game.manager.GameManager;
@@ -16,6 +18,7 @@ import com.nekozouneko.anni.task.UpdateBoard;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldguard.WorldGuard;
 
+import com.sun.tools.javac.code.Attribute;
 import fr.minuskube.netherboard.Netherboard;
 
 import net.milkbowl.vault.economy.Economy;
@@ -35,18 +38,35 @@ import java.nio.charset.StandardCharsets;
 
 public class ANNIPlugin extends JavaPlugin {
 
+    /* ANNI System */
     private static ANNIPlugin instance;
-    private static Netherboard nb;
-    private static Scoreboard sb;
+
+    // board update
     private static UpdateBoard boardTask;
+
+    // manager
     private static GameManager gm;
     private static MapManager mm;
     private static KitManager km;
+
+    // lobby & configuration & database
     private static ANNILobby lobbyWorld;
     private static ANNIConfig config;
+    private static ANNIDatabase db;
+
+    /* integration & depends */
+    private static Netherboard nb;
+    private static Scoreboard sb;
     private static WorldEdit we;
     private static WorldGuard wg;
+    private static Economy eco = null;
+
     public final static ANNIKit DEFAULT_KIT;
+
+    /* Directories */
+
+    private static File mapDir;
+    private static File kitDir;
 
     static {
         ItemStack[] inv = new ItemStack[41];
@@ -64,12 +84,6 @@ public class ANNIPlugin extends JavaPlugin {
 
         DEFAULT_KIT = new ANNIKit("デフォルト", "<default>", inv, 0.0);
     }
-
-    /* - Vault - */
-    private static Economy eco = null;
-
-    private static File mapDir;
-    private static File kitDir;
 
     public static ANNIPlugin getInstance() {
         return instance;
@@ -113,6 +127,10 @@ public class ANNIPlugin extends JavaPlugin {
 
     public static ANNIConfig getANNIConf() {
         return config;
+    }
+
+    public static ANNIDatabase getANNIDB() {
+        return db;
     }
 
     public static WorldEdit getWE() {
@@ -204,6 +222,8 @@ public class ANNIPlugin extends JavaPlugin {
         /* ----- System ----- */
         getLogger().info("Initializing system...");
 
+        getLogger().info("- Loading managers/lobby (1/3)");
+
         initDefaultKit();
 
         mm = new MapManager();
@@ -215,13 +235,18 @@ public class ANNIPlugin extends JavaPlugin {
         km = new KitManager();
         loadLobby();
 
-        getLogger().info("Loading depends...");
+        getLogger().info("- Loading database... (2/3)");
+
+        if (config.DatabaseType().equalsIgnoreCase("MySQL")) {
+            db = null;
+        } else db = new ANNISQLiteDatabase();
+
+        getLogger().info("- Loading depends... (3/3)");
 
         loadVaultEconomy();
         loadWorldEdit();
         loadWorldGuard();
-
-        getLogger().info("Loaded depends!");
+        loadPlaceholderAPI();
 
         /* ----- Task  ----- */
 
@@ -242,6 +267,7 @@ public class ANNIPlugin extends JavaPlugin {
         }
 
         gm.getGame().pluginDisable();
+        db.close();
 
         unregisterRecipe();
     }
@@ -310,6 +336,12 @@ public class ANNIPlugin extends JavaPlugin {
 
     public void loadWorldGuard() {
         wg = WorldGuard.getInstance();
+    }
+
+    public void loadPlaceholderAPI() {
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new ANNIExpansion().register();
+        }
     }
 
     public void initDefaultKit() {

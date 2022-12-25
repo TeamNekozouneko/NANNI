@@ -21,7 +21,6 @@ public class ANNIKit {
     private String description;
     private String content;
     private double price;
-    private List<String> purchased;
 
     public ANNIKit(String display, final String id, String content, double price) {
         this.display = display;
@@ -68,37 +67,9 @@ public class ANNIKit {
         this.price = price;
     }
 
-    public void setPurchased(List<String> purchased) {
-        this.purchased = purchased;
-    }
-
-    public void setPurchasedPlayerUUID(List<UUID> purchased) {
-        List<String> conv = new ArrayList<>();
-
-        purchased.forEach((u) -> conv.add(u.toString()));
-
-        this.purchased = conv;
-    }
-
     public void setIcon(Material m) {
         if (m == Material.AIR) return;
         this.icon = m.name();
-    }
-
-    public boolean addPurchased(String id) {
-        return purchased.add(id);
-    }
-
-    public boolean addPurchasedUUID(UUID id) {
-        return purchased.remove(id.toString());
-    }
-
-    public boolean removePurchased(String id) {
-        return purchased.remove(id);
-    }
-
-    public boolean removePurchasedUUID(UUID id) {
-        return purchased.remove(id.toString());
     }
 
     public String getDisplayName() {
@@ -133,17 +104,6 @@ public class ANNIKit {
 
     public double getPrice() {
         return price;
-    }
-
-    public List<String> getPurchased() {
-        return purchased;
-    }
-
-    public List<UUID> getPurchasedPlayerUUID() {
-        List<UUID> listu = new ArrayList<>();
-        purchased.forEach((s) -> listu.add(UUID.fromString(s)));
-
-        return listu;
     }
 
     public String getID() {
