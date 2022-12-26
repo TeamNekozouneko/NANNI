@@ -3,22 +3,17 @@ package com.nekozouneko.anni;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import com.nekozouneko.anni.command.ANNIAdminCommand;
-import com.nekozouneko.anni.command.ANNICommand;
-import com.nekozouneko.anni.database.ANNIDatabase;
-import com.nekozouneko.anni.database.ANNISQLiteDatabase;
+import com.nekozouneko.anni.command.*;
+import com.nekozouneko.anni.database.*;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNILobby;
-import com.nekozouneko.anni.game.manager.GameManager;
-import com.nekozouneko.anni.game.manager.KitManager;
-import com.nekozouneko.anni.game.manager.MapManager;
+import com.nekozouneko.anni.game.manager.*;
 import com.nekozouneko.anni.listener.*;
 import com.nekozouneko.anni.task.UpdateBoard;
 
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldguard.WorldGuard;
 
-import com.sun.tools.javac.code.Attribute;
 import fr.minuskube.netherboard.Netherboard;
 
 import net.milkbowl.vault.economy.Economy;

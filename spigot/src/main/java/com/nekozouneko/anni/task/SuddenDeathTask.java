@@ -3,8 +3,7 @@ package com.nekozouneko.anni.task;
 import com.nekozouneko.anni.Team;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
-import org.bukkit.Sound;
-import org.bukkit.entity.Player;
+
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class SuddenDeathTask extends BukkitRunnable {
