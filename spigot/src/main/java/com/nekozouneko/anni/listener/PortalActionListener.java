@@ -16,7 +16,9 @@ public class PortalActionListener implements Listener {
     public void onTravel(PlayerPortalEvent e) {
         if (
                 ANNIPlugin.getGM().getGame().isJoined(e.getPlayer())
-                && e.getCause() == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL
+                && (e.getCause() == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL
+                || e.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL
+                || e.getCause() == PlayerTeleportEvent.TeleportCause.END_GATEWAY)
         ) {
             e.setCancelled(true);
         }
