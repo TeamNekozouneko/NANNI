@@ -245,9 +245,12 @@ public class ANNIUtil {
         return ((float) k) / ((float) d);
     }
 
-    public static String doubleToString(double d) {
-        String a = Double.toString(d);
-        a = a.replaceAll("^([0-9]+\\.[0-9]*?)(0+?)$", "$1");
+    public static String doubleToString(double d, boolean comma) {
+        String a;
+        if (comma) a = String.format("%,.1f", d);
+        else a = Double.toString(d);
+
+        a = a.replaceAll("^([0-9]+\\.[1-9]*?)(0+)$", "$1");
 
         if (a.endsWith(".")) a = a.substring(0, a.length()-1);
 
