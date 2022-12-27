@@ -10,17 +10,25 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class SpectateKiller extends BukkitRunnable {
 
+    private boolean isFirst = true;
     private int timer;
     private final Player player;
+    private final Player killer;
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
 
-    public SpectateKiller(int i, Player p) {
+    public SpectateKiller(int i, Player p, Player k) {
         this.timer = i;
         this.player = p;
+        this.killer = k;
     }
 
     @Override
     public void run() {
+        if (isFirst) {
+            player.teleport(killer);
+            isFirst = false;
+        }
+
         if (timer <= 0) {
             player.addPotionEffect(
                     new PotionEffect(
@@ -38,6 +46,7 @@ public class SpectateKiller extends BukkitRunnable {
             );
             player.sendTitle("§aリスポーン中...", "", 0, 60, 10);
             player.setGameMode(GameMode.SURVIVAL);
+            player.teleport(ANNIPlugin.getGM().getGame().getTeamSpawnPoint(player));
             cancel();
         } else {
             player.setGameMode(GameMode.SPECTATOR);
