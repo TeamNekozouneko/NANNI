@@ -1,12 +1,12 @@
 name: "NANNI"
-version: "0.4.1-alpha"
+version: "0.4.2-alpha"
 author: "Taitaitatata"
 description: "NANNIはNekozouneko Serverのアナイアレーションを管理・実行するプラグインです"
 
 main: com.nekozouneko.anni.ANNIPlugin
 api-version: 1.16
-loadbefore: ["PlaceHolderAPI","Vault", "WorldEdit", "WorldGuard"]
-depend: ["PlaceHolderAPI","Vault", "WorldEdit", "WorldGuard"]
+loadbefore: ["PlaceholderAPI","Vault", "WorldEdit", "WorldGuard"]
+depend: ["PlaceholderAPI","Vault", "WorldEdit", "WorldGuard"]
 
 commands:
   nanni:
