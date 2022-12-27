@@ -30,7 +30,7 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
                     "&bN&c&lA&9&lN&e&lN&a&lI&7 (Nekozouneko Annihilation)",
                     "", "",
                     "Ver. " + ANNIPlugin.getInstance().getDescription().getVersion(),
-                    "&7(C) 2022 Team Nekozouneko, MIT License"
+                    "&7(C) 2022 Team Nekozouneko, Apache-2.0 License"
             )) {
                 sender.sendMessage(b);
             }
