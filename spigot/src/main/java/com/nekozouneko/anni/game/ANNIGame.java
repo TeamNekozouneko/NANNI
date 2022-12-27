@@ -416,6 +416,7 @@ public class ANNIGame {
     }
 
     public Location getTeamSpawnPoint(Player p) {
+        if (getPlayerJoinedTeam(p) == null) return copyWorld.getSpawnLocation();
         SimpleLocation sl = getMap().getSpawnPoints().get(getPlayerJoinedTeam(p).name());
         if (sl != null) {
             return sl.toLocation(copyWorld);
