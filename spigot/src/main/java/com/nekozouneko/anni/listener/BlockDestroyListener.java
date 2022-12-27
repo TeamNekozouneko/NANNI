@@ -3,7 +3,6 @@ package com.nekozouneko.anni.listener;
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.Team;
-import com.nekozouneko.anni.event.NexusAttackEvent;
 import com.nekozouneko.anni.game.ANNIBigMessage;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
@@ -14,16 +13,17 @@ import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.anni.util.BlockDestroyUtil;
 import com.nekozouneko.anni.util.SimpleLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import org.bukkit.*;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -154,6 +154,39 @@ public class BlockDestroyListener implements Listener {
                                 loc.getBlock().setType(Material.WHEAT);
                             }
                         }, 60);
+                    }
+                    break;
+                case ACACIA_LOG:
+                case BIRCH_LOG:
+                case CRIMSON_STEM:
+                case DARK_OAK_LOG:
+                case JUNGLE_LOG:
+                case SPRUCE_LOG:
+                case OAK_LOG:
+                case WARPED_STEM:
+                case STRIPPED_ACACIA_LOG:
+                case STRIPPED_BIRCH_LOG:
+                case STRIPPED_CRIMSON_STEM:
+                case STRIPPED_DARK_OAK_LOG:
+                case STRIPPED_JUNGLE_LOG:
+                case STRIPPED_SPRUCE_LOG:
+                case STRIPPED_OAK_LOG:
+                case STRIPPED_WARPED_STEM:
+                    RegionContainer rc = ANNIPlugin.getWG().getPlatform().getRegionContainer();
+                    RegionManager rm = rc.get(BukkitAdapter.adapt(e.getBlock().getWorld()));
+
+                    if (rm != null) {
+                        for (ProtectedRegion er : rm.getRegions().values()) {
+                            if (er.getId().startsWith("anni_inf_log") && er.contains(
+                                    e.getBlock().getLocation().getBlockX(),
+                                    e.getBlock().getLocation().getBlockY(),
+                                    e.getBlock().getLocation().getBlockZ()
+                            )) {
+                                e.setDropItems(false);
+                                e.getPlayer().getInventory().addItem(new ItemStack(bt));
+                                Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 100);
+                            }
+                        }
                     }
                     break;
                 default:
