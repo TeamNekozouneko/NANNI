@@ -77,7 +77,7 @@ public class PlayerKillListener implements Listener {
 
             e.setKeepInventory(true);
             e.setDeathMessage(null);
-            e.setDroppedExp(0);
+            e.setDroppedExp(killed.getTotalExperience());
             e.setNewTotalExp(0);
 
             final List<ItemStack> dropped = new ArrayList<>(e.getDrops());
