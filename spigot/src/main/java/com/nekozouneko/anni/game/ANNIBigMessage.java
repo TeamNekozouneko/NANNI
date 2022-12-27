@@ -226,6 +226,28 @@ public class ANNIBigMessage {
                 }
             }
         }
+        else if (message.length <= 9) {
+            for (int i = 0; i < bi.size(); i++) {
+                if (i >= 1) {
+                    try {
+                        String ii = bi.get(i);
+                        bi.set(i, ii + " " + NChatColor.replaceAltColorCodes(message[i-4]));
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        bi.set(i, bi.get(i));
+                    }
+                }
+            }
+        }
+        else if (message.length == 10) {
+            for (int i = 0; i < bi.size(); i++) {
+                try {
+                    String ii = bi.get(i);
+                    bi.set(i, ii + " " + NChatColor.replaceAltColorCodes(message[i-4]));
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    bi.set(i, bi.get(i));
+                }
+            }
+        }
 
         return bi;
     }
