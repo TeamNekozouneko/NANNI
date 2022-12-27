@@ -107,7 +107,7 @@ public class UpdateBoard extends BukkitRunnable {
                         "お知らせ:",
                         "§7> §f開発中だからバグの森だよ",
                         "  ",
-                        "所持ポイント: §c" + ANNIUtil.doubleToString(bal) + " §7" + ANNIPlugin.getVaultEconomy().currencyNameSingular(),
+                        "所持ポイント: §c" + ANNIUtil.doubleToString(bal, true) + " §7" + ANNIPlugin.getVaultEconomy().currencyNameSingular(),
                         " ",
                         "勝利数: §c" + ANNIPlugin.getANNIDB().getWinCount(p.getUniqueId()),
                         "K/D: §c"+ late +" §8("+k+" / "+de+")",
