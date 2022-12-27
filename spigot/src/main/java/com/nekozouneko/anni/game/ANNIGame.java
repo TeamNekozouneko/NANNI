@@ -21,7 +21,6 @@ import org.bukkit.boss.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
@@ -381,7 +380,7 @@ public class ANNIGame {
     }
 
     public void setKitToPlayer(Player p) {
-        String kitId = kit.get(p.getUniqueId());
+        String kitId = ANNIPlugin.getANNIDB().getUsingKit(p.getUniqueId());
         if (kitId == null) kitId = "<default>";
         ANNIKit k = ANNIPlugin.getKM().getLoadedKits().get(kitId);
         if (k == null) k = ANNIPlugin.DEFAULT_KIT;
@@ -835,16 +834,6 @@ public class ANNIGame {
 
     public void removeSavedInventory(UUID id) {
         savedInv.remove(id);
-    }
-
-    // kit
-
-    public void setKitId(UUID id, String kid) {
-        kit.put(id, kid);
-    }
-
-    public String getKitId(UUID id) {
-        return kit.get(id);
     }
 
     // region

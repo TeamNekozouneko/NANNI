@@ -100,6 +100,31 @@ public class ANNISQLiteDatabase implements ANNIDatabase {
     }
 
     @Override
+    public void setUsingKit(@Nullable String id, @NotNull UUID player) {
+        if (id == null) id = "<default>";
+
+        try {
+            state.executeUpdate("UPDATE anni_statistic SET kit = '"+id+"' WHERE player='"+Objects.requireNonNull(player,"player cannot be null")+"'");
+        } catch (SQLException se) {se.printStackTrace();}
+    }
+
+    @Override
+    public String getUsingKit(@NotNull UUID player) {
+        try {
+            ResultSet rs = state.executeQuery("SELECT * FROM anni_statistic WHERE player='" +
+                    Objects.requireNonNull(player, "player cannot be null") + "' LIMIT 1"
+            );
+
+            if (!rs.next()) return "<default>";
+
+            return rs.getString("kit");
+        } catch (SQLException se) {
+            se.printStackTrace();
+            return "<default>";
+        }
+    }
+
+    @Override
     public List<String> getPlayerPurchasedKits(@NotNull UUID player) {
         List<String> purchased = new ArrayList<>();
         try {

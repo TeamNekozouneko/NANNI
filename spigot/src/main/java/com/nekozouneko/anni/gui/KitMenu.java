@@ -4,8 +4,10 @@ import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.manager.KitManager;
+import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -188,13 +190,27 @@ public class KitMenu {
                         Matcher m = Pattern.compile("^§8\\[Kit: ([0-9A-Fa-f]+|<default>)]").matcher(last);
 
                         if (m.find()) {
-                            e.getWhoClicked().sendMessage("Selected kit: " + m.group(1));
-                            e.getView().close();
+                            ANNIKit k = ANNIPlugin.getKM().getLoadedKits().get(m.group(1));
+                            e.getWhoClicked().sendMessage(k.getDisplayName() + "を選択しました");
 
-                            ANNIPlugin.getGM().getGame().setKitId(e.getWhoClicked().getUniqueId(), m.group(1));
+                            if (
+                                    !ANNIPlugin.getANNIDB().isKitPurchased(m.group(1), e.getWhoClicked().getUniqueId())
+                                    && !(k.getPrice() == 0.0)
+                            ) {
+                                if (ANNIPlugin.getVaultEconomy().getBalance((OfflinePlayer) e.getWhoClicked()) >= k.getPrice()) {
+                                    ANNIPlugin.getVaultEconomy().withdrawPlayer((OfflinePlayer) e.getWhoClicked(), k.getPrice());
+                                    e.getWhoClicked().sendMessage(NChatColor.GREEN + "購入しました！");
+                                } else {
+                                    e.getWhoClicked().sendMessage(NChatColor.RED + "金額が不足しています。");
+                                    return;
+                                }
+                            }
+                            ANNIPlugin.getANNIDB().setUsingKit(m.group(1), e.getWhoClicked().getUniqueId());
                             if (ANNIPlugin.getGM().getGame().getStatus().getPhaseId() >= 1) {
                                 e.getWhoClicked().setHealth(0);
                             }
+
+                            e.getView().close();
                         }
                     }
                 } else {

@@ -26,6 +26,7 @@ import org.bukkit.entity.Player;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -76,6 +77,12 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                     addKit(sender, command, label, args);
                 } else if (args[1].equalsIgnoreCase("edit")) {
                     editKit(sender, command, label, args);
+                }
+                else if (args[1].equalsIgnoreCase("list")) {
+                    listKit(sender, command, label, args);
+                }
+                else if (args[1].equalsIgnoreCase("remove")) {
+                    removeKit(sender, command, label, args);
                 }
             }
         }
@@ -356,5 +363,36 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
         }
 
         KitEditor.open(k, p);
+    }
+
+    public static void listKit(CommandSender sender, Command cmd, String label, String[] args) {
+        Map<String, ANNIKit> kits = ANNIPlugin.getKM().getLoadedKits();
+
+        sender.sendMessage(kits.size() + "個のキットがロード済み:");
+        for (String key : kits.keySet()) {
+            sender.sendMessage("- " + kits.get(key).getDisplayName() + " §8("+key+"§8)");
+        }
+    }
+
+    public static void removeKit(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(args.length >= 3)) {
+            sender.sendMessage("§c使用方法: /annim kit remove <id>");
+            return;
+        }
+
+        String kitId = args[2];
+
+        if (!ANNIPlugin.getKM().getLoadedKits().containsKey(kitId)) {
+            sender.sendMessage("§cそのようなキットは存在しません");
+            return;
+        }
+
+        ANNIPlugin.getKM().unload(kitId);
+
+        try {
+            Files.deleteIfExists(new File(ANNIPlugin.getKitDir(), kitId + ".json").toPath());
+        } catch (IOException ie) {ie.printStackTrace();}
+
+        sender.sendMessage("操作は正常に終了しました。");
     }
 }
