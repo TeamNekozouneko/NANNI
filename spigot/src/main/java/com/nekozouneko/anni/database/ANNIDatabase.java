@@ -14,6 +14,10 @@ public interface ANNIDatabase {
 
     void initPlayerData(UUID player);
 
+    default void checkToInitPlayerData(UUID player) {
+        if (!hasStatsData(player)) initPlayerData(player);
+    }
+
     void close();
 
     /**
@@ -32,6 +36,10 @@ public interface ANNIDatabase {
 
     boolean isKitPurchased(String id, UUID player);
 
+    void setUsingKit(String id, UUID player);
+
+    String getUsingKit(UUID player);
+
     List<String> getPlayerPurchasedKits(UUID player);
 
     boolean hasPurchaseData(UUID player);
@@ -46,19 +54,19 @@ public interface ANNIDatabase {
 
     int getLoseCount(UUID player);
 
-    int addKillCount(UUID player, int add);
-
     long addNexusMinedCount(UUID player, int add);
 
     default long addNexusMinedCount(UUID player) {
-        return addDeathCount(player, 1);
+        return addNexusMinedCount(player, 1);
     }
 
     long takeNexusMinedCount(UUID player, int take);
 
     default long takeNexusMinedCount(UUID player) {
-        return takeDeathCount(player, 1);
+        return takeNexusMinedCount(player, 1);
     }
+
+    int addKillCount(UUID player, int add);
 
     default int addKillCount(UUID player) {
         return addKillCount(player, 1);
@@ -85,25 +93,25 @@ public interface ANNIDatabase {
     int addWinCount(UUID player, int add);
 
     default int addWinCount(UUID player) {
-        return addDeathCount(player, 1);
+        return addWinCount(player, 1);
     }
 
     int takeWinCount(UUID player, int take);
 
     default int takeWinCount(UUID player) {
-        return takeDeathCount(player, 1);
+        return takeWinCount(player, 1);
     }
 
     int addLoseCount(UUID player, int add);
 
     default int addLoseCount(UUID player) {
-        return addDeathCount(player, 1);
+        return addLoseCount(player, 1);
     }
 
     int takeLoseCount(UUID player, int take);
 
     default int takeLoseCount(UUID player) {
-        return takeDeathCount(player, 1);
+        return takeLoseCount(player, 1);
     }
 
     boolean hasStatsData(UUID player);
