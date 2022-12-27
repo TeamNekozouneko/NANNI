@@ -30,7 +30,8 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
                     "&bN&c&lA&9&lN&e&lN&a&lI&7 (Nekozouneko Annihilation)",
                     "", "",
                     "Ver. " + ANNIPlugin.getInstance().getDescription().getVersion(),
-                    "&7(C) 2022 Team Nekozouneko, Apache-2.0 License"
+                    "&7(C) 2022 Team Nekozouneko,",
+                    "&7                  Apache-2.0 License"
             )) {
                 sender.sendMessage(b);
             }
@@ -109,7 +110,7 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
 
         sender.sendMessage("§7§l| §r"+tar.getName() + "のANNI内の統計");
         sender.sendMessage("§7§l| §8§o("+tar.getUniqueId()+")");
-        sender.sendMessage("§7§l| §6K/D レート: §7" + late + " ("+k+"kill / "+de+" death)");
+        sender.sendMessage("§7§l| §6K/D レート: §7" + late + " ("+k+" kill / "+de+" death)");
         sender.sendMessage("§7§l| §6勝利/敗北数: §7" + db.getWinCount(tar.getUniqueId()) + " / " + db.getLoseCount(tar.getUniqueId()) + " (勝率: "+String.format("%.1f", w/wlatec)+"%)");
     }
 }
