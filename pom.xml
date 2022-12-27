@@ -7,7 +7,7 @@
     <groupId>com.nekozouneko</groupId>
     <artifactId>nanni-root</artifactId>
     <packaging>pom</packaging>
-    <version>0.4.2-alpha</version>
+    <version>0.5-alpha</version>
     <modules>
         <module>api</module>
         <module>spigot</module>
