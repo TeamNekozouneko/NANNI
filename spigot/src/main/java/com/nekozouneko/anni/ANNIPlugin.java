@@ -236,6 +236,10 @@ public class ANNIPlugin extends JavaPlugin {
             db = null;
         } else db = new ANNISQLiteDatabase();
 
+        for (Player p : getServer().getOnlinePlayers()) {
+            db.checkToInitPlayerData(p.getUniqueId());
+        }
+
         getLogger().info("- Loading depends... (3/3)");
 
         loadVaultEconomy();
@@ -286,7 +290,7 @@ public class ANNIPlugin extends JavaPlugin {
 
             rec.shape("bbb", "bcb", "bbb");
             rec.setIngredient('b', Material.GOLD_BLOCK);
-            rec.setIngredient('c', Material.GOLDEN_APPLE);
+            rec.setIngredient('c', Material.APPLE);
 
             getServer().addRecipe(rec);
         }
