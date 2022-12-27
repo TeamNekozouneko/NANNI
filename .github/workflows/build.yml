@@ -23,6 +23,7 @@ jobs:
       - name: "Set up Java ${{ matrix.java }}"
         uses: actions/setup-java@v3
         with:
+          distribution: corretto
           java-version: ${{ matrix.java }}
 
       - name: "Check version"
