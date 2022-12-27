@@ -590,7 +590,10 @@ public class ANNIGame {
                         nr = new ProtectedCuboidRegion(val.getId()+"_"+id16, val.getMinimumPoint(), val.getMaximumPoint());
                     } else continue;
 
-                    nr.setFlags(val.getFlags());
+                    if (val.getId().startsWith("anni_inf_log")) {
+                        nr.setFlag(Flags.BLOCK_BREAK, StateFlag.State.ALLOW);
+                    }
+                    else nr.setFlags(val.getFlags());
                     nman.addRegion(nr);
                     regions.add(nr);
                     ANNIPlugin.getInstance().getLogger().info("Copied region ["+rk+"]");
