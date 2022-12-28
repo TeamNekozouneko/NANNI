@@ -6,6 +6,7 @@ import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.manager.GameManager;
+import com.nekozouneko.anni.task.RestartTask;
 import com.nekozouneko.anni.task.SuddenDeathTask;
 import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.anni.util.SimpleLocation;
@@ -368,6 +369,43 @@ public class ANNIGame {
     public void leave(Player p) {
         if (players.containsKey(p) && stat.getPhaseId() >= 1) {
             savedInv.put(p.getUniqueId(), new TeamPlayerInventory(players.get(p), p));
+
+            if (getPlayerJoinedTeam(p) != null) {
+                com.nekozouneko.anni.Team t = getPlayerJoinedTeam(p);
+                Team ts = getScoreBoardTeam(t);
+                if (getPlayers(t).size() <= 1) {
+                    loseTeam(t);
+                    getMap().getNexusLocation(t, true).getBlock().setType(Material.BEDROCK);
+
+                    if (getNotLostTeams().size() > 1) {
+                        for (
+                                String bm : ANNIBigMessage.createMessage(
+                                        UpdateBossBar.bigCharMap.get(t), ts.getColor().getChar(),
+                                        ts.getColor()+ts.getDisplayName()+"§fのプレイヤーが全員退出したため、",
+                                        ts.getDisplayName()+"は自動的に負けとなります"
+                                )
+                        ) broadcast(bm);
+                    }
+                    else {
+                        try {
+                            com.nekozouneko.anni.Team wt = getNotLostTeams().get(0);
+                            Team wts = getScoreBoardTeam(wt);
+                            for (
+                                    String bm : ANNIBigMessage.createMessage(
+                                    UpdateBossBar.bigCharMap.get(wt), wts.getColor().getChar(),
+                                    wts.getColor() + wts.getDisplayName() + "§fの勝利",
+                                    "§7※敵チームが全員退出したため、",
+                                    "§7勝利としてカウントしません"
+                            )
+                            ) {
+                                broadcast(bm);
+                            }
+                        } catch (Exception e) {e.printStackTrace();}
+                    }
+                    lockTimer();
+                    new RestartTask(30, this).runTaskTimer(plugin, 20L, 20L);
+                }
+            }
         }
 
         teams.values().forEach((t) -> {
@@ -375,6 +413,7 @@ public class ANNIGame {
             if (t.hasPlayer(p)) t.removePlayer(p);
         });
         players.remove(p);
+        ANNIUtil.healPlayer(p);
         p.getEnderChest().clear();
         p.getInventory().clear();
     }
