@@ -9,6 +9,7 @@ import com.nekozouneko.anni.game.ANNIStatus;
 import com.nekozouneko.anni.gui.MapEditor;
 import com.nekozouneko.anni.gui.location.AbstractGUILocationSelector;
 import com.nekozouneko.anni.gui.location.NexusLocation;
+import com.nekozouneko.anni.task.RestartTask;
 import com.nekozouneko.anni.task.UpdateBossBar;
 import com.nekozouneko.anni.util.BlockDestroyUtil;
 import com.nekozouneko.anni.util.SimpleLocation;
@@ -19,7 +20,7 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import org.bukkit.*;
-import org.bukkit.entity.Ageable;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -315,32 +316,7 @@ public class BlockDestroyListener implements Listener {
 
                     g.changeStatus(ANNIStatus.WAITING_RESTART);
 
-                    new BukkitRunnable() {
-                        int time = 30;
-
-                        @Override
-                        public void run() {
-                            if (time <= 0) {
-                                for (Player p : g.getPlayers()) {
-                                    p.setGameMode(GameMode.ADVENTURE);
-                                    p.getInventory().clear();
-                                    ANNIPlugin.teleportToLobby(p);
-                                }
-                                g.restart();
-                                cancel();
-                            } else {
-                                if (time > 5) {
-                                    if (time % 5 == 0) {
-                                        g.broadcast("再起動まであと" + time + "秒");
-                                    }
-                                } else {
-                                    g.broadcast("再起動まであと" + time + "秒");
-                                }
-
-                                time--;
-                            }
-                        }
-                    }.runTaskTimer(plugin, 20, 20);
+                    new RestartTask(30, g).runTaskTimer(plugin, 20, 20);
                 }
             } else {
                 BlockDestroyUtil.nexusDestroyParticleSound(loc);
