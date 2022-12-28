@@ -5,7 +5,7 @@
     <parent>
         <artifactId>nanni-root</artifactId>
         <groupId>com.nekozouneko</groupId>
-        <version>0.5-alpha</version>
+        <version>0.6-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.nekozouneko</groupId>
             <artifactId>nanni-api</artifactId>
-            <version>0.5-alpha</version>
+            <version>0.6-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
