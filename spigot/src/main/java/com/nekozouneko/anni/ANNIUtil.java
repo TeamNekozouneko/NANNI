@@ -2,6 +2,8 @@ package com.nekozouneko.anni;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -255,6 +257,13 @@ public class ANNIUtil {
         if (a.endsWith(".")) a = a.substring(0, a.length()-1);
 
         return a;
+    }
+
+    public static void healPlayer(Player p) {
+        AttributeInstance ai =  p.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        p.setHealth(ai != null ? ai.getValue() : 20.0);
+        p.setFoodLevel(20);
+        p.setSaturation(20F);
     }
 
 }
