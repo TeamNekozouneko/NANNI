@@ -20,7 +20,9 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import org.bukkit.*;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Ageable;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -183,9 +185,14 @@ public class BlockDestroyListener implements Listener {
                                     e.getBlock().getLocation().getBlockY(),
                                     e.getBlock().getLocation().getBlockZ()
                             )) {
+                                BlockData bd = e.getBlock().getBlockData().clone();
+
                                 e.setDropItems(false);
                                 e.getPlayer().getInventory().addItem(new ItemStack(bt));
-                                Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 100);
+                                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                                    loc.getBlock().setType(bt);
+                                    loc.getBlock().setBlockData(bd);
+                                }, 100);
                             }
                         }
                     }
