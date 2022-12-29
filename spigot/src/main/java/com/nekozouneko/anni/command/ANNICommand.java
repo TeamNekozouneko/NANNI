@@ -9,6 +9,7 @@ import com.nekozouneko.anni.gui.KitMenu;
 import com.nekozouneko.anni.gui.TeamSelector;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -21,6 +22,7 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class ANNICommand implements CommandExecutor, TabCompleter {
     @Override
@@ -63,6 +65,10 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage("そんなサブコマンドないよ");
                     break;
             }
+        } else if (args.length >= 2) {
+            if (args[0].equalsIgnoreCase("status")) {
+                statusCommand(sender, command, label, args);
+            }
         }
         return true;
     }
@@ -84,19 +90,23 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
     }
 
     private void statusCommand(CommandSender sender, Command cmd, String lbl, String[] args) {
-        Player tar;
-        if (!(sender instanceof Player)) {
+        OfflinePlayer tar;
+        if (!(sender instanceof Player) || args.length >= 2) {
             if (args.length < 2) {
                 sender.sendMessage("§cプレイヤーとして実行しない場合、情報を見る対象を指定してください");
                 return;
             }
 
-            tar = Bukkit.getPlayer(args[1]);
+            if (args[1].matches("^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$|^[0-9A-Fa-f]{32}$")) tar = Bukkit.getOfflinePlayer(UUID.fromString(args[1]));
+            else {
+                tar = Bukkit.getOfflinePlayer(args[1]);
+                if (!Arrays.asList(Bukkit.getOfflinePlayers()).contains(tar)) tar = null;
+            }
             if (tar == null) {
                 sender.sendMessage("§cそのようなプレイヤーは存在しません。");
                 return;
             }
-        } else tar = (Player) sender;
+        } else tar = (OfflinePlayer) sender;
 
         ANNIDatabase db = ANNIPlugin.getANNIDB();
         int k = db.getKillCount(tar.getUniqueId());
