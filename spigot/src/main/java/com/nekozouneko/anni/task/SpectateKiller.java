@@ -25,8 +25,9 @@ public class SpectateKiller extends BukkitRunnable {
     @Override
     public void run() {
         if (isFirst) {
-            player.teleport(killer);
             isFirst = false;
+            if (killer != null) player.teleport(killer);
+            else player.teleport(ANNIPlugin.getGM().getGame().getTeamSpawnPoint(player));
         }
 
         if (timer <= 0) {
@@ -45,7 +46,8 @@ public class SpectateKiller extends BukkitRunnable {
                     )
             );
             player.sendTitle("§aリスポーン中...", "", 0, 60, 10);
-            player.setGameMode(GameMode.SURVIVAL);
+            if (ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(player) != null && ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(player).isSpectator()) player.setGameMode(GameMode.SPECTATOR);
+            else player.setGameMode(GameMode.SURVIVAL);
             player.teleport(ANNIPlugin.getGM().getGame().getTeamSpawnPoint(player));
             cancel();
         } else {
