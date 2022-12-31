@@ -34,11 +34,10 @@ public class ChatListener implements Listener {
                     g.isJoined(p)
                     && (g.getStatus().getPhaseId() >= 1
                     || g.getStatus() == ANNIStatus.WAITING_RESTART)
-                    && (g.getPlayerJoinedTeam(p) != null
-                    && !g.getPlayerJoinedTeam(p).isSpectator())
+                    && g.getPlayerJoinedTeam(p) != null
             ) {
-                if (m.startsWith(globalPrefix.toString())) {
-                    g.broadcast("§8(Global) §r" + ANNIUtil.teamPrefixSuffixAppliedName(p) + "§f: " + m.substring(1));
+                if (m.startsWith(globalPrefix.toString()) || g.getPlayerJoinedTeam(p).isSpectator()) {
+                    Bukkit.broadcastMessage("§8(Global) §r" + ANNIUtil.teamPrefixSuffixAppliedName(p) + "§f: " + (g.getPlayerJoinedTeam(p).isSpectator() ? m : m.substring(1)));
                     e.setCancelled(true);
                 } else if (m.startsWith(tellPrefix.toString())) {
                     List<String> arr = new ArrayList<>(Arrays.asList(m.split(" ")));
@@ -83,7 +82,8 @@ public class ChatListener implements Listener {
 
                         e.setCancelled(true);
                     }
-                } else {
+                }
+                else {
                     Team t = g.getPlayerJoinedTeam(p);
                     org.bukkit.scoreboard.Team st = g.getScoreBoardTeam(t);
                     g.broadcast(t, st.getColor()+"("+ st.getDisplayName() +") §r" + ANNIUtil.teamPrefixSuffixAppliedName(p) + "§f: " + m);
