@@ -130,15 +130,13 @@ public final class TeamSelector {
                 org.bukkit.scoreboard.Team st = g.getScoreBoardTeam(requestedTeam);
                 g.changeTeam(p, requestedTeam);
                 Character c = UpdateBossBar.bigCharMap.get(requestedTeam);
-                if (c != null && !requestedTeam.isSpectator() && g.getStatus().getPhaseId() >= 1) {
+                if (c != null && g.getStatus().getPhaseId() >= 1 && g.getPlayerJoinedTeam(p) != Team.NOT_JOINED) {
                     for (String s : ANNIBigMessage.createMessage(c, st.getColor().getChar(),
                             st.getDisplayName() + "§fに参加しました。",
                             "§7現在フェーズ " + g.getStatus().getPhaseId() + " です。"
                     )) {
                         p.sendMessage(s);
                     }
-                } else {
-                    p.sendMessage(st.getColor()+st.getDisplayName()+"§eに参加しました。");
                 }
             } else if (g.isLose(requestedTeam)) {
                 org.bukkit.scoreboard.Team st = g.getScoreBoardTeam(requestedTeam);
