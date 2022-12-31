@@ -21,7 +21,7 @@ public class UpdateBossBar extends BukkitRunnable {
     private final BossBar bb;
     private final ANNIGame g;
     public static final Map<Team, Character> bigCharMap = Collections.unmodifiableMap(new HashMap<Team, Character>() {{
-        put(Team.RED,'R');put(Team.BLUE,'B');put(Team.YELLOW,'Y');put(Team.GREEN,'G');
+        put(Team.RED,'R');put(Team.BLUE,'B');put(Team.YELLOW,'Y');put(Team.GREEN,'G');put(Team.SPECTATOR,'S');
     }});
     private Map.Entry<ANNIStatus, Integer> timer = new AbstractMap.SimpleEntry<>(ANNIStatus.STOPPING, -1);
 

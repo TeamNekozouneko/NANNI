@@ -170,6 +170,18 @@ public class ANNIBigMessage {
             "XXxXXXXxXX",
             "XXXXXXXXXX"
     };
+    private static final String[] S = new String[] {
+            "XXXXXXXXXX",
+            "XXXxxxxXXX",
+            "XXxXXXXxXX",
+            "XXxXXXXXXX",
+            "XXXxxxxXXX",
+            "XXXXXXXxXX",
+            "XXXXXXXxXX",
+            "XXxXXXXxXX",
+            "XXXxxxxXXX",
+            "XXXXXXXXXX"
+    };
     private static final String[] W = new String[] {
             "XXXXXXXXXX",
             "XXxXXXXxXX",
@@ -199,8 +211,8 @@ public class ANNIBigMessage {
             put('1',ONE);put('2',TWO);put('3',THREE);
             put('4',FOUR);put('5',FIVE);put('6',SIX);
             put('7',SEVEN);put('B',B);put('D',D);
-            put('L',L);put('N',N);put('G',G);
-            put('R',R);put('W',W);put('Y',Y);
+            put('G',G);put('L',L);put('N',N);
+            put('R',R);put('S',S);put('W',W);put('Y',Y);
     }});
 
     private ANNIBigMessage() {}
