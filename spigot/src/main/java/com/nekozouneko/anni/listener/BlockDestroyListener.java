@@ -118,14 +118,20 @@ public class BlockDestroyListener implements Listener {
                 case EMERALD_ORE:
                     e.setDropItems(false);
                     e.setExpToDrop(0);
-                    if (ANNIUtil.isMineableOre(bt, e.getPlayer().getInventory().getItemInMainHand().getType()) && ANNIPlugin.getGM().getGame().getStatus().getPhaseId() >= 3) {
-                        e.getPlayer().getInventory().addItem(
-                                new ItemStack(
-                                        ANNIUtil.getOreMinedResult(bt),
-                                        ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
-                                )
-                        );
-                        e.getPlayer().giveExp(expRate.get(bt));
+                    if (ANNIPlugin.getGM().getGame().getStatus().getPhaseId() >= 3) {
+                        if (ANNIUtil.isMineableOre(bt, e.getPlayer().getInventory().getItemInMainHand().getType())) {
+                            e.getPlayer().getInventory().addItem(
+                                    new ItemStack(
+                                            ANNIUtil.getOreMinedResult(bt),
+                                            ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
+                                    )
+                            );
+                            e.getPlayer().giveExp(expRate.get(bt));
+                        }
+                    }
+                    else {
+                        e.getPlayer().sendMessage("§cダイヤ/エメラルド鉱石の採掘はフェーズ3以降となります");
+                        e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1, 1);
                     }
 
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
@@ -149,7 +155,7 @@ public class BlockDestroyListener implements Listener {
                     Ageable age = (Ageable) loc.getBlock().getBlockData();
 
                     if (age.getAge() >= 7) {
-                        if (r.nextInt(101) <= 5) {
+                        if (r.nextInt(101) <= 3) {
                             loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.APPLE, 1));
                         }
                         Bukkit.getScheduler().runTaskLater(plugin, () -> {
