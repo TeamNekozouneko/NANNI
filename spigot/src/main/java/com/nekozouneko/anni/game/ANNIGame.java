@@ -281,16 +281,21 @@ public class ANNIGame {
         if (stat == ANNIStatus.PHASE_FIVE) phaseFive();
     }
 
+    public boolean isAllowedChangeTeam(Player p) {
+        return getStatus().getPhaseId() <= 0 || getPlayerJoinedTeam(p).isSpectator();
+    }
+
     public void changeTeam(Player p, com.nekozouneko.anni.Team t) {
+        if (!isAllowedChangeTeam(p)) return;
+
+        Team old = teams.get(players.get(p));
         if (stat.getPhaseId() <= 0) {
-            Team old = teams.get(players.get(p));
             Team new1 = teams.get(t);
             players.put(p, t);
 
             if (old != null) old.removePlayer(p);
             if (new1 != null) new1.addPlayer(p);
         } else {
-            Team old = teams.get(players.get(p));
             if (t != com.nekozouneko.anni.Team.NOT_JOINED) {
                 if (players.get(p).isSpectator()) {
                     Team new1 = teams.get(t);
@@ -301,23 +306,21 @@ public class ANNIGame {
 
                     setKitToPlayer(p);
                     p.teleport(getTeamSpawnPoint(p));
-                    p.setHealthScale(p.getHealthScale());
-                    p.setSaturation(10.0f);
+                    ANNIUtil.healPlayer(p);
                     p.setTotalExperience(0);
-                    p.setGameMode(GameMode.SURVIVAL);
+                    if (t == com.nekozouneko.anni.Team.SPECTATOR) p.setGameMode(GameMode.SPECTATOR);
+                    else p.setGameMode(GameMode.SURVIVAL);
                 } else {
-                    p.sendMessage("途中でチームを変更することはできません。");
+                    p.sendMessage("§c途中でチームを変更することはできません。");
                 }
             } else {
-
                 if (old != null) old.removePlayer(p);
                 players.put(p, com.nekozouneko.anni.Team.NOT_JOINED);
 
                 p.getInventory().clear();
                 p.getEnderChest().clear();
                 p.teleport(ANNIPlugin.getLobby().getLocation().toLocation());
-                p.setHealthScale(p.getHealthScale());
-                p.setSaturation(10.0f);
+                ANNIUtil.healPlayer(p);
                 p.setTotalExperience(0);
                 p.setGameMode(GameMode.ADVENTURE);
             }
@@ -370,7 +373,7 @@ public class ANNIGame {
         if (players.containsKey(p) && stat.getPhaseId() >= 1) {
             savedInv.put(p.getUniqueId(), new TeamPlayerInventory(players.get(p), p));
 
-            if (getPlayerJoinedTeam(p) != null) {
+            if (getPlayerJoinedTeam(p) != null && !getPlayerJoinedTeam(p).isSpectator()) {
                 com.nekozouneko.anni.Team t = getPlayerJoinedTeam(p);
                 Team ts = getScoreBoardTeam(t);
                 if (getPlayers(t).size() <= 1) {
@@ -414,6 +417,7 @@ public class ANNIGame {
         });
         players.remove(p);
         ANNIUtil.healPlayer(p);
+        p.setTotalExperience(0);
         p.getEnderChest().clear();
         p.getInventory().clear();
     }
@@ -484,9 +488,9 @@ public class ANNIGame {
 
                 p.getEnderChest().clear();
                 p.teleport(getTeamSpawnPoint(p));
-                p.setGameMode(GameMode.SURVIVAL);
-                p.setHealthScale(p.getHealthScale());
-                p.setSaturation(10.0f);
+                if (!getPlayerJoinedTeam(p).isSpectator()) p.setGameMode(GameMode.SURVIVAL);
+                else p.setGameMode(GameMode.SPECTATOR);
+                ANNIUtil.healPlayer(p);
                 p.setTotalExperience(0);
                 setKitToPlayer(p);
             }
@@ -663,6 +667,7 @@ public class ANNIGame {
     }
 
     public boolean isLose(com.nekozouneko.anni.Team t) {
+        if (t.isSpectator()) return false;
         Boolean b = losedTeams.get(t);
         if (b == null) b = false;
 
