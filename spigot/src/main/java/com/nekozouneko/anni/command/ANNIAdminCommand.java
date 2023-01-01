@@ -23,6 +23,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -263,12 +264,11 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
             try {
                 ANNILobby annil = new ANNILobby(p.getLocation());
                 final Gson gson = new Gson();
-                ANNIPlugin ap = ANNIPlugin.getInstance();
 
                 BufferedWriter wr = new BufferedWriter(
                         new OutputStreamWriter(
                                 new FileOutputStream(
-                                        new File(ap.getDataFolder(), "lobby.json")
+                                        new File(ANNIPlugin.getInstance().getDataFolder(), "lobby.json")
                                 ),
                                 StandardCharsets.UTF_8
                         )
