@@ -197,6 +197,7 @@ public class ANNIPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
         getServer().getPluginManager().registerEvents(new CraftItemListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryCloseListener(), this);
+        getServer().getPluginManager().registerEvents(new EnchantListener(), this);
 
         getLogger().info("Registered listener.");
 
