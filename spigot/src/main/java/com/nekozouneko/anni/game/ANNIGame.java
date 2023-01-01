@@ -308,6 +308,7 @@ public class ANNIGame {
                     p.teleport(getTeamSpawnPoint(p));
                     ANNIUtil.healPlayer(p);
                     p.setTotalExperience(0);
+                    p.setLevel(0);
                     if (t == com.nekozouneko.anni.Team.SPECTATOR) p.setGameMode(GameMode.SPECTATOR);
                     else p.setGameMode(GameMode.SURVIVAL);
                 } else {
@@ -322,6 +323,7 @@ public class ANNIGame {
                 p.teleport(ANNIPlugin.getLobby().getLocation().toLocation());
                 ANNIUtil.healPlayer(p);
                 p.setTotalExperience(0);
+                p.setLevel(0);
                 p.setGameMode(GameMode.ADVENTURE);
             }
         }
@@ -418,6 +420,7 @@ public class ANNIGame {
         players.remove(p);
         ANNIUtil.healPlayer(p);
         p.setTotalExperience(0);
+        p.setLevel(0);
         p.getEnderChest().clear();
         p.getInventory().clear();
     }
@@ -492,6 +495,7 @@ public class ANNIGame {
                 else p.setGameMode(GameMode.SPECTATOR);
                 ANNIUtil.healPlayer(p);
                 p.setTotalExperience(0);
+                p.setLevel(0);
                 setKitToPlayer(p);
             }
 
@@ -552,6 +556,10 @@ public class ANNIGame {
 
         for (Player p : players.keySet()) {
             p.getInventory().clear();
+            p.getEnderChest().clear();
+            p.setTotalExperience(0);
+            p.setLevel(0);
+            ANNIUtil.healPlayer(p);
         }
         regions.clear();
 
