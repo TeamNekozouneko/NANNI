@@ -38,13 +38,13 @@ public class BlockDestroyListener implements Listener {
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
     private final Map<Material, Integer> expRate = Collections.unmodifiableMap(
             new HashMap<Material, Integer>() {{
-                put(Material.COAL_ORE, 3);
-                put(Material.IRON_ORE, 5);
-                put(Material.GOLD_ORE, 15);
-                put(Material.REDSTONE_ORE, 1);
-                put(Material.DIAMOND_ORE, 15);
-                put(Material.EMERALD_ORE, 15);
-                put(Material.LAPIS_ORE, 7);
+                put(Material.COAL_ORE, 5);
+                put(Material.IRON_ORE, 8);
+                put(Material.GOLD_ORE, 23);
+                put(Material.REDSTONE_ORE, 2);
+                put(Material.DIAMOND_ORE, 23);
+                put(Material.EMERALD_ORE, 23);
+                put(Material.LAPIS_ORE, 11);
             }}
     );
 
@@ -70,10 +70,10 @@ public class BlockDestroyListener implements Listener {
                     e.setExpToDrop(0);
                     if (ANNIUtil.isMineableOre(bt, e.getPlayer().getInventory().getItemInMainHand().getType())) {
                         e.getPlayer().getInventory().addItem(
-                                new ItemStack(
-                                        ANNIUtil.getOreMinedResult(bt),
-                                        ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
-                                )
+                                e.getBlock().getDrops(
+                                        e.getPlayer().getInventory().getItemInMainHand(),
+                                        e.getPlayer()
+                                ).toArray(new ItemStack[0])
                         );
                         e.getPlayer().giveExp(expRate.get(bt));
                     }
@@ -88,10 +88,10 @@ public class BlockDestroyListener implements Listener {
                     e.setExpToDrop(0);
                     if (ANNIUtil.isMineableOre(bt, e.getPlayer().getInventory().getItemInMainHand().getType())) {
                         e.getPlayer().getInventory().addItem(
-                                new ItemStack(
-                                        ANNIUtil.getOreMinedResult(bt),
-                                        ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
-                                )
+                                e.getBlock().getDrops(
+                                        e.getPlayer().getInventory().getItemInMainHand(),
+                                        e.getPlayer()
+                                ).toArray(new ItemStack[0])
                         );
                         e.getPlayer().giveExp(expRate.get(bt));
                     }
@@ -104,9 +104,10 @@ public class BlockDestroyListener implements Listener {
                     e.setExpToDrop(0);
                     if (ANNIUtil.isMineableOre(bt, e.getPlayer().getInventory().getItemInMainHand().getType())) {
                         e.getPlayer().getInventory().addItem(
-                                new ItemStack(
-                                        ANNIUtil.getOreMinedResult(bt), ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
-                                )
+                                e.getBlock().getDrops(
+                                        e.getPlayer().getInventory().getItemInMainHand(),
+                                        e.getPlayer()
+                                ).toArray(new ItemStack[0])
                         );
                         e.getPlayer().giveExp(expRate.get(bt));
                     }
@@ -121,11 +122,12 @@ public class BlockDestroyListener implements Listener {
                     if (ANNIPlugin.getGM().getGame().getStatus().getPhaseId() >= 3) {
                         if (ANNIUtil.isMineableOre(bt, e.getPlayer().getInventory().getItemInMainHand().getType())) {
                             e.getPlayer().getInventory().addItem(
-                                    new ItemStack(
-                                            ANNIUtil.getOreMinedResult(bt),
-                                            ANNIUtil.getFortuneOreDropItemAmounts(e.getPlayer())
-                                    )
+                                    e.getBlock().getDrops(
+                                            e.getPlayer().getInventory().getItemInMainHand(),
+                                            e.getPlayer()
+                                    ).toArray(new ItemStack[0])
                             );
+
                             e.getPlayer().giveExp(expRate.get(bt));
                         }
                     }
