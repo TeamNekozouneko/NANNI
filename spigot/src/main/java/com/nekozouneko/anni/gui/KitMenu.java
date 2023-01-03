@@ -199,6 +199,7 @@ public class KitMenu {
                             ) {
                                 if (ANNIPlugin.getVaultEconomy().getBalance((OfflinePlayer) e.getWhoClicked()) >= k.getPrice()) {
                                     ANNIPlugin.getVaultEconomy().withdrawPlayer((OfflinePlayer) e.getWhoClicked(), k.getPrice());
+                                    ANNIPlugin.getANNIDB().purchaseKit(m.group(1),e.getWhoClicked().getUniqueId());
                                     e.getWhoClicked().sendMessage(NChatColor.GREEN + "購入しました！");
                                 } else {
                                     e.getWhoClicked().sendMessage(NChatColor.RED + "金額が不足しています。");
@@ -206,7 +207,11 @@ public class KitMenu {
                                 }
                             }
                             ANNIPlugin.getANNIDB().setUsingKit(m.group(1), e.getWhoClicked().getUniqueId());
-                            if (ANNIPlugin.getGM().getGame().getStatus().getPhaseId() >= 1) {
+                            if (
+                                    ANNIPlugin.getGM().getGame().getStatus().getPhaseId() >= 1
+                                    && ANNIPlugin.getGM().getGame().getPlayerJoinedTeam((Player) e.getWhoClicked()) != null
+                                    && !ANNIPlugin.getGM().getGame().getPlayerJoinedTeam((Player) e.getWhoClicked()).isSpectator()
+                            ) {
                                 e.getWhoClicked().setHealth(0);
                             }
 
