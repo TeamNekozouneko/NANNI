@@ -128,27 +128,23 @@ public final class TeamSelector {
 
             if (requestedTeam != null && !g.isLose(requestedTeam)) {
                 org.bukkit.scoreboard.Team st = g.getScoreBoardTeam(requestedTeam);
-                g.changeTeam(p, requestedTeam);
                 Character c = UpdateBossBar.bigCharMap.get(requestedTeam);
-                if (c != null && g.getStatus().getPhaseId() >= 1 && g.getPlayerJoinedTeam(p) != Team.NOT_JOINED) {
-                    for (String s : ANNIBigMessage.createMessage(c, st.getColor().getChar(),
-                            st.getDisplayName() + "§fに参加しました。",
-                            "§7現在フェーズ " + g.getStatus().getPhaseId() + " です。"
-                    )) {
-                        p.sendMessage(s);
+                if (g.isAllowedChangeTeam(p)) {
+                    g.changeTeam(p, requestedTeam);
+                    if (c != null && g.getStatus().getPhaseId() >= 1 && g.getPlayerJoinedTeam(p) != Team.NOT_JOINED) {
+                        p.teleport(g.getTeamSpawnPoint(p));
+                        for (String s : ANNIBigMessage.createMessage(c, st.getColor().getChar(),
+                                st.getDisplayName() + "§fに参加しました。",
+                                "§7現在フェーズ " + g.getStatus().getPhaseId() + " です。"
+                        )) {
+                            p.sendMessage(s);
+                        }
                     }
                 }
             } else if (g.isLose(requestedTeam)) {
                 org.bukkit.scoreboard.Team st = g.getScoreBoardTeam(requestedTeam);
                 p.sendMessage(st.getColor() + st.getDisplayName() + "§rはすでに負けているため参加できません。別のチームに参加してください。");
                 return;
-            }
-
-            if (
-                    g.getPlayerJoinedTeam(p) != Team.NOT_JOINED
-                    && g.getStatus().getPhaseId() >= 1
-            ) {
-                p.teleport(g.getTeamSpawnPoint(p));
             }
         }
 
