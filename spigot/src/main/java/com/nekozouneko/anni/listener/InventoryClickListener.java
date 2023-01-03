@@ -8,7 +8,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class InventoryClickListener implements Listener {
 
-    @EventHandler(ignoreCancelled=true)
+    @EventHandler
     public void onEvent(InventoryClickEvent e) {
 
         if (e.getCurrentItem() == null || e.getCurrentItem().getType().isAir()) return;
