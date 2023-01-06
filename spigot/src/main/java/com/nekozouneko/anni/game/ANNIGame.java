@@ -272,6 +272,11 @@ public class ANNIGame {
     public void changeStatus(ANNIStatus stat) {
         if (stat == this.stat) return;
         if (stat == ANNIStatus.CANT_START) return;
+        if (stat.getPhaseId() >= 1 && stat.getPhaseId() <= 4) {
+            for (Player p : getPlayers()) {
+                p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1f, 2f);
+            }
+        }
         this.stat = stat;
 
         if (stat == ANNIStatus.PHASE_ONE) phaseOne();
@@ -754,10 +759,11 @@ public class ANNIGame {
     public void broadcast(com.nekozouneko.anni.Team team, String message) {
         Team t = teams.get(team);
         if (t == null) return;
-        t.getEntries().forEach((s) -> {
-            Player p = Bukkit.getPlayer(s);
-            if (p == null) return;
-            p.sendMessage(NChatColor.replaceAltColorCodes(message));
+        t.getPlayers().forEach((ofp) -> {
+            if (ofp.isOnline()) {
+                Player p = (Player) ofp;
+                p.sendMessage(NChatColor.replaceAltColorCodes(message));
+            }
         });
         ANNIPlugin.getInstance().getLogger().info(NChatColor.replaceAltColorCodes(message));
     }
