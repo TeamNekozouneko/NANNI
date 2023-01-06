@@ -5,6 +5,7 @@ import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.database.ANNIDatabase;
 import com.nekozouneko.anni.game.ANNIBigMessage;
 import com.nekozouneko.anni.game.ANNIGame;
+import com.nekozouneko.anni.gui.GameShopMenu;
 import com.nekozouneko.anni.gui.KitMenu;
 import com.nekozouneko.anni.gui.TeamSelector;
 
@@ -60,6 +61,13 @@ public class ANNICommand implements CommandExecutor, TabCompleter {
                     break;
                 case "status":
                     statusCommand(sender, command, label, args);
+                    break;
+                case "shop":
+                    if (GameShopMenu.isOpenAllowed((Player)sender)) {
+                        GameShopMenu.open((Player) sender, GameShopMenu.Tab.EQUIPMENTS);
+                    } else {
+                        sender.sendMessage("§c今ゲームショップを開くことはできません。");
+                    }
                     break;
                 default:
                     sender.sendMessage("そんなサブコマンドないよ");
