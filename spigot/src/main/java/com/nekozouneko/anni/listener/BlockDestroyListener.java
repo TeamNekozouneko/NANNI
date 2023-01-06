@@ -78,7 +78,7 @@ public class BlockDestroyListener implements Listener {
                         e.getPlayer().giveExp(expRate.get(bt));
                     }
 
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.COBBLESTONE), 3);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.COAL_ORE), 140);
                     break;
                 case IRON_ORE:
@@ -96,7 +96,7 @@ public class BlockDestroyListener implements Listener {
                         e.getPlayer().giveExp(expRate.get(bt));
                     }
 
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.COBBLESTONE), 3);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 200);
                     break;
                 case GOLD_ORE:
@@ -112,7 +112,7 @@ public class BlockDestroyListener implements Listener {
                         e.getPlayer().giveExp(expRate.get(bt));
                     }
 
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.COBBLESTONE), 3);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 300);
                     break;
                 case DIAMOND_ORE:
@@ -136,7 +136,7 @@ public class BlockDestroyListener implements Listener {
                         e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1, 1);
                     }
 
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.COBBLESTONE), 3);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 600);
                     break;
                 case GRAVEL:
@@ -149,7 +149,7 @@ public class BlockDestroyListener implements Listener {
                             )
                     );
 
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.BEDROCK), 3);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.COBBLESTONE), 3);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 100);
                     break;
                 case WHEAT:
@@ -275,6 +275,13 @@ public class BlockDestroyListener implements Listener {
                 g.damageNexusHealth(t, dam);
             }
 
+            if (g.getPlayerJoinedTeam(broker) != null && !g.getPlayerJoinedTeam(broker).isSpectator()) {
+                for (Player p : g.getPlayers(g.getPlayerJoinedTeam(broker))) {
+                    ANNIPlugin.getVaultEconomy().depositPlayer(p, 5.);
+                    p.sendMessage("§a+5 Nekozouneko Anni Point §7(NAP)");
+                }
+            }
+
             g.getBossBar().setTitle(
                     broker.getDisplayName() + "が" + g.getScoreBoardTeam(t).getDisplayName() + "のネクサスにダメージを与えました!"
             );
@@ -313,6 +320,8 @@ public class BlockDestroyListener implements Listener {
 
                         for (Player p : g.getPlayers(winTeam)) {
                             ANNIPlugin.getANNIDB().addWinCount(p.getUniqueId());
+                            ANNIPlugin.getVaultEconomy().depositPlayer(p, 750);
+                            p.sendMessage("§a+750 Nekozouneko Anni Point §7(NAP)");
                         }
 
                         for (String s : ANNIBigMessage.createMessage(

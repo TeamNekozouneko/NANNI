@@ -68,6 +68,9 @@ public class PlayerKillListener implements Listener {
             ANNIPlugin.getANNIDB().addDeathCount(killed.getUniqueId());
             if (killer != null) {
                 ANNIPlugin.getANNIDB().addKillCount(killer.getUniqueId());
+                ANNIPlugin.getVaultEconomy().depositPlayer(killer, 25.);
+
+                killer.sendMessage("§a+25 Nekozouneko Anni Point §7(NAP)");
                 g.broadcast("§7" + ANNIUtil.teamPrefixSuffixAppliedName(killed) + " §f<- §7" + ANNIUtil.teamPrefixSuffixAppliedName(killer));
 
                 /*killed.teleport(killer);
