@@ -9,6 +9,7 @@ import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.game.manager.*;
 import com.nekozouneko.anni.listener.*;
+import com.nekozouneko.anni.listener.third_party.VoteListener;
 import com.nekozouneko.anni.task.UpdateBoard;
 
 import com.sk89q.worldedit.WorldEdit;
@@ -198,6 +199,8 @@ public class ANNIPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CraftItemListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryCloseListener(), this);
         getServer().getPluginManager().registerEvents(new EnchantListener(), this);
+
+        getServer().getPluginManager().registerEvents(new VoteListener(), this);
 
         getLogger().info("Registered listener.");
 
