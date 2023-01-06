@@ -5,8 +5,8 @@ description: "NANNIはNekozouneko Serverのアナイアレーションを管理�
 
 main: com.nekozouneko.anni.ANNIPlugin
 api-version: 1.16
-loadbefore: ["PlaceholderAPI","Vault", "WorldEdit", "WorldGuard"]
-depend: ["PlaceholderAPI","Vault", "WorldEdit", "WorldGuard"]
+loadbefore: ["PlaceholderAPI","Vault", "Votifier", "WorldEdit", "WorldGuard"]
+depend: ["PlaceholderAPI","Vault", "Votifier", "WorldEdit", "WorldGuard"]
 
 commands:
   nanni:
