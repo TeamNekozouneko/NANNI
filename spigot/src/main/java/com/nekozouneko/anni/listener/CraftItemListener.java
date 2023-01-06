@@ -20,7 +20,8 @@ public class CraftItemListener implements Listener {
             Material.LIME_BED, Material.MAGENTA_BED, Material.ORANGE_BED,
             Material.PINK_BED, Material.PURPLE_BED, Material.RED_BED,
             Material.WHITE_BED, Material.YELLOW_BED,
-            Material.BEACON, Material.ENDER_CHEST, Material.BUCKET
+            Material.BEACON, Material.ENDER_CHEST, Material.BUCKET,
+            Material.END_CRYSTAL
     };
 
     @EventHandler
