@@ -7,6 +7,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -264,6 +265,46 @@ public class ANNIUtil {
         p.setHealth(ai != null ? ai.getValue() : 20.0);
         p.setFoodLevel(20);
         p.setSaturation(20F);
+    }
+
+    public static void setShopPrice(ItemStack is, double price, String ex, String... more) {
+        ItemMeta im = is.getItemMeta();
+        List<String> l = new ArrayList<>();
+        l.add("§7価格: " + price + " " + ex);
+        l.add(" ");
+        if (more.length != 0) l.addAll(Arrays.asList(more));
+        if (more.length != 0) l.add(" ");
+        l.add("§8Price:"+price);
+        im.setLore(l);
+        is.setItemMeta(im);
+    }
+
+    public static ItemStack[] getSellItems(ItemStack[] contents) {
+        ItemStack[] res = new ItemStack[21];
+        res[0] = contents[10];
+        res[1] = contents[11];
+        res[2] = contents[12];
+        res[3] = contents[13];
+        res[4] = contents[14];
+        res[5] = contents[15];
+        res[6] = contents[16];
+
+        res[7] = contents[19];
+        res[8] = contents[20];
+        res[9] = contents[21];
+        res[10] = contents[22];
+        res[11] = contents[23];
+        res[12] = contents[24];
+        res[13] = contents[25];
+
+        res[14] = contents[28];
+        res[15] = contents[29];
+        res[16] = contents[30];
+        res[17] = contents[31];
+        res[18] = contents[32];
+        res[19] = contents[33];
+        res[20] = contents[34];
+        return res;
     }
 
 }
