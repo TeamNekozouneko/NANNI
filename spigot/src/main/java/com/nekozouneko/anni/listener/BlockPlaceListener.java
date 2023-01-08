@@ -25,9 +25,9 @@ public class BlockPlaceListener implements Listener {
             Material.IRON_ORE, Material.GOLD_ORE,
             Material.COAL_ORE, Material.LAPIS_ORE,
             Material.DIAMOND_ORE, Material.EMERALD_ORE,
-            Material.REDSTONE_ORE,
+            Material.REDSTONE_ORE, Material.GRAVEL,
             Material.BEDROCK, Material.OBSIDIAN,
-            Material.CRYING_OBSIDIAN
+            Material.CRYING_OBSIDIAN, Material.MELON
     );
 
     @EventHandler
