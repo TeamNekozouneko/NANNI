@@ -15,8 +15,7 @@ import com.nekozouneko.anni.task.UpdateBoard;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldguard.WorldGuard;
 
-import fr.minuskube.netherboard.Netherboard;
-
+import fr.mrmicky.fastboard.FastBoard;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -31,6 +30,9 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class ANNIPlugin extends JavaPlugin {
 
@@ -51,7 +53,7 @@ public class ANNIPlugin extends JavaPlugin {
     private static ANNIDatabase db;
 
     /* integration & depends */
-    private static Netherboard nb;
+    private final static Map<UUID, FastBoard> fbm = new HashMap<>();
     private static Scoreboard sb;
     private static WorldEdit we;
     private static WorldGuard wg;
@@ -85,8 +87,8 @@ public class ANNIPlugin extends JavaPlugin {
         return instance;
     }
 
-    public static Netherboard getNb() {
-        return nb;
+    public static Map<UUID, FastBoard> getFBMap() {
+        return fbm;
     }
 
     public static Scoreboard getSb() {
@@ -144,7 +146,6 @@ public class ANNIPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        nb = Netherboard.instance();
         sb = getServer().getScoreboardManager().getNewScoreboard();
 
         /* ----- Initialize dir ----- */
@@ -255,7 +256,7 @@ public class ANNIPlugin extends JavaPlugin {
 
         getLogger().info("Initializing task...");
 
-        boardTask = new UpdateBoard(nb);
+        boardTask = new UpdateBoard();
         boardTask.runTaskTimer(this, 5, 5);
 
         getLogger().info("Initialized task.");

@@ -7,36 +7,25 @@ import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
 import com.nekozouneko.anni.game.manager.GameManager;
-import fr.minuskube.netherboard.Netherboard;
-import fr.minuskube.netherboard.bukkit.BPlayerBoard;
+import fr.mrmicky.fastboard.FastBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 public class UpdateBoard extends BukkitRunnable {
 
-    private final Netherboard nb;
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
     private final GameManager gm = ANNIPlugin.getGM();
-
-    public UpdateBoard(Netherboard nb) {
-        this.nb = nb;
-    }
 
     @Override
     public void run() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            p.setPlayerListName(ANNIUtil.teamPrefixSuffixAppliedName(p));
-
-            BPlayerBoard b = nb.getBoard(p);
-
+            p.setScoreboard(ANNIPlugin.getSb());
             TimeZone.setDefault(TimeZone.getTimeZone(ANNIPlugin.getANNIConf().TimeZone()));
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             Calendar cl = Calendar.getInstance(Locale.JAPAN);
 
             Date d = cl.getTime();
@@ -44,8 +33,8 @@ public class UpdateBoard extends BukkitRunnable {
             double bal = ANNIPlugin.getVaultEconomy().getBalance(p);
 
             if (gm.isJoined(p)) {
-                if (b == null) b = nb.createBoard(p, ANNIPlugin.getSb(), "§cA§9N§eN§aI");
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                FastBoard fb = ANNIPlugin.getFBMap().getOrDefault(p.getUniqueId(), new FastBoard(p));
+                fb.updateTitle("§cA§9N§eN§aI");
                 ANNIGame annig = gm.getPlayerJoinedGame(p);
                 ANNIMap m = annig.getMap();
                 String mn = (m != null ? m.getDisplay() : "?");
@@ -55,21 +44,37 @@ public class UpdateBoard extends BukkitRunnable {
                 {
                     Team t = annig.getPlayerJoinedTeam(p);
                     org.bukkit.scoreboard.Team st = annig.getScoreBoardTeam(t);
-                    String tn = (t != null && st != null) ? st.getDisplayName() + "" : "無所属";
+                    String tn = (t != null && st != null) ? st.getColor() + st.getDisplayName() + "" : "無所属";
+                    String tm = "";
 
-                    b.setAll(
+                    int min = gm.getMinPlayers();
+                    int psr = annig.getPlayers(Team.RED).size();
+                    int psb = annig.getPlayers(Team.BLUE).size();
+                    int psy = annig.getPlayers(Team.YELLOW).size();
+                    int psg = annig.getPlayers(Team.GREEN).size();
+                    int psn = annig.getPlayers(Team.NOT_JOINED).size();
+                    int ps = psr+psb+psg+psy+psn;
+
+                    if (min > ps) {
+                        tm = "開始にはあと"+(min-ps)+"人が必要です";
+                    } else tm = "開始まであと "+ANNIUtil.toTimerFormat(gm.getGame().getTimer());
+
+                    fb.updateLines(
                             "§8" + annig.getId16(),
-                            "   ",
-                            "あなたは" + tn + "です。",
-                            "  ",
-                            "現在" + annig.getPlayers().size() + "人が参加しています",
-                            " ",
+                            "§8" + sdf.format(d),
+                            "",
+                            tm,
+                            "",
+                            "チーム: §7" + tn,
+                            "プレイヤー: §7" + annig.getPlayers().size() + " / " + gm.getMaxPlayers(),
+                            "",
                             "§9§nnekozouneko.net"
                     );
                 } else {
                     if (gm.getRuleType() == 2) {
-                        b.setAll(
+                        fb.updateLines(
                                 "§8" + annig.getId16(),
+                                "§8" + sdf.format(d),
                                 "   ",
                                 "マップ: §c" + mn,
                                 "フェーズ: §c" + ANNIUtil.phaseId2BoardDisplay(annig.getStatus().getPhaseId()),
@@ -80,8 +85,9 @@ public class UpdateBoard extends BukkitRunnable {
                                 "§9§nnekozouneko.net"
                         );
                     } else {
-                        b.setAll(
+                        fb.updateLines(
                                 "§8" + annig.getId16() + " " + sdf.format(d),
+                                "§8" + sdf.format(d),
                                 "   ",
                                 "マップ: §c" + mn,
                                 "  ",
@@ -95,13 +101,13 @@ public class UpdateBoard extends BukkitRunnable {
                     }
                 }
             } else if (p.getWorld() == ANNIPlugin.getLobby().getLocation().getBukkitWorld()) {
-                if (b == null) b = nb.createBoard(p, ANNIPlugin.getSb(), "\u00A7cA\u00A79N\u00A7eN\u00A7aI");
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                FastBoard fb = ANNIPlugin.getFBMap().getOrDefault(p.getUniqueId(), new FastBoard(p));
+                fb.updateTitle("§cA§9N§eN§aI");
                 int k = ANNIPlugin.getANNIDB().getKillCount(p.getUniqueId());
                 int de = ANNIPlugin.getANNIDB().getDeathCount(p.getUniqueId());
                 String late = String.format("%.2f", ANNIUtil.KDCalc(k, de));
 
-                b.setAll(
+                fb.updateLines(
                         "§8" + sdf.format(d),
                         "   ",
                         "お知らせ:",
@@ -115,18 +121,18 @@ public class UpdateBoard extends BukkitRunnable {
                         "§9§nnekozouneko.net"
                 );
             } else {
-                if (b != null) b.delete();
+                FastBoard fb = ANNIPlugin.getFBMap().get(p.getUniqueId());
+                if (fb != null && !fb.isDeleted()) fb.delete();
+                ANNIPlugin.getFBMap().remove(p.getUniqueId());
             }
         }
     }
 
     public void stop() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            BPlayerBoard b = nb.getBoard(p);
-            if (b == null) continue;
-
-            b.delete();
+        for (FastBoard fb : ANNIPlugin.getFBMap().values()) {
+            if (!fb.isDeleted()) fb.delete();
         }
+        ANNIPlugin.getFBMap().clear();
         cancel();
     }
 
