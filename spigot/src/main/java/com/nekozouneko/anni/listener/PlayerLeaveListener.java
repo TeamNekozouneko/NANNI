@@ -2,15 +2,14 @@ package com.nekozouneko.anni.listener;
 
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
+import com.nekozouneko.anni.Team;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
-import fr.minuskube.netherboard.Netherboard;
+import fr.mrmicky.fastboard.FastBoard;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerLeaveListener implements Listener {
-
-    private final Netherboard nb = ANNIPlugin.getNb();
 
     @EventHandler
     public void onEvent(PlayerQuitEvent e) {
@@ -23,8 +22,16 @@ public class PlayerLeaveListener implements Listener {
             );
         }
 
+        Team current = ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(p);
         ANNIPlugin.getGM().leaveFromGame(p);
-        if (nb != null) if (nb.getBoard(p) != null) nb.getBoard(p).delete();
+        if (current != null && ANNIPlugin.getGM().getGame().isLose(current)) {
+            ANNIPlugin.getGM().getGame().getSavedInventory(p.getUniqueId()).setAllowJoin(false);
+        }
+        FastBoard fb = ANNIPlugin.getFBMap().get(p.getUniqueId());
+        if (fb != null && !fb.isDeleted()) {
+            fb.delete();
+        }
+        ANNIPlugin.getFBMap().remove(p.getUniqueId());
     }
 
 }
