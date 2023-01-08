@@ -6,6 +6,8 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class ANNIExpansion extends PlaceholderExpansion {
@@ -35,7 +37,7 @@ public class ANNIExpansion extends PlaceholderExpansion {
             return Objects.toString(db.getDeathCount(player.getUniqueId()));
         }
         else if (params.equalsIgnoreCase("kd_late")) {
-            return Objects.toString(
+            return String.format("%.2f",
                     ANNIUtil.KDCalc(
                             db.getKillCount(player.getUniqueId()),
                             db.getDeathCount(player.getUniqueId())
