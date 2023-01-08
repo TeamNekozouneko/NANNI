@@ -5,20 +5,16 @@ import com.nekozouneko.anni.ANNIUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.Potion;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,21 +47,21 @@ public final class GameShopMenu {
     }
 
     public static final Map<Material,Double> sellMap = Collections.unmodifiableMap(new HashMap<Material, Double>() {{
-        put(Material.EMERALD, 150.);
-        put(Material.DIAMOND, 150.);
-        put(Material.GOLD_INGOT, 100.);
-        put(Material.IRON_INGOT, 75.);
-        put(Material.COAL, 50.);
-        put(Material.REDSTONE, 25.);
-        put(Material.LAPIS_LAZULI, 20.);
+        put(Material.EMERALD, 10.);
+        put(Material.DIAMOND, 10.);
+        put(Material.GOLD_INGOT, 7.5);
+        put(Material.IRON_INGOT, 5.);
+        put(Material.COAL, 2.5);
+        put(Material.REDSTONE, 2.);
+        put(Material.LAPIS_LAZULI, 2.);
 
-        put(Material.EMERALD_ORE, 75.);
-        put(Material.DIAMOND_ORE, 75.);
-        put(Material.GOLD_ORE, 50.);
-        put(Material.IRON_ORE, 37.5);
-        put(Material.COAL_ORE, 25.);
-        put(Material.REDSTONE_ORE, 12.5);
-        put(Material.LAPIS_ORE, 10.);
+        put(Material.EMERALD_ORE, 5.);
+        put(Material.DIAMOND_ORE, 5.);
+        put(Material.GOLD_ORE, 3.5);
+        put(Material.IRON_ORE, 2.5); // 3.75
+        put(Material.COAL_ORE, 1.5);
+        put(Material.REDSTONE_ORE, 1.5);
+        put(Material.LAPIS_ORE, 1.);
     }});
 
     private static void setUpInventory(Inventory inv, Tab tab) {
@@ -138,9 +134,9 @@ public final class GameShopMenu {
                 ItemStack gsd = new ItemStack(Material.GLOWSTONE_DUST);
                 ItemStack rs = new ItemStack(Material.REDSTONE);
                 ItemStack gp = new ItemStack(Material.GUNPOWDER);
-                ItemStack nw = new ItemStack(Material.NETHER_WART, 3);
-                ItemStack bp = new ItemStack(Material.BLAZE_POWDER, 3);
-                ItemStack fse = new ItemStack(Material.FERMENTED_SPIDER_EYE, 3);
+                ItemStack nw = new ItemStack(Material.NETHER_WART);
+                ItemStack bp = new ItemStack(Material.BLAZE_POWDER);
+                ItemStack fse = new ItemStack(Material.FERMENTED_SPIDER_EYE);
                 ItemStack mc = new ItemStack(Material.MAGMA_CREAM);
                 ItemStack gc = new ItemStack(Material.GOLDEN_CARROT);
                 ItemStack gms = new ItemStack(Material.GLISTERING_MELON_SLICE);
@@ -222,10 +218,10 @@ public final class GameShopMenu {
 
                 String ext = ANNIPlugin.getVaultEconomy().currencyNamePlural();
 
-                ANNIUtil.setShopPrice(irh, 1000., ext);
-                ANNIUtil.setShopPrice(irc, 1000., ext);
-                ANNIUtil.setShopPrice(irl, 1000., ext);
-                ANNIUtil.setShopPrice(irb, 1000., ext);
+                ANNIUtil.setShopPrice(irh, 1300., ext);
+                ANNIUtil.setShopPrice(irc, 1500., ext);
+                ANNIUtil.setShopPrice(irl, 1400., ext);
+                ANNIUtil.setShopPrice(irb, 1200., ext);
                 ANNIUtil.setShopPrice(irs, 1000., ext);
                 ANNIUtil.setShopPrice(exp, 1000., ext);
                 ANNIUtil.setShopPrice(bok, 1000., ext);
@@ -330,6 +326,14 @@ public final class GameShopMenu {
         );
     }
 
+    public static boolean isCloseHandleable(InventoryCloseEvent e) {
+        return (
+                e.getView().getTitle().matches("^ショップ - .+ \\[SELL]$")
+                && e.getInventory().getSize() == 54
+                && e.getInventory().getType() == InventoryType.CHEST
+        );
+    }
+
     public static void handle(InventoryClickEvent e) {
         if (isHandleable(e)) {
             ItemStack clicked = e.getCurrentItem();
@@ -407,8 +411,8 @@ public final class GameShopMenu {
                             break;
                         case IRON_SWORD:
                             open(p,Tab.EQUIPMENTS);
-                        default:
                             break;
+                        default: break;
                     }
                     e.setCancelled(true);
                     return;
@@ -418,8 +422,9 @@ public final class GameShopMenu {
                     ItemStack[] sellItems = ANNIUtil.getSellItems(e.getInventory().getContents());
                     double add = 0D;
 
-                    if (sellItems.length != 0) {
-                        for (ItemStack sellItem : sellItems) {
+                    if (Arrays.stream(sellItems).filter(Objects::nonNull).toArray().length != 0) {
+                        for (int i = 0; i < sellItems.length; i++) {
+                            ItemStack sellItem = sellItems[i];
                             if (sellItem == null) continue;
                             if (sellMap.containsKey(sellItem.getType())) {
                                 add += sellMap.get(sellItem.getType()) * (sellItem.getAmount());
@@ -428,6 +433,8 @@ public final class GameShopMenu {
                                     p.getLocation().getWorld().dropItemNaturally(p.getLocation(), en.getValue());
                                 }
                             }
+
+                            sellItems[i] = null;
                         }
 
                         open(p, Tab.SELL);
@@ -441,6 +448,22 @@ public final class GameShopMenu {
                 }
             }
         }
+    }
+
+    public static void closeHandle(InventoryCloseEvent e) {
+        if (isCloseHandleable(e)) {
+            ItemStack[] isa = nonNullItemStackArr(ANNIUtil.getSellItems(e.getInventory().getContents()));
+
+            for (Map.Entry<Integer,ItemStack> en : e.getPlayer().getInventory().addItem(isa).entrySet()) {
+
+            }
+        }
+    }
+
+    private static ItemStack[] nonNullItemStackArr(ItemStack[] arr) {
+        if (arr.length == 0) return new ItemStack[0];
+
+        return Arrays.stream(arr).filter(Objects::nonNull).toArray(ItemStack[]::new);
     }
 
 }

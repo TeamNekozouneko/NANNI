@@ -1,5 +1,6 @@
 package com.nekozouneko.anni.listener;
 
+import com.nekozouneko.anni.gui.GameShopMenu;
 import com.nekozouneko.anni.gui.KitEditor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,6 +12,9 @@ public class InventoryCloseListener implements Listener {
     public void onEvent(InventoryCloseEvent e) {
         if (KitEditor.isHandleable(e)) {
             KitEditor.closeHandle(e);
+        }
+        else if (GameShopMenu.isCloseHandleable(e)) {
+            GameShopMenu.closeHandle(e);
         }
     }
 
