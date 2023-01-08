@@ -35,22 +35,14 @@ public class PlayerKillListener implements Listener {
                 }
 
                 g.setKitToPlayer(p);
-                /*Bukkit.getScheduler().runTaskLater(plugin, () -> p.addPotionEffects(Arrays.asList(
-                        new PotionEffect(
-                                PotionEffectType.BLINDNESS, 60, 1,
-                                false, false, false
-                        ),
-                        new PotionEffect(
-                                PotionEffectType.DAMAGE_RESISTANCE, 200, 255,
-                                false, false, true
-                        )
-                )), 5);
-
-                p.sendTitle("§aリスポーン中...", "", 0, 60, 10);
-                p.setGameMode(GameMode.SURVIVAL);*/
                 new SpectateKiller(5, p, p.getKiller()).runTaskTimer(plugin, 20, 20);
             } else {
                 ANNIPlugin.teleportToLobby(p);
+                ANNIUtil.healPlayer(p);
+                p.getInventory().clear();
+                p.getEnderChest().clear();
+                p.setLevel(0);
+                p.setTotalExperience(0);
                 g.removeSavedInventory(p.getUniqueId());
                 p.setGameMode(GameMode.ADVENTURE);
             }
@@ -68,9 +60,9 @@ public class PlayerKillListener implements Listener {
             ANNIPlugin.getANNIDB().addDeathCount(killed.getUniqueId());
             if (killer != null) {
                 ANNIPlugin.getANNIDB().addKillCount(killer.getUniqueId());
-                ANNIPlugin.getVaultEconomy().depositPlayer(killer, 25.);
+                ANNIPlugin.getVaultEconomy().depositPlayer(killer, 10.);
 
-                killer.sendMessage("§a+25 Nekozouneko Anni Point §7(NAP)");
+                killer.sendMessage("§a+10 Nekozouneko Anni Point §7(NAP)");
                 g.broadcast("§7" + ANNIUtil.teamPrefixSuffixAppliedName(killed) + " §f<- §7" + ANNIUtil.teamPrefixSuffixAppliedName(killer));
 
                 /*killed.teleport(killer);
@@ -86,13 +78,11 @@ public class PlayerKillListener implements Listener {
             final List<ItemStack> dropped = new ArrayList<>(e.getDrops());
             List<ItemStack> filtered = new ArrayList<>();
             dropped.stream()
-                    .filter(o ->
-                            !((o.getType() == Material.LEATHER_HELMET || o.getType() == Material.LEATHER_CHESTPLATE
-                            || o.getType() == Material.LEATHER_LEGGINGS || o.getType() == Material.LEATHER_BOOTS
-                            || o.getType() == Material.WOODEN_AXE || o.getType() == Material.WOODEN_SWORD
-                            || o.getType() == Material.STONE_PICKAXE || o.getType() == Material.WOODEN_SHOVEL
-                            || o.getType() == Material.BREAD)
-                            && o.getEnchantments().size() == 0)
+                    .filter(o -> (
+                                    !(o.hasItemMeta()
+                                    && o.getItemMeta().hasLore()
+                                    && o.getItemMeta().getLore().contains("§8Kit Undroppable item"))
+                            )
                     ).forEach(filtered::add);
 
             e.getDrops().clear();

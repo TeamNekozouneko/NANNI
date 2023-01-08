@@ -22,6 +22,7 @@ import org.bukkit.boss.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
@@ -65,7 +66,7 @@ public class ANNIGame {
     private BukkitRunnable suddenTask;
     private Map<UUID, TeamPlayerInventory> savedInv = new HashMap<>();
 
-    private static class TeamPlayerInventory {
+    public static class TeamPlayerInventory {
         private final UUID uuid;
         private final com.nekozouneko.anni.Team team;
 
@@ -73,8 +74,9 @@ public class ANNIGame {
         private final ItemStack offhand;
         private final ItemStack[] contents;
         private final ItemStack[] ender;
+        private boolean allowJoin = false;
 
-        public TeamPlayerInventory(com.nekozouneko.anni.Team team, Player player) {
+        protected TeamPlayerInventory(com.nekozouneko.anni.Team team, Player player) {
             this.team = team;
             this.uuid = player.getUniqueId();
             this.armors = player.getInventory().getArmorContents();
@@ -83,7 +85,7 @@ public class ANNIGame {
             this.ender = player.getEnderChest().getContents();
         }
 
-        public TeamPlayerInventory(com.nekozouneko.anni.Team team, UUID uuid, ItemStack[] armors, ItemStack offhand, ItemStack[] contents, ItemStack[] ender) {
+        protected TeamPlayerInventory(com.nekozouneko.anni.Team team, UUID uuid, ItemStack[] armors, ItemStack offhand, ItemStack[] contents, ItemStack[] ender) {
             this.team = team;
             this.uuid = uuid;
             this.armors = armors;
@@ -116,6 +118,14 @@ public class ANNIGame {
 
         public com.nekozouneko.anni.Team getTeam() {
             return team;
+        }
+
+        public boolean isAllowedJoin() {
+            return allowJoin;
+        }
+
+        public void setAllowJoin(boolean v1) {
+            allowJoin = v1;
         }
     }
 
@@ -165,6 +175,11 @@ public class ANNIGame {
         blue.setAllowFriendlyFire(false);
         yellow.setAllowFriendlyFire(false);
         green.setAllowFriendlyFire(false);
+
+        red.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
+        blue.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
+        yellow.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
+        green.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
 
         teams.put(com.nekozouneko.anni.Team.RED, red);
         teams.put(com.nekozouneko.anni.Team.BLUE, blue);
@@ -309,13 +324,15 @@ public class ANNIGame {
                     if (old != null) old.removePlayer(p);
                     if (new1 != null) new1.addPlayer(p);
 
-                    setKitToPlayer(p);
-                    p.teleport(getTeamSpawnPoint(p));
-                    ANNIUtil.healPlayer(p);
-                    p.setTotalExperience(0);
-                    p.setLevel(0);
-                    if (t == com.nekozouneko.anni.Team.SPECTATOR) p.setGameMode(GameMode.SPECTATOR);
-                    else p.setGameMode(GameMode.SURVIVAL);
+                    if (!isLose(t)) {
+                        setKitToPlayer(p);
+                        p.teleport(getTeamSpawnPoint(p));
+                        ANNIUtil.healPlayer(p);
+                        p.setTotalExperience(0);
+                        p.setLevel(0);
+                        if (t == com.nekozouneko.anni.Team.SPECTATOR) p.setGameMode(GameMode.SPECTATOR);
+                        else p.setGameMode(GameMode.SURVIVAL);
+                    }
                 } else {
                     p.sendMessage("§c途中でチームを変更することはできません。");
                 }
@@ -352,20 +369,17 @@ public class ANNIGame {
     public void join(Player p) {
         if (!players.containsKey(p)) {
             players.put(p, com.nekozouneko.anni.Team.NOT_JOINED);
-            /*if (stat.getPhaseId() <= 0) {
-                Map<com.nekozouneko.anni.Team, Integer> members = new HashMap<>();
-                teams.keySet().forEach((t) -> members.put(t, teams.get(t).getSize()));
-                com.nekozouneko.anni.Team t = ANNIUtil.balancingJoin(members);
-                players.put(p, t);
-                teams.get(t).addPlayer(p);
-            }*/
             broadcast(p.getName() + "§eがゲームに参加しました");
 
             if (savedInv.containsKey(p.getUniqueId())) {
                 TeamPlayerInventory tpi = savedInv.get(p.getUniqueId());
 
                 changeTeam(p, tpi.getTeam());
-                tpi.set(p);
+                if (tpi.isAllowedJoin()) {
+                    tpi.set(p);
+                } else {
+                    p.sendMessage("§cあなたが参加していたチームは負けているためマップには移動できません、ゲーム終了までお待ち下さい。");
+                }
 
                 savedInv.remove(p.getUniqueId());
             }
@@ -383,7 +397,7 @@ public class ANNIGame {
             if (getPlayerJoinedTeam(p) != null && !getPlayerJoinedTeam(p).isSpectator()) {
                 com.nekozouneko.anni.Team t = getPlayerJoinedTeam(p);
                 Team ts = getScoreBoardTeam(t);
-                if (getPlayers(t).size() <= 1) {
+                if (getPlayers(t).size() <= 1 && !isLose(t)) {
                     loseTeam(t);
                     getMap().getNexusLocation(t, true).getBlock().setType(Material.BEDROCK);
 
@@ -441,16 +455,29 @@ public class ANNIGame {
         com.nekozouneko.anni.Team t = players.get(p);
 
         if (!t.isSpectator()) {
-            ItemStack[] armor = teamArmor.get(t);
-
             for (int i = 0; i < defInv.length; i++) {
                 ItemStack ar = defInv[i];
+                if (ar == null) continue;
+
+                ItemMeta im = ar.getItemMeta();
+                List<String> lr = im.hasLore() && im.getLore() != null ? im.getLore() : new ArrayList<>();
+
+                if (!ANNIUtil.isArmor(ar.getType())) {
+                    if (lr.size() == 0) {
+                        lr.add("§8Kit Undroppable item");
+                    } else {
+                        lr.add(" ");
+                        lr.add("§8Kit Undroppable item");
+                    }
+                    im.setLore(lr);
+                    ar.setItemMeta(im);
+                }
+
                 if (
-                        ar != null &&
-                        ((ar.getType() == Material.LEATHER_HELMET)
+                        (ar.getType() == Material.LEATHER_HELMET)
                         || (ar.getType() == Material.LEATHER_CHESTPLATE)
                         || (ar.getType() == Material.LEATHER_LEGGINGS)
-                        || (ar.getType() == Material.LEATHER_BOOTS))
+                        || (ar.getType() == Material.LEATHER_BOOTS)
                 ) {
                     Map<Enchantment,Integer> enc = ar.getEnchantments();
                     LeatherArmorMeta am = (LeatherArmorMeta) ar.getItemMeta();
@@ -897,7 +924,5 @@ public class ANNIGame {
     public void removeSavedInventory(UUID id) {
         savedInv.remove(id);
     }
-
-    // region
 
 }
