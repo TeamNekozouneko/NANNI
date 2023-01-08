@@ -89,6 +89,8 @@ public class ChatListener implements Listener {
                     g.broadcast(t, st.getColor()+"("+ st.getDisplayName() +") §r" + ANNIUtil.teamPrefixSuffixAppliedName(p) + "§f: " + m);
                     e.setCancelled(true);
                 }
+            } else {
+                e.setFormat("§8(Global)§r %1$s§r: %2$s");
             }
         } catch (Exception ex) {
             ex.printStackTrace();
