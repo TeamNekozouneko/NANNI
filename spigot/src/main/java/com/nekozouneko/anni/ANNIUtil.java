@@ -307,4 +307,11 @@ public class ANNIUtil {
         return res;
     }
 
+    public static boolean isArmor(Material m) {
+        return (
+                m.name().contains("HELMET") || m.name().contains("CHESTPLATE")
+                || m.name().contains("LEGGINGS") || m.name().contains("BOOTS")
+        );
+    }
+
 }
