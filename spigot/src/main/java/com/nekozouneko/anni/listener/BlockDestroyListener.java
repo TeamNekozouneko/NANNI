@@ -28,6 +28,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -55,6 +56,12 @@ public class BlockDestroyListener implements Listener {
         Material bt = e.getBlock().getType();
 
         if (e.getPlayer().getGameMode() == GameMode.SURVIVAL && ANNIPlugin.getGM().getGame().isJoined(e.getPlayer())) {
+            if (e.getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+                e.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
+                e.getPlayer().sendMessage(NChatColor.RED + "ブロックの破壊により透明化が解除されました");
+                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ENTITY_GENERIC_EXTINGUISH_FIRE, 1, 0);
+            }
+
             switch (bt) {
                 case END_STONE:
                     onNexusDestroy(e);
@@ -149,10 +156,12 @@ public class BlockDestroyListener implements Listener {
                             )
                     );
 
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.COBBLESTONE), 3);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(Material.COBBLESTONE), 1);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> loc.getBlock().setType(bt), 100);
                     break;
                 case WHEAT:
+                    e.setDropItems(false);
+                    e.setExpToDrop(0);
                     Random r = new Random();
                     Ageable age = (Ageable) loc.getBlock().getBlockData();
 
@@ -160,12 +169,15 @@ public class BlockDestroyListener implements Listener {
                         if (r.nextInt(101) <= 3) {
                             loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.APPLE, 1));
                         }
-                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                            if (new Location(loc.getWorld(), loc.getX(), loc.getY() - 1, loc.getZ()).getBlock().getType() == Material.FARMLAND) {
-                                loc.getBlock().setType(Material.WHEAT);
-                            }
-                        }, 60);
+                        loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.WHEAT, new Random().nextInt(3)+1));
                     }
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        if (new Location(loc.getWorld(), loc.getX(), loc.getY() - 1, loc.getZ()).getBlock().getType() == Material.FARMLAND) {
+                            loc.getBlock().setType(Material.WHEAT);
+                        }
+                    }, 60);
+
+                    loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.WHEAT_SEEDS));
                     break;
                 case ACACIA_LOG:
                 case BIRCH_LOG:
@@ -208,7 +220,6 @@ public class BlockDestroyListener implements Listener {
                 default:
                     final Material[] ignoreDestroy = new Material[] {
                             Material.ENCHANTING_TABLE,
-                            Material.ENDER_CHEST,
                             Material.BEACON,
                             Material.NETHERITE_BLOCK
                     };
@@ -277,14 +288,15 @@ public class BlockDestroyListener implements Listener {
 
             if (g.getPlayerJoinedTeam(broker) != null && !g.getPlayerJoinedTeam(broker).isSpectator()) {
                 for (Player p : g.getPlayers(g.getPlayerJoinedTeam(broker))) {
-                    ANNIPlugin.getVaultEconomy().depositPlayer(p, 5.);
-                    p.sendMessage("§a+5 Nekozouneko Anni Point §7(NAP)");
+                    ANNIPlugin.getVaultEconomy().depositPlayer(p, 2.);
+                    p.sendMessage("§a+2 Nekozouneko Anni Point §7(NAP)");
                 }
             }
 
             g.getBossBar().setTitle(
                     broker.getDisplayName() + "が" + g.getScoreBoardTeam(t).getDisplayName() + "のネクサスにダメージを与えました!"
             );
+            g.getBossBar().setProgress(1.);
             e.setDropItems(false);
             ANNIPlugin.getANNIDB().addNexusMinedCount(broker.getUniqueId());
             if (g.getNexusHealth(t) >= 1) {
@@ -333,7 +345,7 @@ public class BlockDestroyListener implements Listener {
                         }
 
                         g.lockTimer();
-                        g.getBossBar().setTitle(UpdateBossBar.message.get(g.getStatus()) + " - " + ANNIUtil.toTimerFormat(g.getTimer()));
+                        g.getBossBar().setTitle(UpdateBossBar.message.get(g.getStatus()) + (g.getStatus() != ANNIStatus.PHASE_FIVE ? (" - " + ANNIUtil.toTimerFormat(g.getTimer())) : ""));
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
