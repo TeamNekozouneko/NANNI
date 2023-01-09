@@ -3,6 +3,7 @@ package com.nekozouneko.anni.task;
 import com.nekozouneko.anni.ANNIPlugin;
 
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -26,7 +27,15 @@ public class SpectateKiller extends BukkitRunnable {
     public void run() {
         if (isFirst) {
             isFirst = false;
-            if (killer != null) player.teleport(killer);
+            if (killer != null) {
+                if (killer.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+                    Location ld = player.getLastDeathLocation();
+                    if (ld != null) {
+                        player.teleport(ld);
+                    }
+                    else player.teleport(ANNIPlugin.getGM().getGame().getTeamSpawnPoint(player));
+                } else player.teleport(killer);
+            }
             else player.teleport(ANNIPlugin.getGM().getGame().getTeamSpawnPoint(player));
         }
 
