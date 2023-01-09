@@ -5,7 +5,7 @@
     <parent>
         <artifactId>nanni-root</artifactId>
         <groupId>com.nekozouneko</groupId>
-        <version>0.7.1-alpha</version>
+        <version>0.7.2-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
@@ -53,9 +53,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>fr.mrmicky</groupId>
-            <artifactId>fastboard</artifactId>
-            <version>1.2.1</version>
+            <groupId>fr.minuskube</groupId>
+            <artifactId>netherboard-core</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.minuskube</groupId>
+            <artifactId>netherboard-bukkit</artifactId>
+            <version>1.2.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.spigotmc</groupId>
+                    <artifactId>spigot-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

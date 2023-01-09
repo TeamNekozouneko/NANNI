@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import com.nekozouneko.anni.command.*;
+import com.nekozouneko.anni.command.shortcut.*;
 import com.nekozouneko.anni.database.*;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNILobby;
@@ -15,7 +16,7 @@ import com.nekozouneko.anni.task.UpdateBoard;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldguard.WorldGuard;
 
-import fr.mrmicky.fastboard.FastBoard;
+import fr.minuskube.netherboard.Netherboard;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -30,9 +31,6 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class ANNIPlugin extends JavaPlugin {
 
@@ -53,7 +51,7 @@ public class ANNIPlugin extends JavaPlugin {
     private static ANNIDatabase db;
 
     /* integration & depends */
-    private final static Map<UUID, FastBoard> fbm = new HashMap<>();
+    private static Netherboard nb;
     private static Scoreboard sb;
     private static WorldEdit we;
     private static WorldGuard wg;
@@ -87,13 +85,11 @@ public class ANNIPlugin extends JavaPlugin {
         return instance;
     }
 
-    public static Map<UUID, FastBoard> getFBMap() {
-        return fbm;
-    }
-
     public static Scoreboard getSb() {
         return sb;
     }
+
+    public static Netherboard getNb() {return nb;}
 
     public static File getMapDir() {
         return mapDir;
@@ -147,6 +143,7 @@ public class ANNIPlugin extends JavaPlugin {
     public void onEnable() {
         instance = this;
         sb = getServer().getScoreboardManager().getNewScoreboard();
+        nb = Netherboard.instance();
 
         /* ----- Initialize dir ----- */
 
@@ -188,18 +185,21 @@ public class ANNIPlugin extends JavaPlugin {
 
         getLogger().info("Registering listener...");
 
-        getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
         getServer().getPluginManager().registerEvents(new BlockDestroyListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerKillListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerLeaveListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerDamageListener(), this);
         getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
         getServer().getPluginManager().registerEvents(new CraftItemListener(), this);
-        getServer().getPluginManager().registerEvents(new InventoryCloseListener(), this);
         getServer().getPluginManager().registerEvents(new EnchantListener(), this);
+        getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
+        getServer().getPluginManager().registerEvents(new InventoryCloseListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerDamageListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerDropItemListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerInteractListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerKillListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerLeaveListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerTeleportListener(), this);
+        getServer().getPluginManager().registerEvents(new PortalActionListener(), this);
 
         getServer().getPluginManager().registerEvents(new VoteListener(), this);
 
@@ -211,6 +211,7 @@ public class ANNIPlugin extends JavaPlugin {
 
         getCommand("nanni").setExecutor(new ANNICommand());
         getCommand("nanni-admin").setExecutor(new ANNIAdminCommand());
+        getCommand("points").setExecutor(new PointsCommand());
 
         getLogger().info("Registered Command.");
 

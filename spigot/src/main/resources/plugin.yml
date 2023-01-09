@@ -1,5 +1,5 @@
 name: "NANNI"
-version: '0.7.1-alpha'
+version: '0.7.2-alpha'
 author: "Taitaitatata"
 description: "NANNIはNekozouneko Serverのアナイアレーションを管理・実行するプラグインです"
 
@@ -26,6 +26,13 @@ commands:
       /<command> map list
       /<command> map remove <world>
 
+  # -----
+  points:
+    aliases: ["p"]
+    description: "現在所持しているポイントを取得します"
+    usage: "/<command> [target]"
+    permission: nanni.command.points
+
 default-permission: true
 
 permissions:
@@ -37,9 +44,17 @@ permissions:
     children:
       - nanni.command.admin
       - nanni.command.nanni
+      - nanni.command.points
+      - nanni.command.points.other
 
   nanni.command.admin:
     default: op
 
   nanni.command.nanni:
     default: true
+
+  nanni.command.points:
+    default: true
+
+  nanni.command.points.other:
+    default: op
