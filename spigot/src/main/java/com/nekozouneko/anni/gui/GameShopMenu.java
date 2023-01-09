@@ -365,38 +365,40 @@ public final class GameShopMenu {
                 }
 
                 // buy
-                if ((slot == 0)  || (slot >= 10 && 16 >= slot) || (slot >= 19 && 25 >= slot) || (slot >= 28 && 34 >= slot)) {
-                    if (
-                            clicked.hasItemMeta()
-                            && clicked.getItemMeta().hasLore()
-                            && clicked.getItemMeta().getLore().size() > 0
-                    ) {
-                        List<String> l = clicked.getItemMeta().getLore();
-                        Matcher m = Pattern.compile("^§8Price:([0-9]+\\.?[0-9]*?)$").matcher(l.get(l.size()-1));
+                if (((slot == 0)  || (slot >= 10 && 16 >= slot) || (slot >= 19 && 25 >= slot) || (slot >= 28 && 34 >= slot))) {
+                    if (!e.getView().getTitle().matches("^ショップ - .+ \\[SELL]$")) {
+                        if (
+                                clicked.hasItemMeta()
+                                        && clicked.getItemMeta().hasLore()
+                                        && clicked.getItemMeta().getLore().size() > 0
+                        ) {
+                            List<String> l = clicked.getItemMeta().getLore();
+                            Matcher m = Pattern.compile("^§8Price:([0-9]+\\.?[0-9]*?)$").matcher(l.get(l.size() - 1));
 
-                        if (m.find()) {
-                            Double price = Double.valueOf(m.group(1));
+                            if (m.find()) {
+                                Double price = Double.valueOf(m.group(1));
 
-                            if (ANNIPlugin.getVaultEconomy().getBalance(p) >= price) {
-                                ANNIPlugin.getVaultEconomy().withdrawPlayer(p, price);
-                                ItemStack buyObj = clicked.clone();
-                                ItemMeta buyMeta = buyObj.getItemMeta();
-                                buyMeta.setDisplayName(null);
-                                buyMeta.setLore(null);
-                                buyObj.setItemMeta(buyMeta);
+                                if (ANNIPlugin.getVaultEconomy().getBalance(p) >= price) {
+                                    ANNIPlugin.getVaultEconomy().withdrawPlayer(p, price);
+                                    ItemStack buyObj = clicked.clone();
+                                    ItemMeta buyMeta = buyObj.getItemMeta();
+                                    buyMeta.setDisplayName(null);
+                                    buyMeta.setLore(null);
+                                    buyObj.setItemMeta(buyMeta);
 
-                                for (Map.Entry<Integer, ItemStack> i : p.getInventory().addItem(buyObj).entrySet()) {
-                                    p.getLocation().getWorld().dropItemNaturally(p.getLocation(), i.getValue());
-                                    p.sendMessage("§7[§c警告§7] §c" + i.getValue().getItemMeta().getLocalizedName() + " (" + i.getValue().getAmount() + "個) がインベントリに収まらないためドロップしました。");
+                                    for (Map.Entry<Integer, ItemStack> i : p.getInventory().addItem(buyObj).entrySet()) {
+                                        p.getLocation().getWorld().dropItemNaturally(p.getLocation(), i.getValue());
+                                        p.sendMessage("§7[§c警告§7] §c" + i.getValue().getItemMeta().getLocalizedName() + " (" + i.getValue().getAmount() + "個) がインベントリに収まらないためドロップしました。");
+                                    }
+
+                                    p.sendMessage("§a購入しました! (- " + price + " " + ANNIPlugin.getVaultEconomy().currencyNamePlural() + "");
+                                } else {
+                                    p.sendMessage("§c残高が不足しています (" + (ANNIPlugin.getVaultEconomy().getBalance(p) - price) + " " + ANNIPlugin.getVaultEconomy().currencyNamePlural() + "不足)");
                                 }
-
-                                p.sendMessage("§a購入しました! (- "+price+" "+ANNIPlugin.getVaultEconomy().currencyNamePlural()+"");
-                            } else {
-                                p.sendMessage("§c残高が不足しています ("+(ANNIPlugin.getVaultEconomy().getBalance(p)-price)+" "+ANNIPlugin.getVaultEconomy().currencyNamePlural()+"不足)");
                             }
                         }
-                    }
-                    e.setCancelled(true);
+                        e.setCancelled(true);
+                    } else e.setCancelled(!e.getView().getTitle().matches("^ショップ - .+ \\[SELL]$"));
                     return;
                 }
 
@@ -433,11 +435,32 @@ public final class GameShopMenu {
                                     p.getLocation().getWorld().dropItemNaturally(p.getLocation(), en.getValue());
                                 }
                             }
-
-                            sellItems[i] = null;
                         }
 
-                        open(p, Tab.SELL);
+                        e.getInventory().setItem(10, null);
+                        e.getInventory().setItem(11, null);
+                        e.getInventory().setItem(12, null);
+                        e.getInventory().setItem(13, null);
+                        e.getInventory().setItem(14, null);
+                        e.getInventory().setItem(15, null);
+                        e.getInventory().setItem(16, null);
+
+                        e.getInventory().setItem(19, null);
+                        e.getInventory().setItem(20, null);
+                        e.getInventory().setItem(21, null);
+                        e.getInventory().setItem(22, null);
+                        e.getInventory().setItem(23, null);
+                        e.getInventory().setItem(24, null);
+                        e.getInventory().setItem(25, null);
+
+                        e.getInventory().setItem(28, null);
+                        e.getInventory().setItem(29, null);
+                        e.getInventory().setItem(30, null);
+                        e.getInventory().setItem(31, null);
+                        e.getInventory().setItem(32, null);
+                        e.getInventory().setItem(33, null);
+                        e.getInventory().setItem(34, null);
+
                         ANNIPlugin.getVaultEconomy().depositPlayer(p, add);
 
                         p.sendMessage("§a合計 " + add + " " + ANNIPlugin.getVaultEconomy().currencyNamePlural() + "を取得しました！");
