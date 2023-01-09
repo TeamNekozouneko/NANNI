@@ -7,7 +7,8 @@ import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
 import com.nekozouneko.anni.game.manager.GameManager;
-import fr.mrmicky.fastboard.FastBoard;
+import fr.minuskube.netherboard.Netherboard;
+import fr.minuskube.netherboard.bukkit.BPlayerBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -19,6 +20,7 @@ public class UpdateBoard extends BukkitRunnable {
 
     private final ANNIPlugin plugin = ANNIPlugin.getInstance();
     private final GameManager gm = ANNIPlugin.getGM();
+    private final Netherboard nb = ANNIPlugin.getNb();
 
     @Override
     public void run() {
@@ -33,8 +35,7 @@ public class UpdateBoard extends BukkitRunnable {
             double bal = ANNIPlugin.getVaultEconomy().getBalance(p);
 
             if (gm.isJoined(p)) {
-                FastBoard fb = ANNIPlugin.getFBMap().getOrDefault(p.getUniqueId(), new FastBoard(p));
-                fb.updateTitle("§cA§9N§eN§aI");
+                BPlayerBoard b = nb.hasBoard(p) ? nb.getBoard(p) : nb.createBoard(p,ANNIPlugin.getSb(),"§cA§9N§eN§aI");
                 ANNIGame annig = gm.getPlayerJoinedGame(p);
                 ANNIMap m = annig.getMap();
                 String mn = (m != null ? m.getDisplay() : "?");
@@ -59,20 +60,20 @@ public class UpdateBoard extends BukkitRunnable {
                         tm = "開始にはあと"+(min-ps)+"人が必要です";
                     } else tm = "開始まであと "+ANNIUtil.toTimerFormat(gm.getGame().getTimer());
 
-                    fb.updateLines(
+                    b.setAll(
                             "§8" + annig.getId16(),
                             "§8" + sdf.format(d),
-                            "",
+                            "   ",
                             tm,
-                            "",
+                            "  ",
                             "チーム: §7" + tn,
                             "プレイヤー: §7" + annig.getPlayers().size() + " / " + gm.getMaxPlayers(),
-                            "",
+                            " ",
                             "§9§nnekozouneko.net"
                     );
                 } else {
                     if (gm.getRuleType() == 2) {
-                        fb.updateLines(
+                        b.setAll(
                                 "§8" + annig.getId16(),
                                 "§8" + sdf.format(d),
                                 "   ",
@@ -85,7 +86,7 @@ public class UpdateBoard extends BukkitRunnable {
                                 "§9§nnekozouneko.net"
                         );
                     } else {
-                        fb.updateLines(
+                        b.setAll(
                                 "§8" + annig.getId16() + " " + sdf.format(d),
                                 "§8" + sdf.format(d),
                                 "   ",
@@ -100,39 +101,35 @@ public class UpdateBoard extends BukkitRunnable {
                         );
                     }
                 }
-            } else if (p.getWorld() == ANNIPlugin.getLobby().getLocation().getBukkitWorld()) {
-                FastBoard fb = ANNIPlugin.getFBMap().getOrDefault(p.getUniqueId(), new FastBoard(p));
-                fb.updateTitle("§cA§9N§eN§aI");
+            } else if (p.getWorld().equals(ANNIPlugin.getLobby().getLocation().getBukkitWorld())) {
+                BPlayerBoard b = nb.hasBoard(p) ? nb.getBoard(p) : nb.createBoard(p,ANNIPlugin.getSb(),"§cA§9N§eN§aI");
                 int k = ANNIPlugin.getANNIDB().getKillCount(p.getUniqueId());
                 int de = ANNIPlugin.getANNIDB().getDeathCount(p.getUniqueId());
                 String late = String.format("%.2f", ANNIUtil.KDCalc(k, de));
 
-                fb.updateLines(
+                b.setAll(
                         "§8" + sdf.format(d),
-                        "   ",
+                        "    ",
                         "お知らせ:",
                         "§7> §f開発中だからバグの森だよ",
-                        "  ",
+                        "   ",
                         "所持P: §c" + ANNIUtil.doubleToString(bal, true) + " §7" + ANNIPlugin.getVaultEconomy().currencyNameSingular(),
-                        " ",
+                        "  ",
                         "勝利数: §c" + ANNIPlugin.getANNIDB().getWinCount(p.getUniqueId()),
                         "K/D: §c"+ late +" §8("+k+" / "+de+")",
-                        "",
+                        " ",
                         "§9§nnekozouneko.net"
                 );
             } else {
-                FastBoard fb = ANNIPlugin.getFBMap().get(p.getUniqueId());
-                if (fb != null && !fb.isDeleted()) fb.delete();
-                ANNIPlugin.getFBMap().remove(p.getUniqueId());
+                if (nb.hasBoard(p)) nb.removeBoard(p);
             }
         }
     }
 
     public void stop() {
-        for (FastBoard fb : ANNIPlugin.getFBMap().values()) {
-            if (!fb.isDeleted()) fb.delete();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (nb.hasBoard(p)) nb.removeBoard(p);
         }
-        ANNIPlugin.getFBMap().clear();
         cancel();
     }
 

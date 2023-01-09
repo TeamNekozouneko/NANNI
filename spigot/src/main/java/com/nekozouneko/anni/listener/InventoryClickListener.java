@@ -4,7 +4,7 @@ import com.nekozouneko.anni.gui.GameShopMenu;
 import com.nekozouneko.anni.gui.KitEditor;
 import com.nekozouneko.anni.gui.KitMenu;
 import com.nekozouneko.anni.gui.TeamSelector;
-import org.bukkit.entity.Player;
+
 import org.bukkit.event.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
