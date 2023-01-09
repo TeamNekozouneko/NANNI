@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PlayerKillListener implements Listener {
 
@@ -79,9 +80,11 @@ public class PlayerKillListener implements Listener {
             List<ItemStack> filtered = new ArrayList<>();
             dropped.stream()
                     .filter(o -> (
-                                    !(o.hasItemMeta()
-                                    && o.getItemMeta().hasLore()
-                                    && o.getItemMeta().getLore().contains("§8Kit Undroppable item"))
+                                    Objects.nonNull(o)
+                                    && !(Objects.nonNull(o.getItemMeta()) && o.hasItemMeta()
+                                    && Objects.nonNull(o.getItemMeta().getLore()) && o.getItemMeta().hasLore()
+                                    && ((o.getItemMeta().getLore().contains("§8Kit item"))
+                                    || o.getItemMeta().getLore().contains("§8Kit Undroppable item")))
                             )
                     ).forEach(filtered::add);
 

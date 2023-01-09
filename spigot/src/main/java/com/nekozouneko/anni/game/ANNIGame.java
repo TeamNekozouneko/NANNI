@@ -462,16 +462,14 @@ public class ANNIGame {
                 ItemMeta im = ar.getItemMeta();
                 List<String> lr = im.hasLore() && im.getLore() != null ? im.getLore() : new ArrayList<>();
 
-                if (!ANNIUtil.isArmor(ar.getType())) {
-                    if (lr.size() == 0) {
-                        lr.add("§8Kit Undroppable item");
-                    } else {
-                        lr.add(" ");
-                        lr.add("§8Kit Undroppable item");
-                    }
-                    im.setLore(lr);
-                    ar.setItemMeta(im);
+                if (lr.size() == 0) {
+                    lr.add("§8Kit item");
+                } else {
+                    lr.add(" ");
+                    lr.add("§8Kit item");
                 }
+                im.setLore(lr);
+                ar.setItemMeta(im);
 
                 if (
                         (ar.getType() == Material.LEATHER_HELMET)
