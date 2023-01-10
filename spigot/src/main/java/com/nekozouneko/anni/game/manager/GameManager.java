@@ -4,6 +4,8 @@ import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.game.ANNIGame;
 import org.bukkit.entity.Player;
 
+import java.util.HashSet;
+
 public class GameManager {
 
     private final ANNIGame game;

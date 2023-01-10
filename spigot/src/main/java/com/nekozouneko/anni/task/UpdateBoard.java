@@ -2,7 +2,7 @@ package com.nekozouneko.anni.task;
 
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
@@ -43,17 +43,17 @@ public class UpdateBoard extends BukkitRunnable {
                 if (gm.getGame().getStatus() == ANNIStatus.WAITING
                 || annig.getStatus() == ANNIStatus.STOPPING || ANNIStatus.CANT_START == annig.getStatus())
                 {
-                    Team t = annig.getPlayerJoinedTeam(p);
+                    ANNITeam t = annig.getPlayerJoinedTeam(p);
                     org.bukkit.scoreboard.Team st = annig.getScoreBoardTeam(t);
                     String tn = (t != null && st != null) ? st.getColor() + st.getDisplayName() + "" : "無所属";
                     String tm = "";
 
                     int min = gm.getMinPlayers();
-                    int psr = annig.getPlayers(Team.RED).size();
-                    int psb = annig.getPlayers(Team.BLUE).size();
-                    int psy = annig.getPlayers(Team.YELLOW).size();
-                    int psg = annig.getPlayers(Team.GREEN).size();
-                    int psn = annig.getPlayers(Team.NOT_JOINED).size();
+                    int psr = annig.getPlayers(ANNITeam.RED).size();
+                    int psb = annig.getPlayers(ANNITeam.BLUE).size();
+                    int psy = annig.getPlayers(ANNITeam.YELLOW).size();
+                    int psg = annig.getPlayers(ANNITeam.GREEN).size();
+                    int psn = annig.getPlayers(ANNITeam.NOT_JOINED).size();
                     int ps = psr+psb+psg+psy+psn;
 
                     if (min > ps) {
@@ -80,8 +80,8 @@ public class UpdateBoard extends BukkitRunnable {
                                 "マップ: §c" + mn,
                                 "フェーズ: §c" + ANNIUtil.phaseId2BoardDisplay(annig.getStatus().getPhaseId()),
                                 "  ",
-                                "§c赤: §7" + annig.getNexusHealthForBoard(Team.RED),
-                                "§9青: §7" + annig.getNexusHealthForBoard(Team.BLUE),
+                                "§c赤: §7" + annig.getNexusHealthForBoard(ANNITeam.RED),
+                                "§9青: §7" + annig.getNexusHealthForBoard(ANNITeam.BLUE),
                                 " ",
                                 "§9§nnekozouneko.net"
                         );
@@ -92,10 +92,10 @@ public class UpdateBoard extends BukkitRunnable {
                                 "   ",
                                 "マップ: §c" + mn,
                                 "  ",
-                                "§c赤: §7" + annig.getNexusHealthForBoard(Team.RED),
-                                "§9青: §7" + annig.getNexusHealthForBoard(Team.BLUE),
-                                "§e黄: §7" + annig.getNexusHealthForBoard(Team.YELLOW),
-                                "§a緑: §7" + annig.getNexusHealthForBoard(Team.GREEN),
+                                "§c赤: §7" + annig.getNexusHealthForBoard(ANNITeam.RED),
+                                "§9青: §7" + annig.getNexusHealthForBoard(ANNITeam.BLUE),
+                                "§e黄: §7" + annig.getNexusHealthForBoard(ANNITeam.YELLOW),
+                                "§a緑: §7" + annig.getNexusHealthForBoard(ANNITeam.GREEN),
                                 " ",
                                 "§9§nnekozouneko.net"
                         );

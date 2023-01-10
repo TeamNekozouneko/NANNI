@@ -1,6 +1,6 @@
 package com.nekozouneko.anni.event;
 
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -8,10 +8,10 @@ import org.bukkit.event.HandlerList;
 public class NexusAttackEvent extends Event {
 
     private final Player player;
-    private final Team team;
+    private final ANNITeam team;
     private final int damage;
 
-    public NexusAttackEvent(Player p, Team t, int d) {
+    public NexusAttackEvent(Player p, ANNITeam t, int d) {
         this.player = p;
         this.team = t;
         this.damage = d;
@@ -26,7 +26,7 @@ public class NexusAttackEvent extends Event {
         return player;
     }
 
-    public Team getAttackedNexusTeam() {
+    public ANNITeam getAttackedNexusTeam() {
         return team;
     }
 

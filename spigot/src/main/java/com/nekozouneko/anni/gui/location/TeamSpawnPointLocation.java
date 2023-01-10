@@ -2,7 +2,7 @@ package com.nekozouneko.anni.gui.location;
 
 import com.google.gson.Gson;
 import com.nekozouneko.anni.ANNIPlugin;
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.gui.MapEditor;
 import com.nekozouneko.anni.util.SimpleLocation;
@@ -17,9 +17,9 @@ public class TeamSpawnPointLocation implements AbstractGUILocationSelector {
 
     private final Player player;
     private final ANNIMap map;
-    private final Team team;
+    private final ANNITeam team;
 
-    public TeamSpawnPointLocation(ANNIMap map, Team team, Player player) {
+    public TeamSpawnPointLocation(ANNIMap map, ANNITeam team, Player player) {
         this.map = map;
         this.team = team;
         this.player = player;

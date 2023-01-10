@@ -2,7 +2,7 @@ package com.nekozouneko.anni.listener;
 
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.game.ANNIBigMessage;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
@@ -15,12 +15,10 @@ import com.nekozouneko.anni.util.BlockDestroyUtil;
 import com.nekozouneko.anni.util.SimpleLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import org.bukkit.*;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
@@ -29,7 +27,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -266,7 +263,7 @@ public class BlockDestroyListener implements Listener {
             Player broker = e.getPlayer();
             Location loc = e.getBlock().getLocation();
 
-            Team t = g.getMap().getNexusTeam(loc);
+            ANNITeam t = g.getMap().getNexusTeam(loc);
             if (t == null) {
                 return;
             }
@@ -327,7 +324,7 @@ public class BlockDestroyListener implements Listener {
                     }
                 } else {
                     try {
-                        Team winTeam = g.getNotLostTeams().get(0);
+                        ANNITeam winTeam = g.getNotLostTeams().get(0);
                         org.bukkit.scoreboard.Team winBukkitTeam = g.getScoreBoardTeam(winTeam);
 
                         for (Player p : g.getPlayers(winTeam)) {

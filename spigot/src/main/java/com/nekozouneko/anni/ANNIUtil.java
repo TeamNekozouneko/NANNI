@@ -140,15 +140,15 @@ public class ANNIUtil {
         return new AbstractMap.SimpleEntry<>(key, map.get(key));
     }
 
-    public static Team balancingJoin(Map<Team, Integer> tm) {
-        Map<Team, Integer> ti = new HashMap<>(tm);
-        ti.remove(Team.SPECTATOR);
-        ti.remove(Team.NOT_JOINED);
+    public static ANNITeam balancingJoin(Map<ANNITeam, Integer> tm) {
+        Map<ANNITeam, Integer> ti = new HashMap<>(tm);
+        ti.remove(ANNITeam.SPECTATOR);
+        ti.remove(ANNITeam.NOT_JOINED);
 
         if (!equalsAllValues(ti) && ti.size() >= 1) {
-            Map.Entry<Team, Integer> minTeamEntry = null;
-            for (Team t : ti.keySet()) {
-                Map.Entry<Team, Integer> e = toEntry(ti, t);
+            Map.Entry<ANNITeam, Integer> minTeamEntry = null;
+            for (ANNITeam t : ti.keySet()) {
+                Map.Entry<ANNITeam, Integer> e = toEntry(ti, t);
                 if (minTeamEntry == null) minTeamEntry = e;
                 else {
                     if (minTeamEntry.getValue() > e.getValue()) {
@@ -159,7 +159,7 @@ public class ANNIUtil {
 
             return minTeamEntry.getKey();
         } else {
-            Team[] teams = ti.keySet().toArray(new Team[0]);
+            ANNITeam[] teams = ti.keySet().toArray(new ANNITeam[0]);
             Random r = new Random();
 
             return teams[r.nextInt(teams.length)];

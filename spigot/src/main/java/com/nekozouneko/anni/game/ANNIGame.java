@@ -2,6 +2,7 @@ package com.nekozouneko.anni.game;
 
 import com.nekozouneko.anni.ANNIConfig;
 import com.nekozouneko.anni.ANNIPlugin;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.ANNIUtil;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNIMap;
@@ -45,30 +46,30 @@ public class ANNIGame {
     private Long timer = -1L;
     private boolean lockTimer = false;
 
-    private final Map<Player, com.nekozouneko.anni.Team> players = new HashMap<>();
-    private final Map<com.nekozouneko.anni.Team, Team> teams = new HashMap<>();
+    private final Map<Player, ANNITeam> players = new HashMap<>();
+    private final Map<ANNITeam, Team> teams = new HashMap<>();
     private final Map<UUID, String> kit = new HashMap<>();
-    private final Map<com.nekozouneko.anni.Team, Boolean> losedTeams = new HashMap<>();
-    public static final Map<com.nekozouneko.anni.Team, ItemStack[]> teamArmor = Collections.unmodifiableMap(
-            new HashMap<com.nekozouneko.anni.Team, ItemStack[]>() {{
-                put(com.nekozouneko.anni.Team.RED, ANNIUtil.createColorLeatherArmor(Color.RED));
-                put(com.nekozouneko.anni.Team.BLUE, ANNIUtil.createColorLeatherArmor(Color.BLUE));
-                put(com.nekozouneko.anni.Team.YELLOW, ANNIUtil.createColorLeatherArmor(Color.YELLOW));
-                put(com.nekozouneko.anni.Team.GREEN, ANNIUtil.createColorLeatherArmor(Color.GREEN));
+    private final Map<ANNITeam, Boolean> losedTeams = new HashMap<>();
+    public static final Map<ANNITeam, ItemStack[]> teamArmor = Collections.unmodifiableMap(
+            new HashMap<ANNITeam, ItemStack[]>() {{
+                put(ANNITeam.RED, ANNIUtil.createColorLeatherArmor(Color.RED));
+                put(ANNITeam.BLUE, ANNIUtil.createColorLeatherArmor(Color.BLUE));
+                put(ANNITeam.YELLOW, ANNIUtil.createColorLeatherArmor(Color.YELLOW));
+                put(ANNITeam.GREEN, ANNIUtil.createColorLeatherArmor(Color.GREEN));
     }});
     private final KeyedBossBar bb = Bukkit.createBossBar(
             new NamespacedKey(plugin, id16), "待機中", BarColor.GREEN, BarStyle.SOLID
     );
     private final List<ProtectedRegion> regions = new ArrayList<>();
 
-    private final Map<com.nekozouneko.anni.Team, Integer> nexusHealth = new HashMap<>();
+    private final Map<ANNITeam, Integer> nexusHealth = new HashMap<>();
     private BukkitRunnable bbbr;
     private BukkitRunnable suddenTask;
     private Map<UUID, TeamPlayerInventory> savedInv = new HashMap<>();
 
     public static class TeamPlayerInventory {
         private final UUID uuid;
-        private final com.nekozouneko.anni.Team team;
+        private final ANNITeam team;
 
         private final ItemStack[] armors;
         private final ItemStack offhand;
@@ -76,7 +77,7 @@ public class ANNIGame {
         private final ItemStack[] ender;
         private boolean allowJoin = false;
 
-        protected TeamPlayerInventory(com.nekozouneko.anni.Team team, Player player) {
+        protected TeamPlayerInventory(ANNITeam team, Player player) {
             this.team = team;
             this.uuid = player.getUniqueId();
             this.armors = player.getInventory().getArmorContents();
@@ -85,7 +86,7 @@ public class ANNIGame {
             this.ender = player.getEnderChest().getContents();
         }
 
-        protected TeamPlayerInventory(com.nekozouneko.anni.Team team, UUID uuid, ItemStack[] armors, ItemStack offhand, ItemStack[] contents, ItemStack[] ender) {
+        protected TeamPlayerInventory(ANNITeam team, UUID uuid, ItemStack[] armors, ItemStack offhand, ItemStack[] contents, ItemStack[] ender) {
             this.team = team;
             this.uuid = uuid;
             this.armors = armors;
@@ -116,7 +117,7 @@ public class ANNIGame {
             return Bukkit.getPlayer(uuid);
         }
 
-        public com.nekozouneko.anni.Team getTeam() {
+        public ANNITeam getTeam() {
             return team;
         }
 
@@ -181,28 +182,28 @@ public class ANNIGame {
         yellow.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
         green.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
 
-        teams.put(com.nekozouneko.anni.Team.RED, red);
-        teams.put(com.nekozouneko.anni.Team.BLUE, blue);
-        losedTeams.put(com.nekozouneko.anni.Team.RED, false);
-        losedTeams.put(com.nekozouneko.anni.Team.BLUE, false);
+        teams.put(ANNITeam.RED, red);
+        teams.put(ANNITeam.BLUE, blue);
+        losedTeams.put(ANNITeam.RED, false);
+        losedTeams.put(ANNITeam.BLUE, false);
         if (gm.getRuleType() == 4) {
-            teams.put(com.nekozouneko.anni.Team.YELLOW, yellow);
-            teams.put(com.nekozouneko.anni.Team.GREEN, green);
-            losedTeams.put(com.nekozouneko.anni.Team.YELLOW, false);
-            losedTeams.put(com.nekozouneko.anni.Team.GREEN, false);
+            teams.put(ANNITeam.YELLOW, yellow);
+            teams.put(ANNITeam.GREEN, green);
+            losedTeams.put(ANNITeam.YELLOW, false);
+            losedTeams.put(ANNITeam.GREEN, false);
         }
-        teams.put(com.nekozouneko.anni.Team.SPECTATOR, spec);
+        teams.put(ANNITeam.SPECTATOR, spec);
 
     }
 
     private void initNexus() {
         nexusHealth.clear();
-        nexusHealth.put(com.nekozouneko.anni.Team.RED, ANNIPlugin.getANNIConf().nexusHealth());
-        nexusHealth.put(com.nekozouneko.anni.Team.BLUE, ANNIPlugin.getANNIConf().nexusHealth());
-        nexusHealth.put(com.nekozouneko.anni.Team.YELLOW, ANNIPlugin.getANNIConf().nexusHealth());
-        nexusHealth.put(com.nekozouneko.anni.Team.GREEN, ANNIPlugin.getANNIConf().nexusHealth());
-        nexusHealth.put(com.nekozouneko.anni.Team.SPECTATOR, -1);
-        nexusHealth.put(com.nekozouneko.anni.Team.NOT_JOINED, -1);
+        nexusHealth.put(ANNITeam.RED, ANNIPlugin.getANNIConf().nexusHealth());
+        nexusHealth.put(ANNITeam.BLUE, ANNIPlugin.getANNIConf().nexusHealth());
+        nexusHealth.put(ANNITeam.YELLOW, ANNIPlugin.getANNIConf().nexusHealth());
+        nexusHealth.put(ANNITeam.GREEN, ANNIPlugin.getANNIConf().nexusHealth());
+        nexusHealth.put(ANNITeam.SPECTATOR, -1);
+        nexusHealth.put(ANNITeam.NOT_JOINED, -1);
     }
 
     public void randomMap() {
@@ -225,7 +226,7 @@ public class ANNIGame {
         return Arrays.asList(players.keySet().toArray(new Player[0]));
     }
 
-    public List<Player> getPlayers(com.nekozouneko.anni.Team filter) {
+    public List<Player> getPlayers(ANNITeam filter) {
         List<Player> filtered = new ArrayList<>();
         players.forEach((p, t) -> {
             if (t == filter) {
@@ -235,11 +236,11 @@ public class ANNIGame {
         return filtered;
     }
 
-    public com.nekozouneko.anni.Team getPlayerJoinedTeam(Player p) {
+    public ANNITeam getPlayerJoinedTeam(Player p) {
         return players.get(p);
     }
 
-    public Team getScoreBoardTeam(com.nekozouneko.anni.Team t) {
+    public Team getScoreBoardTeam(ANNITeam t) {
         return teams.get(t);
     }
 
@@ -275,9 +276,9 @@ public class ANNIGame {
         copyWorld = world;
     }
 
-    public List<com.nekozouneko.anni.Team> getTeams(boolean excludeSpec) {
-        List<com.nekozouneko.anni.Team> s = new ArrayList<>();
-        for (com.nekozouneko.anni.Team t:teams.keySet()) {
+    public List<ANNITeam> getTeams(boolean excludeSpec) {
+        List<ANNITeam> s = new ArrayList<>();
+        for (ANNITeam t:teams.keySet()) {
             if (!(excludeSpec && t.isSpectator())) s.add(t);
         }
 
@@ -305,7 +306,7 @@ public class ANNIGame {
         return getStatus().getPhaseId() <= 0 || getPlayerJoinedTeam(p).isSpectator();
     }
 
-    public void changeTeam(Player p, com.nekozouneko.anni.Team t) {
+    public void changeTeam(Player p, ANNITeam t) {
         if (!isAllowedChangeTeam(p)) return;
 
         Team old = teams.get(players.get(p));
@@ -316,7 +317,7 @@ public class ANNIGame {
             if (old != null) old.removePlayer(p);
             if (new1 != null) new1.addPlayer(p);
         } else {
-            if (t != com.nekozouneko.anni.Team.NOT_JOINED) {
+            if (t != ANNITeam.NOT_JOINED) {
                 if (players.get(p).isSpectator()) {
                     Team new1 = teams.get(t);
                     players.put(p, t);
@@ -330,7 +331,7 @@ public class ANNIGame {
                         ANNIUtil.healPlayer(p);
                         p.setTotalExperience(0);
                         p.setLevel(0);
-                        if (t == com.nekozouneko.anni.Team.SPECTATOR) p.setGameMode(GameMode.SPECTATOR);
+                        if (t == ANNITeam.SPECTATOR) p.setGameMode(GameMode.SPECTATOR);
                         else p.setGameMode(GameMode.SURVIVAL);
                     }
                 } else {
@@ -338,7 +339,7 @@ public class ANNIGame {
                 }
             } else {
                 if (old != null) old.removePlayer(p);
-                players.put(p, com.nekozouneko.anni.Team.NOT_JOINED);
+                players.put(p, ANNITeam.NOT_JOINED);
 
                 p.getInventory().clear();
                 p.getEnderChest().clear();
@@ -351,16 +352,16 @@ public class ANNIGame {
         }
     }
 
-    public com.nekozouneko.anni.Team randomTeam() {
-        Map<com.nekozouneko.anni.Team, Integer> members = new HashMap<>();
+    public ANNITeam randomTeam() {
+        Map<ANNITeam, Integer> members = new HashMap<>();
         teams.keySet().forEach((t) -> members.put(t, teams.get(t).getSize()));
-        com.nekozouneko.anni.Team t = ANNIUtil.balancingJoin(members);
+        ANNITeam t = ANNIUtil.balancingJoin(members);
         return t;
     }
 
     public void randomTeamJoin(Player p) {
         if (players.get(p).isSpectator()) {
-            com.nekozouneko.anni.Team t = randomTeam();
+            ANNITeam t = randomTeam();
             players.put(p, t);
             teams.get(t).addPlayer(p);
         }
@@ -368,7 +369,7 @@ public class ANNIGame {
 
     public void join(Player p) {
         if (!players.containsKey(p)) {
-            players.put(p, com.nekozouneko.anni.Team.NOT_JOINED);
+            players.put(p, ANNITeam.NOT_JOINED);
             broadcast(p.getName() + "§eがゲームに参加しました");
 
             if (savedInv.containsKey(p.getUniqueId())) {
@@ -395,7 +396,7 @@ public class ANNIGame {
             savedInv.put(p.getUniqueId(), new TeamPlayerInventory(players.get(p), p));
 
             if (getPlayerJoinedTeam(p) != null && !getPlayerJoinedTeam(p).isSpectator()) {
-                com.nekozouneko.anni.Team t = getPlayerJoinedTeam(p);
+                ANNITeam t = getPlayerJoinedTeam(p);
                 Team ts = getScoreBoardTeam(t);
                 if (getPlayers(t).size() <= 1 && !isLose(t)) {
                     loseTeam(t);
@@ -412,7 +413,7 @@ public class ANNIGame {
                     }
                     else {
                         try {
-                            com.nekozouneko.anni.Team wt = getNotLostTeams().get(0);
+                            ANNITeam wt = getNotLostTeams().get(0);
                             Team wts = getScoreBoardTeam(wt);
                             for (
                                     String bm : ANNIBigMessage.createMessage(
@@ -452,7 +453,7 @@ public class ANNIGame {
 
         final ItemStack[] defInv = k.getDecodedContent();
 
-        com.nekozouneko.anni.Team t = players.get(p);
+        ANNITeam t = players.get(p);
 
         if (!t.isSpectator()) {
             for (int i = 0; i < defInv.length; i++) {
@@ -515,7 +516,7 @@ public class ANNIGame {
             changeStatus(ANNIStatus.PHASE_ONE);
 
             for (Player p : players.keySet()) {
-                if (players.get(p) == com.nekozouneko.anni.Team.NOT_JOINED) {
+                if (players.get(p) == ANNITeam.NOT_JOINED) {
                     randomTeamJoin(p);
                 }
 
@@ -532,7 +533,7 @@ public class ANNIGame {
             RegionContainer rc = ANNIPlugin.getWG().getPlatform().getRegionContainer();
             RegionManager rm = rc.get(BukkitAdapter.adapt(copyWorld));
 
-            for (com.nekozouneko.anni.Team t : getTeams(true)) {
+            for (ANNITeam t : getTeams(true)) {
                 Location nl = getMap().getNexusLocation(t, true);
                 BlockVector3 vec3 = BlockVector3.at(nl.getX(), nl.getY(), nl.getZ());
 
@@ -558,7 +559,7 @@ public class ANNIGame {
         initNexus();
         randomMap();
 
-        for (com.nekozouneko.anni.Team t : getTeams(true)) {
+        for (ANNITeam t : getTeams(true)) {
             losedTeams.put(t, false);
         }
 
@@ -691,20 +692,20 @@ public class ANNIGame {
 
     public int getLosedTeams() {
         int a = 0;
-        for (com.nekozouneko.anni.Team t : getTeams(true)) {
+        for (ANNITeam t : getTeams(true)) {
             if (isLose(t)) a++;
         }
 
         return a;
     }
 
-    public void loseTeam(com.nekozouneko.anni.Team t) {
+    public void loseTeam(ANNITeam t) {
         if (!isLose(t)) {
             losedTeams.put(t, true);
         }
     }
 
-    public boolean isLose(com.nekozouneko.anni.Team t) {
+    public boolean isLose(ANNITeam t) {
         if (t.isSpectator()) return false;
         Boolean b = losedTeams.get(t);
         if (b == null) b = false;
@@ -712,10 +713,10 @@ public class ANNIGame {
         return b;
     }
 
-    public List<com.nekozouneko.anni.Team> getNotLostTeams() {
-        List<com.nekozouneko.anni.Team> ts = new ArrayList<>();
+    public List<ANNITeam> getNotLostTeams() {
+        List<ANNITeam> ts = new ArrayList<>();
 
-        for (com.nekozouneko.anni.Team t : getTeams(true)) {
+        for (ANNITeam t : getTeams(true)) {
             if (!isLose(t)) ts.add(t);
         }
 
@@ -724,7 +725,7 @@ public class ANNIGame {
 
     // Nexus
 
-    public void healNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
+    public void healNexusHealth(ANNITeam t, Integer h) {
         if (t == null) return;
 
         if (!t.isSpectator()) {
@@ -733,7 +734,7 @@ public class ANNIGame {
         }
     }
 
-    public void damageNexusHealth(com.nekozouneko.anni.Team t, Integer h) {
+    public void damageNexusHealth(ANNITeam t, Integer h) {
         if (t == null) return;
 
         if (!t.isSpectator()) {
@@ -746,14 +747,14 @@ public class ANNIGame {
         }
     }
 
-    public Integer getNexusHealth(com.nekozouneko.anni.Team t) {
+    public Integer getNexusHealth(ANNITeam t) {
         if (t == null) throw new NullPointerException("Argument of Team is null.");
         if (t.isSpectator()) throw new IllegalArgumentException("Team Spectator not has nexus health.");
 
         return nexusHealth.get(t);
     }
 
-    public String getNexusHealthForBoard(com.nekozouneko.anni.Team t) {
+    public String getNexusHealthForBoard(ANNITeam t) {
         Integer i = getNexusHealth(t);
 
         if (isLose(t) || i <= 0) {
@@ -781,7 +782,7 @@ public class ANNIGame {
         ANNIPlugin.getInstance().getLogger().info(m);
     }
 
-    public void broadcast(com.nekozouneko.anni.Team team, String message) {
+    public void broadcast(ANNITeam team, String message) {
         Team t = teams.get(team);
         if (t == null) return;
         t.getPlayers().forEach((ofp) -> {
@@ -837,7 +838,7 @@ public class ANNIGame {
     // phase
 
     private void phaseOne() {
-        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+        for (ANNITeam t : teams.keySet()) {
             for (String b :
                     ANNIBigMessage.createMessage(
                             '1', teams.get(t).getColor().getChar(), "フェーズ1が開始されました。",
@@ -850,7 +851,7 @@ public class ANNIGame {
     }
 
     private void phaseTwo() {
-        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+        for (ANNITeam t : teams.keySet()) {
             for (String b :
                     ANNIBigMessage.createMessage(
                             '2', teams.get(t).getColor().getChar(), "フェーズ2が開始されました。",
@@ -863,7 +864,7 @@ public class ANNIGame {
     }
 
     private void phaseThree() {
-        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+        for (ANNITeam t : teams.keySet()) {
             for (String b :
                     ANNIBigMessage.createMessage(
                             '3', teams.get(t).getColor().getChar(), "フェーズ3が開始されました。",
@@ -876,7 +877,7 @@ public class ANNIGame {
     }
 
     private void phaseFour() {
-        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+        for (ANNITeam t : teams.keySet()) {
             for (String b :
                     ANNIBigMessage.createMessage(
                             '4', teams.get(t).getColor().getChar(), "フェーズ4が開始されました。",
@@ -889,7 +890,7 @@ public class ANNIGame {
     }
 
     private void phaseFive() {
-        for (com.nekozouneko.anni.Team t : teams.keySet()) {
+        for (ANNITeam t : teams.keySet()) {
             for (String b :
                     ANNIBigMessage.createMessage(
                             '5', teams.get(t).getColor().getChar(), "フェーズ5が開始されました。",

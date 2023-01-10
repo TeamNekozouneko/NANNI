@@ -2,7 +2,7 @@ package com.nekozouneko.anni.listener;
 
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -21,7 +21,7 @@ public class PlayerLeaveListener implements Listener {
             );
         }
 
-        Team current = ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(p);
+        ANNITeam current = ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(p);
         ANNIPlugin.getGM().leaveFromGame(p);
         if (current != null && ANNIPlugin.getGM().getGame().isLose(current)) {
             ANNIPlugin.getGM().getGame().getSavedInventory(p.getUniqueId()).setAllowJoin(false);

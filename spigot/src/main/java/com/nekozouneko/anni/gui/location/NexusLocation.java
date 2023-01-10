@@ -2,7 +2,7 @@ package com.nekozouneko.anni.gui.location;
 
 import com.google.gson.Gson;
 import com.nekozouneko.anni.ANNIPlugin;
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.gui.MapEditor;
 import com.nekozouneko.anni.util.SimpleLocation;
@@ -16,10 +16,10 @@ import java.nio.charset.StandardCharsets;
 public class NexusLocation implements AbstractGUILocationSelector {
 
     private final ANNIMap map;
-    private final Team team;
+    private final ANNITeam team;
     private final Player player;
 
-    public NexusLocation(ANNIMap m, Team t, Player p) {
+    public NexusLocation(ANNIMap m, ANNITeam t, Player p) {
         this.map = m;
         this.team = t;
         this.player = p;

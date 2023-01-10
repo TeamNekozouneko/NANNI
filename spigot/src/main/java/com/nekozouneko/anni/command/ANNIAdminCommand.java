@@ -2,8 +2,7 @@ package com.nekozouneko.anni.command;
 
 import com.google.gson.Gson;
 import com.nekozouneko.anni.ANNIPlugin;
-import com.nekozouneko.anni.Team;
-import com.nekozouneko.anni.database.ANNISQLiteDatabase;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.file.ANNIMap;
@@ -23,12 +22,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.sql.SQLException;
 import java.util.*;
 
 public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
@@ -209,11 +206,11 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
         }
 
         final World w = Bukkit.getWorld(args[2]);
-        final Team t;
+        final ANNITeam t;
         final Player p = ((Player) sender);
 
         try {
-            t = Team.valueOf(args[4]);
+            t = ANNITeam.valueOf(args[4]);
             if (t.isSpectator()) throw new IllegalArgumentException();
         } catch (IllegalArgumentException e) {
             sender.sendMessage(NChatColor.RED + "存在しないチームか無効なチームです。");
@@ -239,11 +236,11 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
         }
 
         final World w = Bukkit.getWorld(args[2]);
-        final Team t;
+        final ANNITeam t;
         final Player p = ((Player) sender);
 
         try {
-            t = Team.valueOf(args[4]);
+            t = ANNITeam.valueOf(args[4]);
         } catch (IllegalArgumentException e) {
             sender.sendMessage(NChatColor.RED + "存在しないチームか無効なチームです。");
             return;

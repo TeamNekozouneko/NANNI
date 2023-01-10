@@ -1,6 +1,6 @@
 package com.nekozouneko.anni.task;
 
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
 
@@ -18,7 +18,7 @@ public class SuddenDeathTask extends BukkitRunnable {
     public void run() {
         if (game.getStatus().getPhaseId() == 5) {
 
-            for (Team t : game.getNotLostTeams()) {
+            for (ANNITeam t : game.getNotLostTeams()) {
                 if (game.getNexusHealth(t) > 1) {
                     game.damageNexusHealth(t, 1);
                 }

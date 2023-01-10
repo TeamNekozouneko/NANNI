@@ -1,7 +1,5 @@
 package com.nekozouneko.anni.listener;
 
-import com.nekozouneko.anni.ANNIPlugin;
-import com.nekozouneko.anni.Team;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

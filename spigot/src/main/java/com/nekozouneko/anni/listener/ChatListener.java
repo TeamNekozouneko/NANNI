@@ -2,7 +2,7 @@ package com.nekozouneko.anni.listener;
 
 import com.nekozouneko.anni.ANNIPlugin;
 import com.nekozouneko.anni.ANNIUtil;
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -84,7 +83,7 @@ public class ChatListener implements Listener {
                     }
                 }
                 else {
-                    Team t = g.getPlayerJoinedTeam(p);
+                    ANNITeam t = g.getPlayerJoinedTeam(p);
                     org.bukkit.scoreboard.Team st = g.getScoreBoardTeam(t);
                     g.broadcast(t, st.getColor()+"("+ st.getDisplayName() +") §r" + ANNIUtil.teamPrefixSuffixAppliedName(p) + "§f: " + m);
                     e.setCancelled(true);

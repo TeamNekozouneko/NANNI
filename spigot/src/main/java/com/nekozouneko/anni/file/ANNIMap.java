@@ -1,7 +1,7 @@
 package com.nekozouneko.anni.file;
 
 import com.nekozouneko.anni.ANNIPlugin;
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.util.SimpleLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,12 +20,12 @@ public class ANNIMap {
             this.location = loc;
         }
 
-        public TeamLocation(Team team, SimpleLocation loc) {
+        public TeamLocation(ANNITeam team, SimpleLocation loc) {
             this.team = team.name();
             this.location = loc;
         }
 
-        public void setTeam(Team t) {
+        public void setTeam(ANNITeam t) {
             this.team = t.name().toUpperCase();
         }
 
@@ -71,20 +71,20 @@ public class ANNIMap {
         return nexus;
     }
 
-    public Location getNexusLocation(Team t, boolean returnCopied) {
+    public Location getNexusLocation(ANNITeam t, boolean returnCopied) {
         if (returnCopied) {
             return nexus.get(t.name()).toLocation(ANNIPlugin.getGM().getGame().getCopiedMap());
         } else return nexus.get(t.name()).toLocation(Bukkit.getWorld(world));
     }
 
-    public Team getNexusTeam(Location loc) {
+    public ANNITeam getNexusTeam(Location loc) {
         for (String t:nexus.keySet()) {
             try {
-                Location changedWorld = getNexusLocation(Team.valueOf(t), true);
+                Location changedWorld = getNexusLocation(ANNITeam.valueOf(t), true);
                 if (changedWorld.equals(loc)) {
-                    return Team.valueOf(t);
-                } else if (getNexusLocation(Team.valueOf(t), false).equals(loc)) {
-                    return Team.valueOf(t);
+                    return ANNITeam.valueOf(t);
+                } else if (getNexusLocation(ANNITeam.valueOf(t), false).equals(loc)) {
+                    return ANNITeam.valueOf(t);
                 }
             } catch (IllegalArgumentException ignored) {}
         }
@@ -108,23 +108,23 @@ public class ANNIMap {
         this.display = name;
     }
 
-    public void setNexus(Team t,  SimpleLocation sl) {
+    public void setNexus(ANNITeam t, SimpleLocation sl) {
         if (!this.nexus.containsValue(sl)) {
             this.nexus.put(t.name(), sl);
         }
     }
 
-    public void removeNexus(Team t) {
+    public void removeNexus(ANNITeam t) {
         this.nexus.remove(t.name());
     }
 
-    public void setSpawnPoint(Team t, SimpleLocation point) {
+    public void setSpawnPoint(ANNITeam t, SimpleLocation point) {
         if (!this.spawnpoints.containsValue(point)) {
             this.spawnpoints.put(t.name(), point);
         }
     }
 
-    public void removeSpawnPoint(Team t) {
+    public void removeSpawnPoint(ANNITeam t) {
         this.nexus.remove(t.name());
     }
 

@@ -1,8 +1,7 @@
 package com.nekozouneko.anni.gui;
 
 import com.nekozouneko.anni.ANNIPlugin;
-import com.nekozouneko.anni.ANNIUtil;
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.game.ANNIBigMessage;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.task.UpdateBossBar;
@@ -35,7 +34,7 @@ public final class TeamSelector {
     public static void open(Player p) {
         Inventory inv = Bukkit.createInventory(null, 9, "チームを選択");
 
-        Team t = ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(p);
+        ANNITeam t = ANNIPlugin.getGM().getGame().getPlayerJoinedTeam(p);
         org.bukkit.scoreboard.Team st = ANNIPlugin.getGM().getGame().getScoreBoardTeam(t);
         String tn = (t != null && st != null) ? st.getDisplayName() + "" : "無所属";
 
@@ -102,26 +101,26 @@ public final class TeamSelector {
         if (clicked == null) return;
 
         if (e.getRawSlot() < 9) {
-            Team requestedTeam = null;
+            ANNITeam requestedTeam = null;
 
             switch (clicked.getType()) {
                 case RED_WOOL:
-                    requestedTeam = Team.RED;
+                    requestedTeam = ANNITeam.RED;
                     break;
                 case BLUE_WOOL:
-                    requestedTeam = Team.BLUE;
+                    requestedTeam = ANNITeam.BLUE;
                     break;
                 case YELLOW_WOOL:
-                    requestedTeam = Team.YELLOW;
+                    requestedTeam = ANNITeam.YELLOW;
                     break;
                 case GREEN_WOOL:
-                    requestedTeam = Team.GREEN;
+                    requestedTeam = ANNITeam.GREEN;
                     break;
                 case WHITE_CONCRETE:
                     requestedTeam = g.randomTeam();
                     break;
                 case ENDER_PEARL:
-                    requestedTeam = Team.SPECTATOR;
+                    requestedTeam = ANNITeam.SPECTATOR;
                     break;
                 default: break;
             }
@@ -131,7 +130,7 @@ public final class TeamSelector {
                 Character c = UpdateBossBar.bigCharMap.get(requestedTeam);
                 if (g.isAllowedChangeTeam(p)) {
                     g.changeTeam(p, requestedTeam);
-                    if (c != null && g.getStatus().getPhaseId() >= 1 && g.getPlayerJoinedTeam(p) != Team.NOT_JOINED) {
+                    if (c != null && g.getStatus().getPhaseId() >= 1 && g.getPlayerJoinedTeam(p) != ANNITeam.NOT_JOINED) {
                         p.teleport(g.getTeamSpawnPoint(p));
                         for (String s : ANNIBigMessage.createMessage(c, st.getColor().getChar(),
                                 st.getDisplayName() + "§fに参加しました。",

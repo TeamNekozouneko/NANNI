@@ -2,7 +2,7 @@ package com.nekozouneko.anni;
 
 import org.bukkit.Color;
 
-public enum Team {
+public enum ANNITeam {
     RED(false, Color.RED),
     BLUE(false, Color.BLUE),
     YELLOW(false, Color.YELLOW),
@@ -13,7 +13,7 @@ public enum Team {
     private final boolean isSpec;
     private final Color color;
 
-    private Team(boolean isSpectator, Color color) {
+    private ANNITeam(boolean isSpectator, Color color) {
         this.isSpec = isSpectator;
         this.color = color;
     }

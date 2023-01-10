@@ -1,7 +1,7 @@
 package com.nekozouneko.anni.task;
 
 import com.nekozouneko.anni.ANNIUtil;
-import com.nekozouneko.anni.Team;
+import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
 import org.bukkit.Sound;
@@ -20,8 +20,8 @@ public class UpdateBossBar extends BukkitRunnable {
 
     private final BossBar bb;
     private final ANNIGame g;
-    public static final Map<Team, Character> bigCharMap = Collections.unmodifiableMap(new HashMap<Team, Character>() {{
-        put(Team.RED,'R');put(Team.BLUE,'B');put(Team.YELLOW,'Y');put(Team.GREEN,'G');put(Team.SPECTATOR,'S');
+    public static final Map<ANNITeam, Character> bigCharMap = Collections.unmodifiableMap(new HashMap<ANNITeam, Character>() {{
+        put(ANNITeam.RED,'R');put(ANNITeam.BLUE,'B');put(ANNITeam.YELLOW,'Y');put(ANNITeam.GREEN,'G');put(ANNITeam.SPECTATOR,'S');
     }});
     private Map.Entry<ANNIStatus, Integer> timer = new AbstractMap.SimpleEntry<>(ANNIStatus.STOPPING, -1);
 
@@ -119,12 +119,12 @@ public class UpdateBossBar extends BukkitRunnable {
     private void waitingCase(ANNIStatus stats) {
         final int min = g.getManager().getMinPlayers();
         final int ps;
-        int psr = g.getPlayers(Team.RED).size();
-        int psb = g.getPlayers(Team.BLUE).size();
-        int psu = g.getPlayers(Team.NOT_JOINED).size();
+        int psr = g.getPlayers(ANNITeam.RED).size();
+        int psb = g.getPlayers(ANNITeam.BLUE).size();
+        int psu = g.getPlayers(ANNITeam.NOT_JOINED).size();
         if (g.getManager().getRuleType() == 4) {
-            int psg = g.getPlayers(Team.GREEN).size();
-            int psy = g.getPlayers(Team.YELLOW).size();
+            int psg = g.getPlayers(ANNITeam.GREEN).size();
+            int psy = g.getPlayers(ANNITeam.YELLOW).size();
 
             ps = psr+psb+psg+psy+psu;
         } else ps = psr+psb+psu;
