@@ -67,4 +67,8 @@ public class KitManager {
         return loaded;
     }
 
+    public ANNIKit getKit(String id) {
+        return loaded.get(id);
+    }
+
 }
