@@ -6,6 +6,7 @@ import com.nekozouneko.anni.ANNITeam;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNILobby;
 import com.nekozouneko.anni.file.ANNIMap;
+import com.nekozouneko.anni.game.ANNIGame;
 import com.nekozouneko.anni.game.ANNIStatus;
 import com.nekozouneko.anni.game.manager.MapManager;
 
@@ -15,13 +16,15 @@ import com.nekozouneko.anni.gui.MapEditor;
 import com.nekozouneko.anni.gui.location.NexusLocation;
 import com.nekozouneko.anni.gui.location.TeamSpawnPointLocation;
 import com.nekozouneko.nutilsxlib.chat.NChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -81,6 +84,43 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
                 }
                 else if (args[1].equalsIgnoreCase("remove")) {
                     removeKit(sender, command, label, args);
+                }
+            }
+            else if (args[0].equalsIgnoreCase("admin")) {
+                if (args[1].equalsIgnoreCase("nexus-health")) {
+                    if (args.length >= 4) {
+                        ANNITeam t = null;
+                        Integer h = null;
+                        try {
+                            t = ANNITeam.valueOf(args[2].toUpperCase());
+                            h = Integer.parseInt(args[3]);
+                        } catch (IllegalArgumentException ignored) {
+                            sender.sendMessage("§c使用方法: /anni-admin admin nexus-health <team> <health>");
+                            return true;
+                        }
+                        ANNIPlugin.getGM().getGame().setNexusHealth(t, h);
+                        for (ANNIGame.TeamPlayerInventory tpis : ANNIPlugin.getGM().getGame().getSavedInventories().values()) {
+                            if (tpis.getTeam() == t) {
+                                tpis.setAllowJoin(true);
+                            }
+                        }
+                    } else {
+                        sender.sendMessage("§c使用方法: /anni-admin admin nexus-health <team> <health>");
+                    }
+                }
+                else if (args[1].equalsIgnoreCase("buff-item")) {
+                    if (sender instanceof Player) {
+                        Player p = (Player) sender;
+                        ItemStack bbi = new ItemStack(Material.NETHER_STAR);
+
+                        ItemMeta im = bbi.getItemMeta();
+                        im.getPersistentDataContainer().set(
+                                new NamespacedKey(ANNIPlugin.getInstance(), "buffmenu"),
+                                PersistentDataType.BYTE, (byte)1
+                        );
+                        bbi.setItemMeta(im);
+                        p.getInventory().addItem(bbi);
+                    }
                 }
             }
         }
@@ -296,16 +336,17 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage("Please run as player.");
             return;
         }
-        if (args.length < 4) {
-            sender.sendMessage("使用方法: /"+label+" kit add <display> <price>");
+        if (args.length < 5) {
+            sender.sendMessage("使用方法: /"+label+" kit add <display> <shortId> <price>");
             return;
         }
 
         Player p = (Player) sender;
         String display = args[2];
+        String shortId = args[3];
         double price;
         try {
-            price = Double.parseDouble(args[3]);
+            price = Double.parseDouble(args[4]);
 
             if (price < 0) throw new NumberFormatException();
         } catch (NumberFormatException e) {
@@ -322,7 +363,7 @@ public class ANNIAdminCommand implements CommandExecutor, TabCompleter {
             id = String.format("%07x", i);
         }
 
-        ANNIKit k = new ANNIKit(display, id, p.getInventory().getContents(), price);
+        ANNIKit k = new ANNIKit(display, id, shortId, p.getInventory().getContents(), price);
 
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(
