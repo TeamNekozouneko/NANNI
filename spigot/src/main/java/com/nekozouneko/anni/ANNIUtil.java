@@ -1,5 +1,6 @@
 package com.nekozouneko.anni;
 
+import com.nekozouneko.anni.file.ANNIKit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -183,6 +184,14 @@ public class ANNIUtil {
 
         if (pt != null) return pt.getPrefix()+pt.getColor()+p.getDisplayName()+pt.getSuffix();
         else return p.getDisplayName();
+    }
+
+    public static String getKitShortIdWithBrackets(Player p) {
+        String ki = ANNIPlugin.getANNIDB().getUsingKit(p.getUniqueId());
+        ANNIKit k = ANNIPlugin.getKM().getKit(ki);
+
+        if (k == null) return "";
+        else return "("+k.getShortId()+")";
     }
 
     public static ItemStack[] createColorLeatherArmor(Color col) {

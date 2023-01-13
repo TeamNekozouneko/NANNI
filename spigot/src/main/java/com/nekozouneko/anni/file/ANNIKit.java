@@ -18,22 +18,25 @@ public class ANNIKit {
     private String display;
     private String icon;
     private final String id;
+    private String shortId;
     private String description;
     private String content;
     private double price;
 
-    public ANNIKit(String display, final String id, String content, double price) {
+    public ANNIKit(String display, final String id, String shortId, String content, double price) {
         this.display = display;
         this.id = id;
+        this.shortId = shortId;
         this.description="";
         this.content = content;
         this.price = price;
         this.icon = "CHEST";
     }
 
-    public ANNIKit(String display, final String id, ItemStack[] content, double price) {
+    public ANNIKit(String display, final String id, String shortId, ItemStack[] content, double price) {
         this.display = display;
         this.id = id;
+        this.shortId = shortId;
         this.description="";
         this.price = price;
         this.icon = "CHEST";
@@ -70,6 +73,10 @@ public class ANNIKit {
     public void setIcon(Material m) {
         if (m == Material.AIR) return;
         this.icon = m.name();
+    }
+
+    public void setShortId(String si) {
+        this.shortId = si;
     }
 
     public String getDisplayName() {
@@ -118,6 +125,10 @@ public class ANNIKit {
         try {
             return Material.valueOf(icon.toUpperCase());
         } catch (IllegalArgumentException ignored) {return Material.CHEST;}
+    }
+
+    public String getShortId() {
+        return shortId;
     }
 
     @Override

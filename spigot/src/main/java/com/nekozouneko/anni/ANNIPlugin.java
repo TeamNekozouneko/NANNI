@@ -78,7 +78,7 @@ public class ANNIPlugin extends JavaPlugin {
         inv[38] = new ItemStack(Material.LEATHER_CHESTPLATE);
         inv[39] = new ItemStack(Material.LEATHER_HELMET);
 
-        DEFAULT_KIT = new ANNIKit("デフォルト", "<default>", inv, 0.0);
+        DEFAULT_KIT = new ANNIKit("デフォルト", "<default>", "DEF", inv, 0.0);
     }
 
     public static ANNIPlugin getInstance() {
@@ -325,7 +325,7 @@ public class ANNIPlugin extends JavaPlugin {
         }
     }
 
-    public boolean loadVaultEconomy() {
+    private boolean loadVaultEconomy() {
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp == null) {
             return false;
@@ -334,22 +334,22 @@ public class ANNIPlugin extends JavaPlugin {
         return eco != null;
     }
 
-    public void loadWorldEdit() {
+    private void loadWorldEdit() {
         we = WorldEdit.getInstance();
 
     }
 
-    public void loadWorldGuard() {
+    private void loadWorldGuard() {
         wg = WorldGuard.getInstance();
     }
 
-    public void loadPlaceholderAPI() {
+    private void loadPlaceholderAPI() {
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new ANNIExpansion().register();
         }
     }
 
-    public void initDefaultKit() {
+    private void initDefaultKit() {
         Gson gson = new Gson();
         File kdf = new File(kitDir, "default.json");
         ANNIKit kd;
