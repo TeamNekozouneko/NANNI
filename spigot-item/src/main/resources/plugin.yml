@@ -1,0 +1,8 @@
+author: Taitaitatata
+name: NANNI-Item
+description: "NANNIのカスタムアイテムとその機能を提供します"
+version: '0.8-alpha'
+
+api-version: 1.16
+main: com.nekozouneko.anni.items.ANNIItemPlugin
+depend: ["NANNI"]
