@@ -47,9 +47,9 @@ public final class GameShopMenu {
     }
 
     public static final Map<Material,Double> sellMap = Collections.unmodifiableMap(new HashMap<Material, Double>() {{
-        put(Material.EMERALD, 10.);
-        put(Material.DIAMOND, 10.);
-        put(Material.GOLD_INGOT, 7.5);
+        put(Material.EMERALD, 15.);
+        put(Material.DIAMOND, 15.);
+        put(Material.GOLD_INGOT, 10.);
         put(Material.IRON_INGOT, 5.);
         put(Material.COAL, 2.5);
         put(Material.REDSTONE, 2.);
@@ -62,6 +62,8 @@ public final class GameShopMenu {
         put(Material.COAL_ORE, 1.5);
         put(Material.REDSTONE_ORE, 1.5);
         put(Material.LAPIS_ORE, 1.);
+
+        put(Material.WHEAT_SEEDS, .1);
     }});
 
     private static void setUpInventory(Inventory inv, Tab tab) {
@@ -151,9 +153,9 @@ public final class GameShopMenu {
                 ItemStack bs = new ItemStack(Material.BREWING_STAND);
 
                 String ext = ANNIPlugin.getVaultEconomy().currencyNamePlural();
-                ANNIUtil.setShopPrice(gsd, 1000, ext);
-                ANNIUtil.setShopPrice(rs, 1000, ext);
-                ANNIUtil.setShopPrice(gp, 1000, ext);
+                ANNIUtil.setShopPrice(gsd, 750, ext);
+                ANNIUtil.setShopPrice(rs, 500, ext);
+                ANNIUtil.setShopPrice(gp, 750, ext);
                 ANNIUtil.setShopPrice(nw, 1000, ext);
                 ANNIUtil.setShopPrice(bp, 1000, ext);
                 ANNIUtil.setShopPrice(fse, 1000, ext);
@@ -226,11 +228,11 @@ public final class GameShopMenu {
                 ANNIUtil.setShopPrice(exp, 1000., ext);
                 ANNIUtil.setShopPrice(bok, 1000., ext);
                 ANNIUtil.setShopPrice(epr, 1000., ext);
-                ANNIUtil.setShopPrice(irp, 1000., ext);
-                ANNIUtil.setShopPrice(brd, 1000., ext);
-                ANNIUtil.setShopPrice(stk, 1000., ext);
-                ANNIUtil.setShopPrice(cke, 1000., ext);
-                ANNIUtil.setShopPrice(mlk, 1000., ext);
+                ANNIUtil.setShopPrice(irp, 800., ext);
+                ANNIUtil.setShopPrice(brd, 200., ext);
+                ANNIUtil.setShopPrice(stk, 300., ext);
+                ANNIUtil.setShopPrice(cke, 500., ext);
+                ANNIUtil.setShopPrice(mlk, 750., ext);
                 ANNIUtil.setShopPrice(arr, 1000., ext);
 
                 inv.setItem(10, irh);
