@@ -5,6 +5,7 @@ import com.nekozouneko.anni.game.ANNIGame;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
+import java.util.Random;
 
 public class GameManager {
 
@@ -18,7 +19,7 @@ public class GameManager {
         this.minPlayers = min;
         this.maxPlayers = max;
         this.ruleType = rule;
-        this.game = new ANNIGame(this);
+        this.game = new ANNIGame(this, String.format("%06x",new Random().nextInt(0x1000000)));
     }
 
     public boolean isJoined(Player p) {

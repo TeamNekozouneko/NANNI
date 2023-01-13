@@ -1,9 +1,6 @@
 package com.nekozouneko.anni.game;
 
-import com.nekozouneko.anni.ANNIConfig;
-import com.nekozouneko.anni.ANNIPlugin;
-import com.nekozouneko.anni.ANNITeam;
-import com.nekozouneko.anni.ANNIUtil;
+import com.nekozouneko.anni.*;
 import com.nekozouneko.anni.file.ANNIKit;
 import com.nekozouneko.anni.file.ANNIMap;
 import com.nekozouneko.anni.game.manager.GameManager;
@@ -18,6 +15,7 @@ import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.*;
+
 import org.bukkit.*;
 import org.bukkit.boss.*;
 import org.bukkit.enchantments.Enchantment;
@@ -36,36 +34,27 @@ import java.util.*;
 
 public class ANNIGame {
 
+    private final ANNIPlugin plugin = ANNIPlugin.getInstance();
     private final GameManager gm;
+    private final String id;
+
     private ANNIMap map;
     private World copyWorld;
-    private final int id = new Random().nextInt(0x1000000);
-    private final String id16 = Integer.toHexString(id);
-    private final ANNIPlugin plugin = ANNIPlugin.getInstance();
+
     private ANNIStatus stat = ANNIStatus.WAITING;
     private Long timer = -1L;
     private boolean lockTimer = false;
 
     private final Map<Player, ANNITeam> players = new HashMap<>();
     private final Map<ANNITeam, Team> teams = new HashMap<>();
-    private final Map<UUID, String> kit = new HashMap<>();
     private final Map<ANNITeam, Boolean> losedTeams = new HashMap<>();
-    public static final Map<ANNITeam, ItemStack[]> teamArmor = Collections.unmodifiableMap(
-            new HashMap<ANNITeam, ItemStack[]>() {{
-                put(ANNITeam.RED, ANNIUtil.createColorLeatherArmor(Color.RED));
-                put(ANNITeam.BLUE, ANNIUtil.createColorLeatherArmor(Color.BLUE));
-                put(ANNITeam.YELLOW, ANNIUtil.createColorLeatherArmor(Color.YELLOW));
-                put(ANNITeam.GREEN, ANNIUtil.createColorLeatherArmor(Color.GREEN));
-    }});
-    private final KeyedBossBar bb = Bukkit.createBossBar(
-            new NamespacedKey(plugin, id16), "待機中", BarColor.GREEN, BarStyle.SOLID
-    );
+    private final KeyedBossBar bb;
     private final List<ProtectedRegion> regions = new ArrayList<>();
 
     private final Map<ANNITeam, Integer> nexusHealth = new HashMap<>();
     private BukkitRunnable bbbr;
     private BukkitRunnable suddenTask;
-    private Map<UUID, TeamPlayerInventory> savedInv = new HashMap<>();
+    private final Map<UUID, TeamPlayerInventory> savedInv = new HashMap<>();
 
     public static class TeamPlayerInventory {
         private final UUID uuid;
@@ -130,8 +119,11 @@ public class ANNIGame {
         }
     }
 
-    public ANNIGame(GameManager gm){
+    public ANNIGame(GameManager gm, String id){
         this.gm = gm;
+        this.id = id;
+
+        this.bb = Bukkit.createBossBar(new NamespacedKey(plugin, id), "待機中...", BarColor.GREEN, BarStyle.SOLID);
 
         initTeam();
         initNexus();
@@ -143,11 +135,16 @@ public class ANNIGame {
     private void initTeam() {
         ANNIConfig conf = ANNIPlugin.getANNIConf();
         Scoreboard sb = ANNIPlugin.getSb();
-        Team red = sb.registerNewTeam(conf.redTeamID()+"_" + id16);
-        Team blue = sb.registerNewTeam(conf.blueTeamID()+"_" + id16);
-        Team yellow = sb.registerNewTeam(conf.yellowTeamID()+"_" + id16);
-        Team green = sb.registerNewTeam(conf.greenTeamID()+"_"+ id16);
-        Team spec = sb.registerNewTeam(conf.spectatorTeamID()+"_" + id16);
+
+        sb.getTeams().forEach((t) -> {
+            if (t.getName().matches(".+_"+id)) t.unregister();
+        });
+
+        Team red = sb.registerNewTeam(conf.redTeamID()+"_" + id);
+        Team blue = sb.registerNewTeam(conf.blueTeamID()+"_" + id);
+        Team yellow = sb.registerNewTeam(conf.yellowTeamID()+"_" + id);
+        Team green = sb.registerNewTeam(conf.greenTeamID()+"_"+ id);
+        Team spec = sb.registerNewTeam(conf.spectatorTeamID()+"_" + id);
 
         red.setColor(conf.redTeamChatColor());
         blue.setColor(conf.blueTeamChatColor());
@@ -248,12 +245,8 @@ public class ANNIGame {
         return stat;
     }
 
-    public int getId() {
+    public String getID() {
         return id;
-    }
-
-    public String getId16() {
-        return id16;
     }
 
     public BossBar getBossBar() {
@@ -411,7 +404,7 @@ public class ANNIGame {
                                 )
                         ) broadcast(bm);
                     }
-                    else {
+                    else if (getNotLostTeams().size() == 1){
                         try {
                             ANNITeam wt = getNotLostTeams().get(0);
                             Team wts = getScoreBoardTeam(wt);
@@ -511,7 +504,7 @@ public class ANNIGame {
 
     public boolean start(){
         if (canStart()) {
-            copyWorld(id16+"_"+getMap().getWorld());
+            copyWorld(id+"_"+getMap().getWorld());
 
             changeStatus(ANNIStatus.PHASE_ONE);
 
@@ -537,7 +530,7 @@ public class ANNIGame {
                 Location nl = getMap().getNexusLocation(t, true);
                 BlockVector3 vec3 = BlockVector3.at(nl.getX(), nl.getY(), nl.getZ());
 
-                ProtectedCuboidRegion reg = new ProtectedCuboidRegion(t.name().toLowerCase()+"_nexus_"+id16, vec3, vec3);
+                ProtectedCuboidRegion reg = new ProtectedCuboidRegion(t.name().toLowerCase()+"_nexus_"+id, vec3, vec3);
                 reg.setFlag(Flags.BLOCK_BREAK, StateFlag.State.ALLOW);
                 reg.setPriority(91217);
 
@@ -620,7 +613,7 @@ public class ANNIGame {
         end(true);
         bb.setVisible(false);
         bb.removeAll();
-        Bukkit.removeBossBar(new NamespacedKey(plugin, id16));
+        Bukkit.removeBossBar(new NamespacedKey(plugin, id));
         bbbr.cancel();
     }
 
@@ -667,9 +660,9 @@ public class ANNIGame {
                     ProtectedRegion val = man.getRegions().get(rk);
                     ProtectedRegion nr;
                     if (val.getType() == RegionType.POLYGON) {
-                        nr = new ProtectedPolygonalRegion(val.getId()+"_"+id16, val.getPoints(), val.getMinimumPoint().getY(), val.getMaximumPoint().getY());
+                        nr = new ProtectedPolygonalRegion(val.getId()+"_"+id, val.getPoints(), val.getMinimumPoint().getY(), val.getMaximumPoint().getY());
                     } else if (val.getType() == RegionType.CUBOID){
-                        nr = new ProtectedCuboidRegion(val.getId()+"_"+id16, val.getMinimumPoint(), val.getMaximumPoint());
+                        nr = new ProtectedCuboidRegion(val.getId()+"_"+id, val.getMinimumPoint(), val.getMaximumPoint());
                     } else continue;
 
                     if (val.getId().startsWith("anni_inf_log")) {
@@ -743,6 +736,19 @@ public class ANNIGame {
 
             for (Player p : getPlayers(t)) {
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1, 2);
+            }
+        }
+    }
+
+    public void setNexusHealth(ANNITeam t, Integer h) {
+        if (t == null || h == null) return;
+
+        if (!t.isSpectator()) {
+            nexusHealth.put(t,h);
+            if (isLose(t) && h > 0) {
+                losedTeams.put(t, false);
+            } else if (!isLose(t)){
+                loseTeam(t);
             }
         }
     }
@@ -918,6 +924,10 @@ public class ANNIGame {
 
     public TeamPlayerInventory getSavedInventory(UUID id) {
         return savedInv.get(id);
+    }
+
+    public Map<UUID, TeamPlayerInventory> getSavedInventories() {
+        return savedInv;
     }
 
     public void removeSavedInventory(UUID id) {

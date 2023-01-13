@@ -61,7 +61,7 @@ public class UpdateBoard extends BukkitRunnable {
                     } else tm = "開始まであと "+ANNIUtil.toTimerFormat(gm.getGame().getTimer());
 
                     b.setAll(
-                            "§8" + annig.getId16(),
+                            "§8" + annig.getID(),
                             "§8" + sdf.format(d),
                             "   ",
                             tm,
@@ -74,7 +74,7 @@ public class UpdateBoard extends BukkitRunnable {
                 } else {
                     if (gm.getRuleType() == 2) {
                         b.setAll(
-                                "§8" + annig.getId16(),
+                                "§8" + annig.getID(),
                                 "§8" + sdf.format(d),
                                 "   ",
                                 "マップ: §c" + mn,
@@ -87,7 +87,7 @@ public class UpdateBoard extends BukkitRunnable {
                         );
                     } else {
                         b.setAll(
-                                "§8" + annig.getId16() + " " + sdf.format(d),
+                                "§8" + annig.getID() + " " + sdf.format(d),
                                 "§8" + sdf.format(d),
                                 "   ",
                                 "マップ: §c" + mn,
@@ -121,7 +121,7 @@ public class UpdateBoard extends BukkitRunnable {
                         "§9§nnekozouneko.net"
                 );
             } else {
-                if (nb.hasBoard(p)) nb.removeBoard(p);
+                if (nb.hasBoard(p) || nb.getBoard(p) != null) nb.deleteBoard(p);
             }
         }
     }
