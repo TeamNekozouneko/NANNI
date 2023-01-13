@@ -12,14 +12,14 @@ public class PlayerDropItemListener implements Listener {
     public void onDrop(PlayerDropItemEvent e) {
         ItemStack drop = e.getItemDrop().getItemStack();
 
-        if (drop.hasItemMeta()) {
-            if (drop.getItemMeta().hasLore()) {
+        if (drop.hasItemMeta() && drop.getItemMeta() != null) {
+            if (drop.getItemMeta().hasLore() && drop.getItemMeta().getLore() != null) {
                 if (drop.getItemMeta().getLore().contains("§8Kit item")) {
                     e.getItemDrop().remove();
                     e.getPlayer().sendMessage("§cキット付属のアイテムのため削除されました。");
                     e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 2f);
                 }
-                else if (drop.getItemMeta().getLore().contains("§8Undroppable item")) {
+                else if (drop.getItemMeta().getLore().contains("§8Undroppable item") || drop.getItemMeta().getLore().contains("§8Soulbound")) {
                     e.setCancelled(true);
                     e.getPlayer().sendMessage("§cドロップ禁止のアイテムのためキャンセルされました。");
                 }

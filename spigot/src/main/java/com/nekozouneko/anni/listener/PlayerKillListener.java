@@ -64,7 +64,11 @@ public class PlayerKillListener implements Listener {
                 ANNIPlugin.getVaultEconomy().depositPlayer(killer, 10.);
 
                 killer.sendMessage("§a+10 Nekozouneko Anni Point §7(NAP)");
-                g.broadcast("§7" + ANNIUtil.teamPrefixSuffixAppliedName(killed) + " §f<- §7" + ANNIUtil.teamPrefixSuffixAppliedName(killer));
+                g.broadcast(
+                        "§7" + ANNIUtil.teamPrefixSuffixAppliedName(killed)+ANNIUtil.getKitShortIdWithBrackets(killed)
+                                + " §f<- §7"
+                                + ANNIUtil.teamPrefixSuffixAppliedName(killer)+ANNIUtil.getKitShortIdWithBrackets(killer)
+                );
 
                 /*killed.teleport(killer);
                 killed.setGameMode(GameMode.SPECTATOR);
@@ -81,10 +85,11 @@ public class PlayerKillListener implements Listener {
             dropped.stream()
                     .filter(o -> (
                                     Objects.nonNull(o)
-                                    && !(Objects.nonNull(o.getItemMeta()) && o.hasItemMeta()
-                                    && Objects.nonNull(o.getItemMeta().getLore()) && o.getItemMeta().hasLore()
+                                    && !(o.getItemMeta() != null && o.hasItemMeta()
+                                    && o.getItemMeta().getLore() != null
                                     && ((o.getItemMeta().getLore().contains("§8Kit item"))
-                                    || o.getItemMeta().getLore().contains("§8Kit Undroppable item")))
+                                    || o.getItemMeta().getLore().contains("§8Undroppable item")
+                                    || o.getItemMeta().getLore().contains("§8Soulbound")))
                             )
                     ).forEach(filtered::add);
 
