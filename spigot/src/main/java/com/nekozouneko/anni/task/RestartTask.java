@@ -29,6 +29,10 @@ public class RestartTask extends BukkitRunnable {
             g.restart();
             cancel();
         } else {
+            if (g.getNotLostTeams().size() > 1) {
+                super.cancel();
+            }
+
             if (time > 5) {
                 if (time % 5 == 0) {
                     g.broadcast("再起動まであと" + time + "秒");
